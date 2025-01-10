@@ -1,7 +1,7 @@
 
 # **zzlongplot**
 
-`zzlongplot` is  an R package for flexible, dynamic visualization of observed and change values in longitudinal datasets. Designed for both continuous and categorical variables, `zzlongplot` simplifies the creation of grouped and faceted plots, offering customization options for axes, titles, and error representations. 
+`zzlongplot` is an R package for flexible, dynamic visualization of observed and change values in longitudinal datasets. Designed for both continuous and categorical variables, `zzlongplot` simplifies the creation of grouped and faceted plots, offering customization options for axes, titles, and error representations. 
 
 This package is particularly useful for analyzing longitudinal clinical trial data, repeated measures, or any data with a time- or visit-dependent structure.
 
