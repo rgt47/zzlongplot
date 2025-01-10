@@ -1,9 +1,11 @@
 Package: zzlongplot
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Longitudinal Ploting with Flexible Formula Syntax
+Version: 0.0.0.1000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("RG", "Thomas", , "rgthomas@ucsd.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-1686-4965"))
+Description: A package to flexibly define longitudinal plots with optional
+grouping, change scores plot, and facetting. 
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
