@@ -85,12 +85,14 @@ lplot <- function(
     df, parsed_form$x, parsed_form$y, parsed_form$group, clustervar, zeroval
   )
   
+ stats_cng = stats  |> select(-bu, -bl)  |> 
+   select(everything(), bl = bl_cng, bu = bu_cng) 
   # Generate the observed and change plots
   fig_obs <- generate_plot(
     stats, parsed_form$x, "mn", "grp", etype, xlab, ylab, title, subtitle, caption, parsed_facet
   )
   fig_cng <- generate_plot(
-    stats, parsed_form$x, "cng_mn", "grp", etype, xlab, ylab2, title2, subtitle2, caption2, parsed_facet
+    stats_cng, parsed_form$x, "cng_mn", "grp", etype, xlab, ylab2, title2, subtitle2, caption2, parsed_facet
   )
   
   # Return the requested plots
@@ -290,7 +292,6 @@ compute_stats <- function(df, x, y, group, clustervar, zeroval) {
       grp = if (!is.null(groups)) interaction(!!!syms(groups)) else NULL,
       is_continuous = is_continuous
     )
-  
   return(df)
 }
 #' Generate Custom ggplot2 Visualization
@@ -357,7 +358,8 @@ generate_plot <- function(stats, x, y, grp, etype, xlab, ylab, title, subtitle, 
     color = if (!is.null(grp)) .data[[grp]] else NULL,
     fill = if (!is.null(grp)) .data[[grp]] else NULL
   )) +
-    ggplot2::geom_line(ggplot2::aes(linetype = if (!is.null(grp)) .data[[grp]] else NULL)) +
+    # ggplot2::geom_line(ggplot2::aes(linetype = if (!is.null(grp)) .data[[grp]] else NULL)) +
+    ggplot2::geom_line(ggplot2::aes(linetype = 'solid')) +
     {
       if (etype == "bar") {
         ggplot2::geom_errorbar(ggplot2::aes(ymin = bl, ymax = bu), width = 0.2, color = "black", alpha = 0.3)
