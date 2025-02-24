@@ -1,11 +1,12 @@
 
 ---
 title: "Getting Started with zzlongplot"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Getting Started with zzlongplot}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: pdf_document
+# output: rmarkdown::html_vignette
+# vignette: >
+#   %\VignetteIndexEntry{Getting Started with zzlongplot}
+#   %\VignetteEngine{knitr::rmarkdown}
+#   %\VignetteEncoding{UTF-8}
 ---
 
 # Introduction
