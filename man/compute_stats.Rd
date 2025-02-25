@@ -4,35 +4,52 @@
 \alias{compute_stats}
 \title{Compute Summary Statistics for Longitudinal Data}
 \usage{
-compute_stats(df, x, y, group, clustervar, zeroval)
+compute_stats(df, x_var, y_var, group_var, cluster_var, baseline_value)
 }
 \arguments{
 \item{df}{A data frame containing the data to be plotted.}
 
-\item{x}{The independent variable (x-axis).}
+\item{x_var}{The independent variable (x-axis) name.}
 
-\item{y}{The dependent variable (y-axis).}
+\item{y_var}{The dependent variable (y-axis) name.}
 
-\item{group}{Grouping variable for data.}
+\item{group_var}{Grouping variable for data (optional).}
 
-\item{clustervar}{Cluster variable for within-subject grouping.}
+\item{cluster_var}{Cluster variable for within-subject grouping (subject ID).}
 
-\item{zeroval}{Baseline value for calculating changes.}
+\item{baseline_value}{Baseline value for calculating changes.}
 }
 \value{
-A data frame containing the computed statistics.
+A data frame containing the computed statistics with columns:
+\itemize{
+\item Original x and group variables
+\item mean_value: Mean of y values
+\item change_mean: Mean of change from baseline
+\item sample_size: Number of observations
+\item standard_deviation: Standard deviation of y values
+\item change_sd: Standard deviation of change values
+\item standard_error: Standard error of mean
+\item change_se: Standard error of change mean
+\item bound_lower/bound_upper: Lower/upper bounds for error bars (mean ± SE)
+\item bound_lower_change/bound_upper_change: Bounds for change value error bars
+\item group: Factor combining all grouping variables
+\item is_continuous: Boolean indicating if x is continuous
+}
 }
 \description{
-Computes summary statistics for observed and change values, supporting both
-continuous and categorical x-axis variables.
+Computes summary statistics for observed and change values in longitudinal data,
+supporting both continuous and categorical x-axis variables.
 }
 \examples{
 df <- data.frame(
-  rid = rep(1:10, each = 3),
+  subject_id = rep(1:10, each = 3),
   visit = rep(c(0, 1, 2), times = 10),
   measure = rnorm(30, mean = 50, sd = 10),
   group = rep(c("A", "B"), length.out = 30)
 )
-compute_stats(df, "visit", "measure", "group", "rid", 0)
+# Compute statistics with visit as x variable, measure as y variable,
+# grouped by treatment group, with subject_id as the cluster variable
+stats <- compute_stats(df, "visit", "measure", "group", "subject_id", 0)
+head(stats)
 
 }

@@ -26,9 +26,8 @@ A list with four components:
 }
 \description{
 Parses an R formula object into its constituent components for use in longitudinal
-plotting functions. This function is primarily used internally by \code{lplot()} to
-extract variables for plotting observed values and changes over time, with optional
-grouping and faceting specifications.
+plotting functions. This function extracts variables for plotting observed values
+and changes over time, with optional grouping and faceting specifications.
 }
 \details{
 The function processes formula components in the following order:
@@ -43,12 +42,6 @@ Multiple faceting variables should be separated by '+'. The function is designed
 to work with both continuous and categorical x-variables, supporting the flexible
 plotting capabilities of the zzlongplot package.
 }
-\section{Package Internal}{
-
-This function is primarily used internally by \code{\link[=lplot]{lplot()}} but is exported
-for use in custom applications of the formula parsing system.
-}
-
 \examples{
 # Simple longitudinal measurement
 parse_formula(score ~ visit)
@@ -62,11 +55,4 @@ parse_formula(score ~ visit | treatment ~ site)
 # With treatment group and multiple facets
 parse_formula(score ~ visit | treatment ~ site + gender)
 
-# Using more specific variable names
-parse_formula(Blood.Pressure ~ Week | Drug.Group ~ Center + Age.Group)
-
 }
-\seealso{
-\code{\link[=lplot]{lplot()}}, \code{\link[=compute_stats]{compute_stats()}}, \code{\link[=generate_plot]{generate_plot()}}
-}
-\keyword{internal}

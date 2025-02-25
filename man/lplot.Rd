@@ -2,25 +2,26 @@
 % Please edit documentation in R/zzlongplot.R
 \name{lplot}
 \alias{lplot}
-\title{Flexible Plotting of Observed and Change Values with Grouping and Faceting}
+\title{Create Longitudinal Plots for Observed and Change Values}
 \usage{
 lplot(
   df,
   form,
   facet_form = NULL,
-  clustervar = "rid",
-  zeroval = "bl",
+  cluster_var = "subject_id",
+  baseline_value = "baseline",
   xlab = "visit",
   ylab = "measure",
   ylab2 = "measure change",
-  title = "measure",
-  title2 = "measure change",
+  title = "Observed Values",
+  title2 = "Change from Baseline",
   subtitle = "",
   subtitle2 = "",
   caption = "",
   caption2 = "",
-  ytype = "obs",
-  etype = "bar"
+  plot_type = "obs",
+  error_type = "bar",
+  color_palette = NULL
 )
 }
 \arguments{
@@ -32,10 +33,10 @@ y-axis. Format: \code{y ~ x | group}.}
 \item{facet_form}{A formula specifying the variables for faceting. Format:
 \code{facet_y ~ facet_x}. Default is \code{NULL}.}
 
-\item{clustervar}{A character string specifying the name of the cluster
-variable for grouping within subjects.}
+\item{cluster_var}{A character string specifying the name of the cluster
+variable for grouping within subjects (typically a participant or subject ID).}
 
-\item{zeroval}{The baseline value of the x variable, used to calculate changes.
+\item{baseline_value}{The baseline value of the x variable, used to calculate changes.
 For categorical x variables, this is treated as a level. For continuous x
 variables, this is treated as a numeric value.}
 
@@ -57,54 +58,46 @@ variables, this is treated as a numeric value.}
 
 \item{caption2}{Caption for the change values plot.}
 
-\item{ytype}{Type of plot to return. Options are \code{"obs"} (observed values),
-\code{"cng"} (change values), or \code{"both"} for combined plots.}
+\item{plot_type}{Type of plot to return. Options are \code{"obs"} (observed values),
+\code{"change"} (change values), or \code{"both"} for combined plots.}
 
-\item{etype}{Type of error representation. Options are \code{"bar"} (error bars) or
-\code{"band"} (error ribbons).}
+\item{error_type}{Type of error representation. Options are \code{"bar"} for error bars
+(vertical lines showing standard error) or \code{"band"} for error ribbons
+(shaded areas around the line).}
+
+\item{color_palette}{Optional vector of colors to use for groups. If NULL,
+default ggplot colors are used.}
 }
 \value{
 A ggplot2 object or a combination of objects representing the requested
 plots.
 }
 \description{
-These functions provide a flexible framework for generating observed
-and change plots using a data frame, accommodating both continuous and
-categorical variables for the x-axis. They handle baseline (\code{zeroval})
-specification, grouping, and faceting. This version allows the user to return
-either the observed plot, the change plot, or both combined side-by-side using
-the \strong{patchwork} package.
-}
-\details{
-\itemize{
-\item \code{compute_stats}: Computes summary statistics for observed and change values,
-adapting to continuous or categorical x-axis variables.
-\item \code{generate_plot}: Dynamically generates ggplot objects based on whether the
-x-axis is continuous or categorical, supports error representation (bars or
-ribbons), and faceting.
-\item \code{parse_formula}: Parses the formula to extract dependent, independent,
-grouping, and faceting variables.
-\item \code{lplot}: Combines the functionality of the helper functions to produce
-the final plots or combined plots as specified.
-}
+Generates flexible plots for longitudinal data, showing either
+observed values, change from baseline, or both. Supports grouping and faceting.
 }
 \examples{
-# Continuous x variable
+# Example with continuous x variable
 df <- data.frame(
-  rid = rep(1:10, each = 3),
+  subject_id = rep(1:10, each = 3),
   visit = rep(c(0, 1, 2), times = 10),
   measure = rnorm(30, mean = 50, sd = 10),
-  group = rep(c("A", "B"), length.out = 30)
+  group = rep(c("Treatment", "Control"), length.out = 30)
 )
-lplot(df, measure ~ visit | group, zeroval = 0)
+# Plot observed values by visit and group
+lplot(df, measure ~ visit | group, baseline_value = 0, 
+      cluster_var = "subject_id")
 
-# Categorical x variable
-df <- data.frame(
-  rid = rep(1:10, each = 3),
+# Example with categorical x variable
+df2 <- data.frame(
+  subject_id = rep(1:10, each = 3),
   visit = rep(c("baseline", "month1", "month2"), times = 10),
   measure = rnorm(30, mean = 50, sd = 10),
-  group = rep(c("A", "B"), length.out = 30)
+  group = rep(c("Treatment", "Control"), length.out = 30)
 )
-lplot(df, measure ~ visit | group, zeroval = "baseline")
+# Plot both observed and change values
+lplot(df2, measure ~ visit | group, baseline_value = "baseline",
+      cluster_var = "subject_id", plot_type = "both",
+      title = "Treatment Response", title2 = "Change from Baseline")
 
 }

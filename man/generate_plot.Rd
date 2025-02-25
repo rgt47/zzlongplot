@@ -2,34 +2,36 @@
 % Please edit documentation in R/zzlongplot.R
 \name{generate_plot}
 \alias{generate_plot}
-\title{Generate Custom ggplot2 Visualization}
+\title{Generate Custom ggplot2 Visualization for Longitudinal Data}
 \usage{
 generate_plot(
   stats,
-  x,
-  y,
-  grp,
-  etype,
-  xlab,
-  ylab,
-  title,
-  subtitle,
-  caption,
-  facet
+  x_var,
+  y_var,
+  group_var = NULL,
+  error_type = "bar",
+  xlab = NULL,
+  ylab = NULL,
+  title = NULL,
+  subtitle = NULL,
+  caption = NULL,
+  facet = NULL,
+  color_palette = NULL
 )
 }
 \arguments{
 \item{stats}{A data frame containing the data to be plotted. Must include the columns
-specified in \code{x}, \code{y}, and optionally \code{grp}, \code{bl}, and \code{bu} for error visualization.}
+specified in \code{x_var}, \code{y_var}, and optionally \code{group_var}, \code{bound_lower},
+and \code{bound_upper} for error visualization.}
 
-\item{x}{A string specifying the column name for the x-axis variable.}
+\item{x_var}{A string specifying the column name for the x-axis variable.}
 
-\item{y}{A string specifying the column name for the y-axis variable.}
+\item{y_var}{A string specifying the column name for the y-axis variable.}
 
-\item{grp}{A string specifying the column name for the grouping variable (optional).}
+\item{group_var}{A string specifying the column name for the grouping variable.}
 
-\item{etype}{A string specifying the error type. Use \code{"bar"} for error bars or
-any other value for ribbons.}
+\item{error_type}{A string specifying the error type. Use \code{"bar"} for error bars or
+\code{"band"} for ribbons.}
 
 \item{xlab}{A string for the x-axis label.}
 
@@ -43,40 +45,40 @@ any other value for ribbons.}
 
 \item{facet}{A list specifying faceting variables. Use \code{facet_x} for columns
 and \code{facet_y} for rows. Both are optional.}
+
+\item{color_palette}{Optional vector of colors to use. If NULL, default ggplot
+colors are used.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot} object representing the visualization.
 }
 \description{
-This function creates customizable visualizations using \code{ggplot2}. It supports
-dynamic axis scaling, optional grouping, faceting, and error visualization
+Creates customizable visualizations using \code{ggplot2} for longitudinal data.
+Supports dynamic axis scaling, optional grouping, faceting, and error visualization
 with ribbons or error bars.
 }
 \examples{
 library(ggplot2)
 data <- data.frame(
   x = rep(1:10, each = 2),
-  y = c(1:10, 2:11),
-  grp = rep(c("A", "B"), 10),
-  bl = c(0.8 * (1:10), 1:10),
-  bu = c(1.2 * (1:10), 2:11),
+  mean_value = c(1:10, 2:11),
+  group = rep(c("A", "B"), 10),
+  bound_lower = c(0.8 * (1:10), 1:10),
+  bound_upper = c(1.2 * (1:10), 2:11),
   is_continuous = TRUE
 )
 
-facet_settings <- list(facet_x = NULL, facet_y = "grp")
-
+# Create a plot with error bands
 plot <- generate_plot(
   stats = data,
-  x = "x",
-  y = "y",
-  grp = "grp",
-  etype = "ribbon",
-  xlab = "X-axis Label",
-  ylab = "Y-axis Label",
-  title = "Plot Title",
-  subtitle = "Subtitle Here",
-  caption = "Caption Here",
-  facet = facet_settings
+  x_var = "x",
+  y_var = "mean_value",
+  group_var = "group",
+  error_type = "band",
+  xlab = "Time",
+  ylab = "Measurement",
+  title = "Example Plot"
 )
 print(plot)
+
 }

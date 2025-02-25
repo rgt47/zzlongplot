@@ -2,6 +2,7 @@
 
 export(compute_stats)
 export(generate_plot)
+export(get_colorblind_palette)
 export(lplot)
 export(parse_formula)
 import(dplyr)
