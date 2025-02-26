@@ -15,7 +15,9 @@ BugReports: https://github.com/rgt47/zzlongplot/issues
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    RColorBrewer, 
+    conflicted
 Config/testthat/edition: 3
 Imports: 
     dplyr,

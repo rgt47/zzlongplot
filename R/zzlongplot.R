@@ -27,7 +27,7 @@ NULL
 utils::globalVariables(c(
   "change", "standard_deviation", "sample_size", "change_sd", 
   "mean_value", "standard_error", "change_mean", "change_se", 
-  "bound_lower", "bound_upper"
+  "bound_lower", "bound_upper", "bound_lower_change", "bound_upper_change"
 ))
 
 #' @title Create Longitudinal Plots for Observed and Change Values
@@ -143,13 +143,20 @@ lplot <- function(
   )
   
   # Prepare stats for change plot
-  stats_change <- stats %>%
-    dplyr::select(-bound_upper, -bound_lower) %>%
-    dplyr::select(
-      dplyr::everything(), 
-      bound_lower = bound_lower_change, 
-      bound_upper = bound_upper_change
-    )
+# Prepare stats for change plot
+stats_change <- stats %>%
+  dplyr::select(-bound_upper, -bound_lower) %>%
+  dplyr::rename(
+    bound_lower = bound_lower_change,
+    bound_upper = bound_upper_change
+  )
+  # stats_change <- stats %>%
+  #   dplyr::select(-bound_upper, -bound_lower) %>%
+  #   dplyr::select(
+  #     dplyr::everything(), 
+  #     bound_lower = bound_lower_change, 
+  #     bound_upper = bound_upper_change
+  #   )
   
   # Generate the observed and change plots
   fig_obs <- generate_plot(
