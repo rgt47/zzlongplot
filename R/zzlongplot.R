@@ -141,7 +141,6 @@ lplot <- function(
     cluster_var = cluster_var, 
     baseline_value = baseline_value
   )
-  
   # Prepare stats for change plot
 # Prepare stats for change plot
 stats_change <- stats %>%
@@ -395,8 +394,9 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
       bound_upper_change = change_mean + change_se,
       group = if (!is.null(groups)) interaction(!!!syms(groups)) else "all",
       is_continuous = is_continuous
-    )
-  
+    )  |>
+  dplyr::filter(!is.na(mean_value)) # added 3/11/25 to remove NAs
+
   return(result)
 }
 
