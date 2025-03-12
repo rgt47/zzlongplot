@@ -395,7 +395,8 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
       bound_upper_change = change_mean + change_se,
       group = if (!is.null(groups)) interaction(!!!syms(groups)) else "all",
       is_continuous = is_continuous
-    )
+    )  |>
+    dplyr::filter(!is.na(mean_value))
   
   return(result)
 }
