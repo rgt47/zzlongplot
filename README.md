@@ -99,8 +99,8 @@ The main function for generating plots. Combines the functionality of helper fun
   - `df`: The data frame containing the data.
   - `form`: A formula specifying the dependent (`y`) and independent (`x`) variables, as well as grouping variables.
   - `facet_form`: An optional formula for faceting.
-  - `clustervar`: The column name for the clustering variable.
-  - `zeroval`: The baseline value for calculating changes.
+  - `cluster_var`: The column name for the clustering variable.
+  - `baseline_value`: The baseline value for calculating changes.
   - Other arguments for customizing axis labels, titles, and error types.
 
 ---
@@ -108,7 +108,7 @@ The main function for generating plots. Combines the functionality of helper fun
 ### Helper Functions
 
 - **`compute_stats`**:
-  Computes summary statistics for observed and change values, accounting for grouping, faceting, and baseline (`zeroval`).
+  Computes summary statistics for observed and change values, accounting for grouping, faceting, and baseline (`baseline_value`).
 
 - **`generate_plot`**:
   Creates a ggplot object with dynamic axis scaling, grouping, faceting, and error representation.
@@ -129,7 +129,7 @@ You can customize how errors are displayed:
 Faceting allows stratified visualizations. Use the `facet_form` argument to specify row and column facets.
 
 ### Combining Plots
-Use the `"both"` option for `ytype` to display observed and change plots side-by-side using the **patchwork** package.
+Use the `"both"` option for `plot_type` to display observed and change plots side-by-side using the **patchwork** package.
 
 ---
 

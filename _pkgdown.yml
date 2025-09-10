@@ -1,0 +1,27 @@
+url: https://rgt47.github.io/zzlongplot/
+template:
+  bootstrap: 5
+
+reference:
+- title: Main Functions
+  desc: Core plotting functions
+  contents:
+  - lplot
+  
+- title: Helper Functions
+  desc: Functions for data processing and plot generation
+  contents:
+  - parse_formula
+  - compute_stats
+  - generate_plot
+  
+- title: Utilities
+  desc: Utility functions for customization
+  contents:
+  - get_colorblind_palette
+
+articles:
+- title: Get started
+  navbar: ~
+  contents:
+  - zzlongplot-vignette

@@ -1,0 +1,192 @@
+#' @title Flexible Plotting of Observed and Change Values with Grouping and Faceting
+#' @name zzlongplot-package
+#' 
+#' @description These functions provide a flexible framework for generating observed
+#' and change plots using a data frame, accommodating both continuous and 
+#' categorical variables for the x-axis. They handle baseline (`baseline_value`) 
+#' specification, grouping, and faceting. This version allows the user to return 
+#' either the observed plot, the change plot, or both combined side-by-side using 
+#' the **patchwork** package.
+#'
+#' @details
+#' - `compute_stats`: Computes summary statistics for observed and change values, 
+#'   adapting to continuous or categorical x-axis variables.
+#' - `generate_plot`: Dynamically generates ggplot objects based on whether the 
+#'   x-axis is continuous or categorical, supports error representation (bars or 
+#'   ribbons), and faceting.
+#' - `parse_formula`: Parses the formula to extract dependent, independent, 
+#'   grouping, and faceting variables.
+#' - `lplot`: Combines the functionality of the helper functions to produce 
+#'   the final plots or combined plots as specified.
+#'
+#' @import dplyr ggplot2 patchwork
+NULL
+
+# Declare global variables to avoid R CMD check notes
+#' @noRd
+utils::globalVariables(c(
+  "change", "standard_deviation", "sample_size", "change_sd", 
+  "mean_value", "standard_error", "change_mean", "change_se", 
+  "bound_lower", "bound_upper", "bound_lower_change", "bound_upper_change"
+))
+
+#' @title Create Longitudinal Plots for Observed and Change Values
+#'
+#' @description Generates flexible plots for longitudinal data, showing either 
+#' observed values, change from baseline, or both. Supports grouping and faceting.
+#'
+#' @param df A data frame containing the data to be plotted.
+#' @param form A formula specifying the variables for the x-axis, grouping, and 
+#'   y-axis. Format: `y ~ x | group`.
+#' @param facet_form A formula specifying the variables for faceting. Format: 
+#'   `facet_y ~ facet_x`. Default is `NULL`.
+#' @param cluster_var A character string specifying the name of the cluster 
+#'   variable for grouping within subjects (typically a participant or subject ID).
+#' @param baseline_value The baseline value of the x variable, used to calculate changes.
+#'   For categorical x variables, this is treated as a level. For continuous x 
+#'   variables, this is treated as a numeric value.
+#' @param xlab Label for the x-axis.
+#' @param ylab Label for the y-axis of the observed values plot.
+#' @param ylab2 Label for the y-axis of the change values plot.
+#' @param title Title for the observed values plot.
+#' @param title2 Title for the change values plot.
+#' @param subtitle Subtitle for the observed values plot.
+#' @param subtitle2 Subtitle for the change values plot.
+#' @param caption Caption for the observed values plot.
+#' @param caption2 Caption for the change values plot.
+#' @param plot_type Type of plot to return. Options are `"obs"` (observed values), 
+#'   `"change"` (change values), or `"both"` for combined plots.
+#' @param error_type Type of error representation. Options are `"bar"` for error bars 
+#'   (vertical lines showing standard error) or `"band"` for error ribbons 
+#'   (shaded areas around the line).
+#' @param color_palette Optional vector of colors to use for groups. If NULL, 
+#'   default ggplot colors are used.
+#'
+#' @return A ggplot2 object or a combination of objects representing the requested 
+#'   plots.
+#'
+#' @examples
+#' # Example with continuous x variable
+#' df <- data.frame(
+#'   subject_id = rep(1:10, each = 3),
+#'   visit = rep(c(0, 1, 2), times = 10),
+#'   measure = rnorm(30, mean = 50, sd = 10),
+#'   group = rep(c("Treatment", "Control"), length.out = 30)
+#' )
+#' # Plot observed values by visit and group
+#' lplot(df, measure ~ visit | group, baseline_value = 0, 
+#'       cluster_var = "subject_id")
+#'
+#' # Example with categorical x variable
+#' df2 <- data.frame(
+#'   subject_id = rep(1:10, each = 3),
+#'   visit = rep(c("baseline", "month1", "month2"), times = 10),
+#'   measure = rnorm(30, mean = 50, sd = 10),
+#'   group = rep(c("Treatment", "Control"), length.out = 30)
+#' )
+#' # Plot both observed and change values
+#' lplot(df2, measure ~ visit | group, baseline_value = "baseline",
+#'       cluster_var = "subject_id", plot_type = "both",
+#'       title = "Treatment Response", title2 = "Change from Baseline")
+#'
+#' @export
+lplot <- function(
+  df, form, facet_form = NULL, cluster_var = "subject_id", baseline_value = "baseline",
+  xlab = "visit", ylab = "measure", ylab2 = "measure change",
+  title = "Observed Values", title2 = "Change from Baseline",
+  subtitle = "", subtitle2 = "", caption = "", caption2 = "",
+  plot_type = "obs", error_type = "bar", color_palette = NULL
+) {
+  # Input validation
+  if (!is.data.frame(df)) {
+    stop("Input 'df' must be a data frame")
+  }
+  
+  if (!inherits(form, "formula")) {
+    stop("Input 'form' must be a formula object")
+  }
+  
+  if (!is.null(facet_form) && !inherits(facet_form, "formula")) {
+    stop("If provided, 'facet_form' must be a formula object")
+  }
+  
+  if (!cluster_var %in% names(df)) {
+    stop(sprintf("Cluster variable '%s' not found in data frame", cluster_var))
+  }
+  
+  # Validate plot type
+  valid_plot_types <- c("obs", "change", "both")
+  if (!plot_type %in% valid_plot_types) {
+    stop(sprintf("Invalid plot_type '%s'. Must be one of: %s", 
+                 plot_type, paste(valid_plot_types, collapse = ", ")))
+  }
+  
+  # Validate error type
+  valid_error_types <- c("bar", "band")
+  if (!error_type %in% valid_error_types) {
+    stop(sprintf("Invalid error_type '%s'. Must be one of: %s", 
+                 error_type, paste(valid_error_types, collapse = ", ")))
+  }
+  
+  # Parse formulas
+  parsed_form <- parse_formula(form)
+  parsed_facet <- if (!is.null(facet_form)) parse_formula(facet_form) else NULL
+  
+  # Compute grouped statistics
+  stats <- compute_stats(
+    df = df, 
+    x_var = parsed_form$x, 
+    y_var = parsed_form$y, 
+    group_var = parsed_form$group, 
+    cluster_var = cluster_var, 
+    baseline_value = baseline_value
+  )
+  
+  # Prepare stats for change plot
+  stats_change <- stats %>%
+    dplyr::select(-bound_upper, -bound_lower) %>%
+    dplyr::rename(
+      bound_lower = bound_lower_change,
+      bound_upper = bound_upper_change
+    )
+  
+  # Generate the observed and change plots
+  fig_obs <- generate_plot(
+    stats = stats, 
+    x_var = parsed_form$x, 
+    y_var = "mean_value", 
+    group_var = "group",
+    error_type = error_type, 
+    xlab = xlab, 
+    ylab = ylab, 
+    title = title, 
+    subtitle = subtitle, 
+    caption = caption, 
+    facet = parsed_facet,
+    color_palette = color_palette
+  )
+  
+  fig_change <- generate_plot(
+    stats = stats_change, 
+    x_var = parsed_form$x, 
+    y_var = "change_mean", 
+    group_var = "group",
+    error_type = error_type, 
+    xlab = xlab, 
+    ylab = ylab2, 
+    title = title2, 
+    subtitle = subtitle2, 
+    caption = caption2, 
+    facet = parsed_facet,
+    color_palette = color_palette
+  )
+  
+  # Return the requested plots
+  if (plot_type == "obs") {
+    return(fig_obs)
+  } else if (plot_type == "change") {
+    return(fig_change)
+  } else if (plot_type == "both") {
+    return(fig_obs + fig_change + patchwork::plot_layout(ncol = 2))
+  }
+}
