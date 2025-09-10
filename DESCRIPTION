@@ -1,11 +1,13 @@
 Package: zzlongplot
-Title: Longitudinal Ploting with Flexible Formula Syntax
+Title: Longitudinal Plotting with Clinical Trials Support
 Version: 0.0.0.1000
 Authors@R: 
-    person("RG", "Thomas", , "rgthomas@ucsd.edu", role = c("aut", "cre"),
+    person("Ronald (Ryy) G", "Thomas", , "rgthomas@ucsd.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1686-4965"))
 Description: A package to flexibly define longitudinal plots with optional
-    grouping, change scores plot, and facetting. 
+    grouping, change scores plot, and facetting. Includes specialized support
+    for clinical trials with CDISC compliance, regulatory themes, and 
+    publication-ready output. 
 License: GPL (>= 3)
 Encoding: UTF-8
 Depends: R (>= 4.1.0)

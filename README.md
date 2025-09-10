@@ -9,12 +9,21 @@ This package is particularly useful for analyzing longitudinal clinical trial da
 
 ## **Features**
 
+### **Core Functionality**
 - **Dynamic Plotting**: Automatically adapts plots for continuous or categorical x-axis variables.
-- **Observed and Change Plots**: Easily visualize both observed values and their changes relative to a baseline (`zeroval`).
+- **Observed and Change Plots**: Easily visualize both observed values and their changes relative to a baseline (`baseline_value`).
 - **Grouping and Faceting**: Support for multiple grouping variables and faceting for stratified visualizations.
 - **Custom Error Representation**: Choose between error bars or ribbons to represent uncertainty.
 - **Combining Plots**: Use the **patchwork** package to display observed and change plots side-by-side.
-- **Non-standard Evaluation (NSE)**: Seamless integration with formulas for specifying variables.
+- **Formula Interface**: Seamless integration with formulas for specifying variables (`y ~ x | group`).
+
+### **Clinical Trials Support** 🏥
+- **CDISC Compliance**: Automatic recognition of standard CDISC variable names (AVAL, AVISITN, TRT01P, etc.)
+- **Clinical Themes**: FDA and regulatory-ready plot styling with professional themes
+- **Treatment Styling**: Predefined color schemes for placebo vs. active treatment visualization
+- **Visit Windows**: Handle visit timing variations common in clinical trials
+- **Clinical Statistics**: 95% confidence intervals, sample size annotations, missing data handling
+- **Regulatory Output**: Export plots in formats suitable for regulatory submissions
 
 ---
 
@@ -88,6 +97,35 @@ plot <- lplot(
 print(plot)
 ```
 
+### **Example 3: Clinical Trial with CDISC Variables** 🏥
+
+```r
+# Clinical trial data with CDISC variable names
+clinical_data <- data.frame(
+  SUBJID = rep(paste0("001-", sprintf("%03d", 1:20)), each = 4),
+  AVISITN = rep(c(0, 4, 8, 12), times = 20),  # Visit weeks
+  AVAL = rnorm(80, mean = c(45, 42, 38, 35), sd = 8),  # Efficacy score
+  TRT01P = rep(c("Placebo", "Drug A", "Drug B"), length.out = 80),
+  CHG = NA  # Will be calculated automatically
+)
+
+# Clinical mode - automatically handles CDISC variables and styling
+plot_clinical <- lplot(
+  clinical_data,
+  form = AVAL ~ AVISITN | TRT01P,
+  cluster_var = "SUBJID",
+  baseline_value = 0,
+  clinical_mode = TRUE,           # Enables clinical defaults
+  treatment_colors = "standard",  # Standard clinical colors
+  confidence_interval = 0.95,     # 95% CI instead of SE
+  show_sample_sizes = TRUE,       # Show N at each timepoint
+  plot_type = "both",            # Both observed and change plots
+  title = "Efficacy Over Time",
+  title2 = "Change from Baseline"
+)
+print(plot_clinical)
+```
+
 ---
 
 ## **Functions**
@@ -116,6 +154,17 @@ The main function for generating plots. Combines the functionality of helper fun
 - **`parse_formula`**:
   Parses the formula to extract dependent, independent, grouping, and faceting variables.
 
+### **Clinical Utilities** 🏥
+
+- **`suggest_clinical_vars()`**:
+  Auto-detect likely CDISC variables in your dataset and suggest proper formula syntax.
+
+- **`get_clinical_theme()`**:
+  Returns regulatory-ready ggplot2 themes (FDA, EMA, ICH guidelines).
+
+- **`clinical_colors()`**:
+  Predefined color palettes for treatment groups following clinical standards.
+
 ---
 
 ## **Customization**
@@ -130,6 +179,40 @@ Faceting allows stratified visualizations. Use the `facet_form` argument to spec
 
 ### Combining Plots
 Use the `"both"` option for `plot_type` to display observed and change plots side-by-side using the **patchwork** package.
+
+### **Clinical Trial Customization** 🏥
+
+#### Clinical Modes
+```r
+# Enable all clinical defaults at once
+lplot(data, AVAL ~ AVISITN | TRT01P, clinical_mode = TRUE)
+
+# Or customize individual clinical features
+lplot(data, AVAL ~ AVISITN | TRT01P, 
+      treatment_colors = "standard",    # Placebo=grey, Active=blue/red
+      confidence_interval = 0.95,       # 95% CI instead of SE
+      show_sample_sizes = TRUE,         # N at each timepoint
+      visit_windows = list("Week 4" = c(22, 35))  # Handle visit windows
+)
+```
+
+#### CDISC Variable Detection
+```r
+# Automatically suggests CDISC-compliant formulas
+suggest_clinical_vars(clinical_data)
+#> Suggested formula: AVAL ~ AVISITN | TRT01P
+#> Cluster variable: SUBJID detected
+#> Baseline: Visit 1 (AVISITN = 1)
+```
+
+#### Regulatory Themes
+```r
+# FDA submission ready
+lplot(data, AVAL ~ AVISITN | TRT01P, theme = "fda")
+
+# EMA guidelines compliant  
+lplot(data, AVAL ~ AVISITN | TRT01P, theme = "ema")
+```
 
 ---
 

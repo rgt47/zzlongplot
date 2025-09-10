@@ -61,6 +61,17 @@ utils::globalVariables(c(
 #'   (shaded areas around the line).
 #' @param color_palette Optional vector of colors to use for groups. If NULL, 
 #'   default ggplot colors are used.
+#' @param clinical_mode Logical. If TRUE, enables clinical trial defaults 
+#'   (95% CI, sample sizes, clinical colors). Default is FALSE.
+#' @param treatment_colors Character. Predefined color scheme for treatments. 
+#'   Options: "standard" (placebo=grey, active=colors), or NULL.
+#' @param confidence_interval Numeric. Confidence level for error bounds 
+#'   (e.g., 0.95 for 95% CI). If NULL, uses standard error.
+#' @param show_sample_sizes Logical. If TRUE, shows sample sizes at each timepoint.
+#' @param visit_windows List. Named list defining visit windows for grouping 
+#'   (e.g., list("Week 4" = c(22, 35))).
+#' @param theme Character. Predefined theme for regulatory compliance 
+#'   ("fda", "ema", or NULL for default).
 #'
 #' @return A ggplot2 object or a combination of objects representing the requested 
 #'   plots.
@@ -89,13 +100,29 @@ utils::globalVariables(c(
 #'       cluster_var = "subject_id", plot_type = "both",
 #'       title = "Treatment Response", title2 = "Change from Baseline")
 #'
+#' # Clinical trial example with CDISC variables
+#' clinical_data <- data.frame(
+#'   USUBJID = rep(paste0("001-", sprintf("%03d", 1:20)), each = 4),
+#'   AVISITN = rep(c(0, 1, 2, 3), times = 20),
+#'   AVAL = rnorm(80, mean = c(50, 48, 45, 42), sd = 8),
+#'   TRT01P = rep(c("Placebo", "Drug A", "Drug B"), length.out = 80)
+#' )
+#' 
+#' # Clinical mode with automatic CDISC handling
+#' lplot(clinical_data, AVAL ~ AVISITN | TRT01P, 
+#'       cluster_var = "USUBJID", baseline_value = 0,
+#'       clinical_mode = TRUE, plot_type = "both",
+#'       title = "Clinical Trial Results")
+#'
 #' @export
 lplot <- function(
   df, form, facet_form = NULL, cluster_var = "subject_id", baseline_value = "baseline",
   xlab = "visit", ylab = "measure", ylab2 = "measure change",
   title = "Observed Values", title2 = "Change from Baseline",
   subtitle = "", subtitle2 = "", caption = "", caption2 = "",
-  plot_type = "obs", error_type = "bar", color_palette = NULL
+  plot_type = "obs", error_type = "bar", color_palette = NULL,
+  clinical_mode = FALSE, treatment_colors = NULL, confidence_interval = NULL,
+  show_sample_sizes = FALSE, visit_windows = NULL, theme = NULL
 ) {
   # Input validation
   if (!is.data.frame(df)) {
