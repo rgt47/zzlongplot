@@ -16,7 +16,10 @@ generate_plot(
   subtitle = NULL,
   caption = NULL,
   facet = NULL,
-  color_palette = NULL
+  color_palette = NULL,
+  reference_lines = NULL,
+  show_sample_sizes = FALSE,
+  statistical_annotations = FALSE
 )
 }
 \arguments{
@@ -48,6 +51,13 @@ and \code{facet_y} for rows. Both are optional.}
 
 \item{color_palette}{Optional vector of colors to use. If NULL, default ggplot
 colors are used.}
+
+\item{reference_lines}{List of reference line specifications. Each element should
+be a list with components: value, axis ("x" or "y"), color, linetype, size.}
+
+\item{show_sample_sizes}{Logical. If TRUE, adds sample size annotations.}
+
+\item{statistical_annotations}{Logical. If TRUE, adds p-values and significance.}
 }
 \value{
 A \code{ggplot} object representing the visualization.

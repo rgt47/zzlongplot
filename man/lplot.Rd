@@ -27,7 +27,10 @@ lplot(
   confidence_interval = NULL,
   show_sample_sizes = FALSE,
   visit_windows = NULL,
-  theme = NULL
+  theme = NULL,
+  publication_ready = FALSE,
+  statistical_annotations = FALSE,
+  reference_lines = NULL
 )
 }
 \arguments{
@@ -90,6 +93,15 @@ Options: "standard" (placebo=grey, active=colors), or NULL.}
 
 \item{theme}{Character. Predefined theme for regulatory compliance
 ("fda", "ema", or NULL for default).}
+
+\item{publication_ready}{Logical. If TRUE, applies publication-ready defaults
+(professional theme, proper typography, clean styling).}
+
+\item{statistical_annotations}{Logical. If TRUE, adds p-values and significance
+indicators to the plots.}
+
+\item{reference_lines}{List of reference line specifications. Each should be a
+list with 'value', 'axis' ("x"/"y"), 'color', 'linetype', etc.}
 }
 \value{
 A ggplot2 object or a combination of objects representing the requested

@@ -4,7 +4,17 @@
 \alias{compute_stats}
 \title{Compute Summary Statistics for Longitudinal Data}
 \usage{
-compute_stats(df, x_var, y_var, group_var, cluster_var, baseline_value)
+compute_stats(
+  df,
+  x_var,
+  y_var,
+  group_var,
+  cluster_var,
+  baseline_value,
+  confidence_interval = NULL,
+  show_sample_sizes = FALSE,
+  statistical_tests = FALSE
+)
 }
 \arguments{
 \item{df}{A data frame containing the data to be plotted.}
@@ -18,6 +28,13 @@ compute_stats(df, x_var, y_var, group_var, cluster_var, baseline_value)
 \item{cluster_var}{Cluster variable for within-subject grouping (subject ID).}
 
 \item{baseline_value}{Baseline value for calculating changes.}
+
+\item{confidence_interval}{Numeric. Confidence level (e.g., 0.95 for 95\% CI).
+If specified, calculates confidence intervals instead of standard error.}
+
+\item{show_sample_sizes}{Logical. If TRUE, includes sample sizes in output.}
+
+\item{statistical_tests}{Logical. If TRUE, performs statistical comparisons.}
 }
 \value{
 A data frame containing the computed statistics with columns:
