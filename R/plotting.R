@@ -22,6 +22,10 @@
 #'   and `facet_y` for rows. Both are optional.
 #' @param color_palette Optional vector of colors to use. If NULL, default ggplot 
 #'   colors are used.
+#' @param reference_lines List of reference line specifications. Each element should
+#'   be a list with components: value, axis ("x" or "y"), color, linetype, size.
+#' @param show_sample_sizes Logical. If TRUE, adds sample size annotations.
+#' @param statistical_annotations Logical. If TRUE, adds p-values and significance.
 #'
 #' @return A `ggplot` object representing the visualization.
 #' 
@@ -63,7 +67,10 @@ generate_plot <- function(
   subtitle = NULL, 
   caption = NULL, 
   facet = NULL,
-  color_palette = NULL
+  color_palette = NULL,
+  reference_lines = NULL,
+  show_sample_sizes = FALSE,
+  statistical_annotations = FALSE
 ) {
   # Set x-axis scale based on whether x is continuous
   x_scale <- if (stats$is_continuous[1]) {
@@ -144,6 +151,53 @@ generate_plot <- function(
       rows = if (!is.null(facet$facet_y)) ggplot2::vars(.data[[facet$facet_y]]) else NULL,
       cols = if (!is.null(facet$facet_x)) ggplot2::vars(.data[[facet$facet_x]]) else NULL
     )
+  }
+  
+  # Add reference lines if specified
+  if (!is.null(reference_lines)) {
+    for (ref_line in reference_lines) {
+      if (ref_line$axis == "y" || is.null(ref_line$axis)) {
+        plot <- plot + ggplot2::geom_hline(
+          yintercept = ref_line$value,
+          color = ref_line$color %||% "red",
+          linetype = ref_line$linetype %||% "dashed", 
+          size = ref_line$size %||% 0.5,
+          alpha = ref_line$alpha %||% 0.7
+        )
+      } else if (ref_line$axis == "x") {
+        plot <- plot + ggplot2::geom_vline(
+          xintercept = ref_line$value,
+          color = ref_line$color %||% "red",
+          linetype = ref_line$linetype %||% "dashed",
+          size = ref_line$size %||% 0.5, 
+          alpha = ref_line$alpha %||% 0.7
+        )
+      }
+    }
+  }
+  
+  # Add sample size annotations if requested
+  if (show_sample_sizes && "sample_size" %in% names(stats)) {
+    plot <- plot + ggplot2::geom_text(
+      ggplot2::aes(label = paste("n =", .data[["sample_size"]])),
+      vjust = -0.5, size = 3, show.legend = FALSE,
+      color = "black", alpha = 0.7
+    )
+  }
+  
+  # Add statistical annotations if requested
+  if (statistical_annotations && "significance" %in% names(stats)) {
+    # Only show significant results
+    sig_stats <- stats[!is.na(stats$significance) & stats$significance != "ns" & stats$significance != "", ]
+    
+    if (nrow(sig_stats) > 0) {
+      plot <- plot + ggplot2::geom_text(
+        data = sig_stats,
+        ggplot2::aes(label = .data[["significance"]]),
+        vjust = -1.2, size = 4, show.legend = FALSE,
+        color = "black", fontface = "bold"
+      )
+    }
   }
   
   return(plot)

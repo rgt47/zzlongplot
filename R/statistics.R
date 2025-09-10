@@ -37,9 +37,16 @@
 #' stats <- compute_stats(df, "visit", "measure", "group", "subject_id", 0)
 #' head(stats)
 #' 
+#' @param confidence_interval Numeric. Confidence level (e.g., 0.95 for 95% CI).
+#'   If specified, calculates confidence intervals instead of standard error.
+#' @param show_sample_sizes Logical. If TRUE, includes sample sizes in output.
+#' @param statistical_tests Logical. If TRUE, performs statistical comparisons.
+#'
 #' @import dplyr
 #' @export
-compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_value) {
+compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_value, 
+                         confidence_interval = NULL, show_sample_sizes = FALSE, 
+                         statistical_tests = FALSE) {
   # Parse group into individual components
   groups <- if (!is.null(group_var)) strsplit(group_var, "\\s*\\+\\s*")[[1]] else NULL
   
@@ -102,14 +109,121 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
     dplyr::mutate(
       standard_error = standard_deviation / sqrt(sample_size),
       change_se = change_sd / sqrt(sample_size),
-      bound_lower = mean_value - standard_error,
-      bound_upper = mean_value + standard_error,
-      bound_lower_change = change_mean - change_se,
-      bound_upper_change = change_mean + change_se,
+      
+      # Calculate bounds (CI or SE based on parameters)
+      bound_lower = if (!is.null(confidence_interval)) {
+        mean_value - stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * standard_error
+      } else {
+        mean_value - standard_error
+      },
+      bound_upper = if (!is.null(confidence_interval)) {
+        mean_value + stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * standard_error
+      } else {
+        mean_value + standard_error
+      },
+      bound_lower_change = if (!is.null(confidence_interval)) {
+        change_mean - stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * change_se
+      } else {
+        change_mean - change_se
+      },
+      bound_upper_change = if (!is.null(confidence_interval)) {
+        change_mean + stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * change_se
+      } else {
+        change_mean + change_se
+      },
+      
+      # Add confidence level info
+      ci_level = if (!is.null(confidence_interval)) confidence_interval else NA,
+      
       group = if (!is.null(groups)) interaction(!!!syms(groups)) else "all",
       is_continuous = is_continuous
     ) |>
     dplyr::filter(!is.na(mean_value))
   
+  # Add statistical tests if requested
+  if (statistical_tests && !is.null(groups) && length(groups) == 1) {
+    result <- add_statistical_tests(result, df, x_var, y_var, groups[1], cluster_var)
+  }
+  
   return(result)
+}
+
+#' Add Statistical Tests to Summary Statistics
+#'
+#' @description
+#' Internal function to add statistical comparisons between groups.
+#'
+#' @param stats_df Summary statistics data frame.
+#' @param original_df Original data frame.
+#' @param x_var X variable name.
+#' @param y_var Y variable name. 
+#' @param group_var Group variable name.
+#' @param cluster_var Cluster variable name.
+#'
+#' @return Enhanced statistics data frame with p-values.
+#'
+#' @keywords internal
+add_statistical_tests <- function(stats_df, original_df, x_var, y_var, group_var, cluster_var) {
+  
+  # Get unique x values and groups
+  x_values <- unique(stats_df[[x_var]])
+  groups <- unique(stats_df[[group_var]])
+  
+  # Initialize p-value columns
+  stats_df$p_value <- NA
+  stats_df$p_adj <- NA
+  stats_df$significance <- NA
+  
+  # For each x value, perform group comparisons
+  for (x_val in x_values) {
+    # Get data for this x value
+    x_data <- original_df[original_df[[x_var]] == x_val, ]
+    
+    if (length(groups) == 2) {
+      # Two-group comparison (t-test)
+      group1_data <- x_data[x_data[[group_var]] == groups[1], ][[y_var]]
+      group2_data <- x_data[x_data[[group_var]] == groups[2], ][[y_var]]
+      
+      if (length(group1_data) > 1 && length(group2_data) > 1) {
+        test_result <- tryCatch({
+          stats::t.test(group1_data, group2_data)
+        }, error = function(e) NULL)
+        
+        if (!is.null(test_result)) {
+          # Add p-value to both groups for this x value
+          stats_df[stats_df[[x_var]] == x_val, "p_value"] <- test_result$p.value
+        }
+      }
+      
+    } else if (length(groups) > 2) {
+      # Multi-group comparison (ANOVA)
+      test_data <- x_data[, c(y_var, group_var)]
+      test_data <- test_data[complete.cases(test_data), ]
+      
+      if (nrow(test_data) > length(groups)) {
+        test_result <- tryCatch({
+          stats::aov(stats::as.formula(paste(y_var, "~", group_var)), data = test_data)
+        }, error = function(e) NULL)
+        
+        if (!is.null(test_result)) {
+          anova_summary <- summary(test_result)
+          p_val <- anova_summary[[1]][["Pr(>F)"]][1]
+          
+          # Add p-value to all groups for this x value
+          stats_df[stats_df[[x_var]] == x_val, "p_value"] <- p_val
+        }
+      }
+    }
+  }
+  
+  # Adjust p-values for multiple comparisons
+  stats_df$p_adj <- stats::p.adjust(stats_df$p_value, method = "BH")
+  
+  # Add significance levels
+  stats_df$significance <- ifelse(is.na(stats_df$p_adj), "",
+                                 ifelse(stats_df$p_adj < 0.001, "***",
+                                       ifelse(stats_df$p_adj < 0.01, "**",
+                                             ifelse(stats_df$p_adj < 0.05, "*", "ns"))))
+  
+  return(stats_df)
 }

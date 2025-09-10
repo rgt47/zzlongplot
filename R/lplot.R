@@ -72,6 +72,12 @@ utils::globalVariables(c(
 #'   (e.g., list("Week 4" = c(22, 35))).
 #' @param theme Character. Predefined theme for regulatory compliance 
 #'   ("fda", "ema", or NULL for default).
+#' @param publication_ready Logical. If TRUE, applies publication-ready defaults
+#'   (professional theme, proper typography, clean styling).
+#' @param statistical_annotations Logical. If TRUE, adds p-values and significance
+#'   indicators to the plots.
+#' @param reference_lines List of reference line specifications. Each should be a 
+#'   list with 'value', 'axis' ("x"/"y"), 'color', 'linetype', etc.
 #'
 #' @return A ggplot2 object or a combination of objects representing the requested 
 #'   plots.
@@ -122,7 +128,9 @@ lplot <- function(
   subtitle = "", subtitle2 = "", caption = "", caption2 = "",
   plot_type = "obs", error_type = "bar", color_palette = NULL,
   clinical_mode = FALSE, treatment_colors = NULL, confidence_interval = NULL,
-  show_sample_sizes = FALSE, visit_windows = NULL, theme = NULL
+  show_sample_sizes = FALSE, visit_windows = NULL, theme = NULL,
+  publication_ready = FALSE, statistical_annotations = FALSE,
+  reference_lines = NULL
 ) {
   # Input validation
   if (!is.data.frame(df)) {
@@ -155,6 +163,22 @@ lplot <- function(
                  error_type, paste(valid_error_types, collapse = ", ")))
   }
   
+  # Apply clinical mode defaults
+  if (clinical_mode) {
+    if (is.null(confidence_interval)) confidence_interval <- 0.95
+    if (is.null(treatment_colors)) treatment_colors <- "standard"  
+    show_sample_sizes <- TRUE
+    statistical_annotations <- TRUE
+    if (is.null(theme)) theme <- "nejm"
+  }
+  
+  # Apply publication ready defaults  
+  if (publication_ready) {
+    if (is.null(theme)) theme <- "nature"
+    if (is.null(confidence_interval)) confidence_interval <- 0.95
+    show_sample_sizes <- TRUE
+  }
+  
   # Parse formulas
   parsed_form <- parse_formula(form)
   parsed_facet <- if (!is.null(facet_form)) parse_formula(facet_form) else NULL
@@ -166,7 +190,10 @@ lplot <- function(
     y_var = parsed_form$y, 
     group_var = parsed_form$group, 
     cluster_var = cluster_var, 
-    baseline_value = baseline_value
+    baseline_value = baseline_value,
+    confidence_interval = confidence_interval,
+    show_sample_sizes = show_sample_sizes,
+    statistical_tests = statistical_annotations
   )
   
   # Prepare stats for change plot
@@ -176,6 +203,11 @@ lplot <- function(
       bound_lower = bound_lower_change,
       bound_upper = bound_upper_change
     )
+  
+  # Apply treatment colors if specified
+  if (!is.null(treatment_colors) && treatment_colors == "standard") {
+    color_palette <- assign_treatment_colors(unique(stats$group))
+  }
   
   # Generate the observed and change plots
   fig_obs <- generate_plot(
@@ -190,7 +222,10 @@ lplot <- function(
     subtitle = subtitle, 
     caption = caption, 
     facet = parsed_facet,
-    color_palette = color_palette
+    color_palette = color_palette,
+    reference_lines = reference_lines,
+    show_sample_sizes = show_sample_sizes,
+    statistical_annotations = statistical_annotations
   )
   
   fig_change <- generate_plot(
@@ -205,8 +240,18 @@ lplot <- function(
     subtitle = subtitle2, 
     caption = caption2, 
     facet = parsed_facet,
-    color_palette = color_palette
+    color_palette = color_palette,
+    reference_lines = reference_lines,
+    show_sample_sizes = show_sample_sizes,
+    statistical_annotations = statistical_annotations
   )
+  
+  # Apply publication theme if specified
+  if (!is.null(theme)) {
+    pub_theme <- get_publication_theme(theme)
+    fig_obs <- fig_obs + pub_theme
+    fig_change <- fig_change + pub_theme
+  }
   
   # Return the requested plots
   if (plot_type == "obs") {
