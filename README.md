@@ -45,7 +45,7 @@ library(ggplot2)
 
 # Example dataset
 df <- data.frame(
-  rid = rep(1:10, each = 3),
+  subject_id = rep(1:10, each = 3),
   visit = rep(c(0, 1, 2), times = 10),
   measure = rnorm(30, mean = 50, sd = 10),
   group = rep(c("A", "B"), length.out = 30)
@@ -55,7 +55,8 @@ df <- data.frame(
 plot <- lplot(
   df, 
   form = measure ~ visit | group, 
-  zeroval = 0, 
+  cluster_var = "subject_id",
+  baseline_value = 0, 
   xlab = "Visit", 
   ylab = "Measure", 
   title = "Observed Measures Over Time"
@@ -68,7 +69,7 @@ print(plot)
 ```r
 # Example dataset with categorical x-axis
 df <- data.frame(
-  rid = rep(1:10, each = 3),
+  subject_id = rep(1:10, each = 3),
   visit = rep(c("baseline", "month1", "month2"), times = 10),
   measure = rnorm(30, mean = 50, sd = 10),
   group = rep(c("A", "B"), length.out = 30)
@@ -78,7 +79,8 @@ df <- data.frame(
 plot <- lplot(
   df, 
   form = measure ~ visit | group, 
-  zeroval = "baseline", 
+  cluster_var = "subject_id",
+  baseline_value = "baseline", 
   xlab = "Visit", 
   ylab = "Measure", 
   title = "Observed Measures Over Time"
