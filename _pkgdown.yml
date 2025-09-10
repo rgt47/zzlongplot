@@ -15,13 +15,48 @@ reference:
   - compute_stats
   - generate_plot
   
+- title: Clinical Trial Functions
+  desc: Functions for clinical trial analysis and CDISC compliance
+  contents:
+  - apply_clinical_colors
+  - assign_treatment_colors
+  - clinical_colors
+  - get_cdisc_template
+  - suggest_clinical_vars
+  - validate_cdisc_data
+
+- title: Publication Themes
+  desc: Publication-ready themes and styling
+  contents:
+  - apply_publication_style
+  - get_journal_specs
+  - get_publication_theme
+  - list_journals
+  - publication_panels
+  - save_publication
+  - theme_fda
+  - theme_nature
+  - theme_nejm
+  - theme_science
+  
 - title: Utilities
   desc: Utility functions for customization
   contents:
   - get_colorblind_palette
 
+- title: Internal Functions
+  desc: Internal data and helper functions
+  contents:
+  - .cdisc_lookup
+  - .journal_specs
+  - zzlongplot-package
+
 articles:
 - title: Get started
   navbar: ~
   contents:
-  - zzlongplot-vignette
+  - zzlongplot_introduction
+- title: Advanced topics
+  contents:
+  - cdisc-compliance
+  - clinical-trials
