@@ -131,7 +131,7 @@ test_that("parse_formula handles single-variable formulas", {
 
 test_that("generate_plot includes axis labels", {
   stats <- compute_stats(df_cont, "visit", "measure", "group", "subject_id", 0)
-  plot <- generate_plot(stats, "visit", "mean_value", "group", "bar", "X Label", 
+  plot <- generate_plot(stats, "visit", "mean_value", "group", "bar", 0.1, "X Label", 
                         "Y Label", "Title", "Subtitle", "Caption", NULL)
   expect_true("X Label" %in% plot$labels$x)
   expect_true("Y Label" %in% plot$labels$y)

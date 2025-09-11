@@ -59,6 +59,9 @@ utils::globalVariables(c(
 #' @param error_type Type of error representation. Options are `"bar"` for error bars 
 #'   (vertical lines showing standard error) or `"band"` for error ribbons 
 #'   (shaded areas around the line).
+#' @param jitter_width Numeric. Width of horizontal jitter for error bars when 
+#'   multiple groups are present. Default is 0.1. Set to 0 to disable jittering.
+#'   Only applies when error_type = "bar".
 #' @param color_palette Optional vector of colors to use for groups. If NULL, 
 #'   default ggplot colors are used.
 #' @param clinical_mode Logical. If TRUE, enables clinical trial defaults 
@@ -93,6 +96,10 @@ utils::globalVariables(c(
 #' # Plot observed values by visit and group
 #' lplot(df, measure ~ visit | group, baseline_value = 0, 
 #'       cluster_var = "subject_id")
+#' 
+#' # Plot with jittered error bars for better group separation
+#' lplot(df, measure ~ visit | group, baseline_value = 0, 
+#'       cluster_var = "subject_id", jitter_width = 0.15)
 #'
 #' # Example with categorical x variable
 #' df2 <- data.frame(
@@ -126,7 +133,7 @@ lplot <- function(
   xlab = "visit", ylab = "measure", ylab2 = "measure change",
   title = "Observed Values", title2 = "Change from Baseline",
   subtitle = "", subtitle2 = "", caption = "", caption2 = "",
-  plot_type = "obs", error_type = "bar", color_palette = NULL,
+  plot_type = "obs", error_type = "bar", jitter_width = 0.1, color_palette = NULL,
   clinical_mode = FALSE, treatment_colors = NULL, confidence_interval = NULL,
   show_sample_sizes = FALSE, visit_windows = NULL, theme = NULL,
   publication_ready = FALSE, statistical_annotations = FALSE,
@@ -161,6 +168,11 @@ lplot <- function(
   if (!error_type %in% valid_error_types) {
     stop(sprintf("Invalid error_type '%s'. Must be one of: %s", 
                  error_type, paste(valid_error_types, collapse = ", ")))
+  }
+  
+  # Validate jitter_width
+  if (!is.numeric(jitter_width) || length(jitter_width) != 1 || jitter_width < 0) {
+    stop("jitter_width must be a non-negative numeric value")
   }
   
   # Apply clinical mode defaults
@@ -216,6 +228,7 @@ lplot <- function(
     y_var = "mean_value", 
     group_var = "group",
     error_type = error_type, 
+    jitter_width = jitter_width,
     xlab = xlab, 
     ylab = ylab, 
     title = title, 
@@ -234,6 +247,7 @@ lplot <- function(
     y_var = "change_mean", 
     group_var = "group",
     error_type = error_type, 
+    jitter_width = jitter_width,
     xlab = xlab, 
     ylab = ylab2, 
     title = title2, 

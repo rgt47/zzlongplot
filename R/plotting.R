@@ -13,6 +13,8 @@
 #' @param group_var A string specifying the column name for the grouping variable.
 #' @param error_type A string specifying the error type. Use `"bar"` for error bars or 
 #'   `"band"` for ribbons.
+#' @param jitter_width Numeric. Width of horizontal jitter for error bars when 
+#'   multiple groups are present. Only applies when error_type = "bar".
 #' @param xlab A string for the x-axis label.
 #' @param ylab A string for the y-axis label.
 #' @param title A string for the plot title.
@@ -52,6 +54,20 @@
 #'   title = "Example Plot"
 #' )
 #' print(plot)
+#' 
+#' # Create a plot with jittered error bars
+#' plot_jitter <- generate_plot(
+#'   stats = data,
+#'   x_var = "x", 
+#'   y_var = "mean_value",
+#'   group_var = "group",
+#'   error_type = "bar",
+#'   jitter_width = 0.2,
+#'   xlab = "Time",
+#'   ylab = "Measurement", 
+#'   title = "Example Plot with Jittered Error Bars"
+#' )
+#' print(plot_jitter)
 #'
 #' @import ggplot2
 #' @export
@@ -61,6 +77,7 @@ generate_plot <- function(
   y_var, 
   group_var = NULL, 
   error_type = "bar", 
+  jitter_width = 0.1,
   xlab = NULL, 
   ylab = NULL, 
   title = NULL, 
@@ -103,20 +120,48 @@ generate_plot <- function(
     )
   }
   
-  # Add line layer
-  plot <- plot + ggplot2::geom_line()
+  # Determine if we need to apply dodging/jittering for multiple groups
+  has_groups <- !is.null(group_var) && group_var %in% names(stats) && length(unique(stats[[group_var]])) > 1
+  
+  # Add line and point layers with appropriate positioning
+  if (has_groups && jitter_width > 0) {
+    # Use position_dodge for multiple groups
+    plot <- plot + 
+      ggplot2::geom_line(position = ggplot2::position_dodge(width = jitter_width)) +
+      ggplot2::geom_point(position = ggplot2::position_dodge(width = jitter_width))
+  } else {
+    # Standard lines and points without dodging
+    plot <- plot + 
+      ggplot2::geom_line() +
+      ggplot2::geom_point()
+  }
   
   # Add error representation based on type
   if (error_type == "bar") {
-    plot <- plot + ggplot2::geom_errorbar(
-      ggplot2::aes(
-        ymin = .data[["bound_lower"]], 
-        ymax = .data[["bound_upper"]]
-      ),
-      width = 0.2, 
-      color = "black", 
-      alpha = 0.3
-    )
+    if (has_groups && jitter_width > 0) {
+      # Use position_dodge for multiple groups
+      plot <- plot + ggplot2::geom_errorbar(
+        ggplot2::aes(
+          ymin = .data[["bound_lower"]], 
+          ymax = .data[["bound_upper"]]
+        ),
+        width = 0.2, 
+        color = "black", 
+        alpha = 0.3,
+        position = ggplot2::position_dodge(width = jitter_width)
+      )
+    } else {
+      # Standard error bars without dodging
+      plot <- plot + ggplot2::geom_errorbar(
+        ggplot2::aes(
+          ymin = .data[["bound_lower"]], 
+          ymax = .data[["bound_upper"]]
+        ),
+        width = 0.2, 
+        color = "black", 
+        alpha = 0.3
+      )
+    }
   } else {
     plot <- plot + ggplot2::geom_ribbon(
       ggplot2::aes(
