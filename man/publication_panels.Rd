@@ -46,6 +46,9 @@ Combines multiple plots into a publication-ready multi-panel figure
 with automatic panel labeling and consistent formatting.
 }
 \examples{
+\dontrun{
+library(ggplot2)
+
 # Create individual plots
 p1 <- ggplot(mtcars, aes(wt, mpg)) + geom_point() + theme_nature()
 p2 <- ggplot(mtcars, aes(hp, mpg)) + geom_point() + theme_nature()
@@ -59,5 +62,6 @@ fig <- publication_panels(
 
 # Save the combined figure
 save_publication(fig, "figure1.pdf", journal = "nature", column_type = "double")
+}
 
 }

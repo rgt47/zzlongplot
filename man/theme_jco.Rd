@@ -4,12 +4,12 @@
 \alias{theme_jco}
 \title{JCO Journal Theme}
 \usage{
-theme_jco(base_size = 8, base_family = "Arial", grid = FALSE)
+theme_jco(base_size = 8, base_family = "sans", grid = FALSE)
 }
 \arguments{
 \item{base_size}{Base font size in points. Default is 8pt.}
 
-\item{base_family}{Font family. Default is "Arial".}
+\item{base_family}{Font family. Default is "sans" (Helvetica equivalent).}
 
 \item{grid}{Logical. Whether to show grid lines. Default is FALSE.}
 }

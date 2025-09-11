@@ -129,13 +129,11 @@ utils::globalVariables(c(
 #'       cluster_var = "subject_id", error_type = "band", 
 #'       ribbon_alpha = 0.4, ribbon_fill = "lightblue")
 #' 
-#' \dontrun{
 #' # Apply complete journal styling (theme + colors) with single parameter
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", theme = "nejm")    # NEJM theme + colors
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", theme = "nature")  # Nature theme + colors
-#' }
 #'
 #' # Example with categorical x variable
 #' df2 <- data.frame(
@@ -149,7 +147,6 @@ utils::globalVariables(c(
 #'       cluster_var = "subject_id", plot_type = "both",
 #'       title = "Treatment Response", title2 = "Change from Baseline")
 #'
-#' \dontrun{
 #' # Clinical trial example with CDISC variables
 #' clinical_data <- data.frame(
 #'   USUBJID = rep(paste0("001-", sprintf("%03d", 1:20)), each = 4),
@@ -163,7 +160,6 @@ utils::globalVariables(c(
 #'       cluster_var = "USUBJID", baseline_value = 0,
 #'       clinical_mode = TRUE, plot_type = "both",
 #'       title = "Clinical Trial Results")
-#' }
 #'
 #' @export
 lplot <- function(

@@ -4,12 +4,12 @@
 \alias{theme_science}
 \title{Science Journal Theme}
 \usage{
-theme_science(base_size = 7, base_family = "Arial", grid = TRUE)
+theme_science(base_size = 7, base_family = "sans", grid = TRUE)
 }
 \arguments{
 \item{base_size}{Base font size in points. Default is 7pt per Science guidelines.}
 
-\item{base_family}{Font family. Default is "Arial".}
+\item{base_family}{Font family. Default is "sans" (Helvetica equivalent).}
 
 \item{grid}{Logical. Whether to show major grid lines.}
 }

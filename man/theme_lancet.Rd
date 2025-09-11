@@ -4,12 +4,12 @@
 \alias{theme_lancet}
 \title{Lancet Journal Theme}
 \usage{
-theme_lancet(base_size = 8, base_family = "Arial", grid = FALSE)
+theme_lancet(base_size = 8, base_family = "sans", grid = FALSE)
 }
 \arguments{
 \item{base_size}{Base font size in points. Default is 8pt.}
 
-\item{base_family}{Font family. Default is "Arial".}
+\item{base_family}{Font family. Default is "sans" (Helvetica equivalent).}
 
 \item{grid}{Logical. Whether to show grid lines. Default is FALSE.}
 }

@@ -4,12 +4,12 @@
 \alias{theme_fda}
 \title{FDA Regulatory Theme}
 \usage{
-theme_fda(base_size = 10, base_family = "Arial", high_contrast = TRUE)
+theme_fda(base_size = 10, base_family = "sans", high_contrast = TRUE)
 }
 \arguments{
 \item{base_size}{Base font size in points. Default is 10pt for regulatory readability.}
 
-\item{base_family}{Font family. Default is "Arial".}
+\item{base_family}{Font family. Default is "sans" (Helvetica equivalent).}
 
 \item{high_contrast}{Logical. If TRUE, uses high contrast styling.}
 }

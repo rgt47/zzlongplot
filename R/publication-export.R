@@ -20,7 +20,7 @@
     min_dpi = 600,
     preferred_dpi = 600,
     font_size = 8,
-    font_family = "Arial",
+    font_family = "sans",
     formats = c("pdf", "eps", "tiff"),
     color_mode = "RGB",
     notes = "Nature Publishing Group standards"
@@ -34,7 +34,7 @@
     min_dpi = 300,
     preferred_dpi = 600,
     font_size = 7,
-    font_family = "Arial", 
+    font_family = "sans", 
     formats = c("pdf", "eps", "tiff", "png"),
     color_mode = "RGB",
     notes = "AAAS Science journal standards"
@@ -48,7 +48,7 @@
     min_dpi = 600,
     preferred_dpi = 600,
     font_size = 8,
-    font_family = "Arial",
+    font_family = "sans",
     formats = c("tiff", "eps", "pdf"),
     color_mode = "RGB",
     notes = "Clinical publication standards"
@@ -62,7 +62,7 @@
     min_dpi = 300,
     preferred_dpi = 600,
     font_size = 8,
-    font_family = "Arial",
+    font_family = "sans",
     formats = c("pdf", "eps", "tiff"),
     color_mode = "RGB",
     notes = "Cell Press standards"
@@ -76,7 +76,7 @@
     min_dpi = 600,
     preferred_dpi = 600,
     font_size = 10,
-    font_family = "Arial",
+    font_family = "sans",
     formats = c("pdf", "tiff"),
     color_mode = "RGB",
     notes = "FDA regulatory submission standards"
@@ -90,7 +90,7 @@
     min_dpi = 600,
     preferred_dpi = 600,
     font_size = 10,
-    font_family = "Arial",
+    font_family = "sans",
     formats = c("pdf", "tiff"),
     color_mode = "RGB",
     notes = "EMA regulatory submission standards"
@@ -262,6 +262,9 @@ save_publication <- function(plot, filename, journal = "nature",
 #' @return A combined plot object (patchwork or equivalent).
 #'
 #' @examples
+#' \dontrun{
+#' library(ggplot2)
+#' 
 #' # Create individual plots
 #' p1 <- ggplot(mtcars, aes(wt, mpg)) + geom_point() + theme_nature()
 #' p2 <- ggplot(mtcars, aes(hp, mpg)) + geom_point() + theme_nature()
@@ -275,6 +278,7 @@ save_publication <- function(plot, filename, journal = "nature",
 #' 
 #' # Save the combined figure
 #' save_publication(fig, "figure1.pdf", journal = "nature", column_type = "double")
+#' }
 #' 
 #' @export
 publication_panels <- function(plots, labels = NULL, layout = "horizontal",

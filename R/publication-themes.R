@@ -15,7 +15,7 @@
 #' Creates a publication-ready theme following Nature journal guidelines.
 #'
 #' @param base_size Base font size in points. Default is 7pt per Nature guidelines.
-#' @param base_family Font family. Default is "Arial" (Nature standard).
+#' @param base_family Font family. Default is "sans" (Helvetica equivalent).
 #' @param grid Logical. Whether to show grid lines. Default is FALSE for clean look.
 #' @param border Logical. Whether to show panel border. Default is TRUE.
 #'
@@ -115,7 +115,7 @@ theme_nature <- function(base_size = 7, base_family = "sans",
 #' Creates a publication-ready theme following Science journal guidelines.
 #'
 #' @param base_size Base font size in points. Default is 7pt per Science guidelines.
-#' @param base_family Font family. Default is "Arial".
+#' @param base_family Font family. Default is "sans" (Helvetica equivalent).
 #' @param grid Logical. Whether to show major grid lines.
 #'
 #' @return A ggplot2 theme object.
@@ -133,7 +133,7 @@ theme_nature <- function(base_size = 7, base_family = "sans",
 #'   theme_science()
 #'   
 #' @export
-theme_science <- function(base_size = 7, base_family = "Arial", grid = TRUE) {
+theme_science <- function(base_size = 7, base_family = "sans", grid = TRUE) {
   
   ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
     ggplot2::theme(
@@ -182,7 +182,7 @@ theme_science <- function(base_size = 7, base_family = "Arial", grid = TRUE) {
 #' Creates a publication-ready theme following NEJM guidelines for clinical publications.
 #'
 #' @param base_size Base font size in points. Default is 8pt.
-#' @param base_family Font family. Default is "Arial".
+#' @param base_family Font family. Default is "sans" (Helvetica equivalent).
 #' @param clinical Logical. If TRUE, applies clinical trial specific styling.
 #'
 #' @return A ggplot2 theme object.
@@ -200,7 +200,7 @@ theme_science <- function(base_size = 7, base_family = "Arial", grid = TRUE) {
 #'   theme_nejm()
 #'   
 #' @export
-theme_nejm <- function(base_size = 8, base_family = "Arial", clinical = TRUE) {
+theme_nejm <- function(base_size = 8, base_family = "sans", clinical = TRUE) {
   
   ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
     ggplot2::theme(
@@ -250,7 +250,7 @@ theme_nejm <- function(base_size = 8, base_family = "Arial", clinical = TRUE) {
 #' Creates a theme suitable for FDA regulatory submissions and clinical study reports.
 #'
 #' @param base_size Base font size in points. Default is 10pt for regulatory readability.
-#' @param base_family Font family. Default is "Arial".
+#' @param base_family Font family. Default is "sans" (Helvetica equivalent).
 #' @param high_contrast Logical. If TRUE, uses high contrast styling.
 #'
 #' @return A ggplot2 theme object.
@@ -268,7 +268,7 @@ theme_nejm <- function(base_size = 8, base_family = "Arial", clinical = TRUE) {
 #'   theme_fda()
 #'   
 #' @export
-theme_fda <- function(base_size = 10, base_family = "Arial", high_contrast = TRUE) {
+theme_fda <- function(base_size = 10, base_family = "sans", high_contrast = TRUE) {
   
   ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
     ggplot2::theme(
@@ -345,7 +345,7 @@ theme_fda <- function(base_size = 10, base_family = "Arial", high_contrast = TRU
 #' Creates a publication-ready theme following Lancet journal guidelines.
 #'
 #' @param base_size Base font size in points. Default is 8pt.
-#' @param base_family Font family. Default is "Arial".
+#' @param base_family Font family. Default is "sans" (Helvetica equivalent).
 #' @param grid Logical. Whether to show grid lines. Default is FALSE.
 #'
 #' @return A ggplot2 theme object.
@@ -362,7 +362,7 @@ theme_fda <- function(base_size = 10, base_family = "Arial", high_contrast = TRU
 #'   theme_lancet()
 #'   
 #' @export
-theme_lancet <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
+theme_lancet <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
   ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
     ggplot2::theme(
@@ -409,7 +409,7 @@ theme_lancet <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
 #' Creates a publication-ready theme following JAMA journal guidelines.
 #'
 #' @param base_size Base font size in points. Default is 8pt.
-#' @param base_family Font family. Default is "Arial".
+#' @param base_family Font family. Default is "sans" (Helvetica equivalent).
 #' @param grid Logical. Whether to show grid lines. Default is FALSE.
 #'
 #' @return A ggplot2 theme object.
@@ -426,7 +426,7 @@ theme_lancet <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
 #'   theme_jama()
 #'   
 #' @export
-theme_jama <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
+theme_jama <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
   ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
     ggplot2::theme(
@@ -473,7 +473,7 @@ theme_jama <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
 #' Creates a publication-ready theme following JCO journal guidelines.
 #'
 #' @param base_size Base font size in points. Default is 8pt.
-#' @param base_family Font family. Default is "Arial".
+#' @param base_family Font family. Default is "sans" (Helvetica equivalent).
 #' @param grid Logical. Whether to show grid lines. Default is FALSE.
 #'
 #' @return A ggplot2 theme object.
@@ -490,7 +490,7 @@ theme_jama <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
 #'   theme_jco()
 #'   
 #' @export
-theme_jco <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
+theme_jco <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
   ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
     ggplot2::theme(

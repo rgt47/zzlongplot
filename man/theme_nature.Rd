@@ -4,12 +4,12 @@
 \alias{theme_nature}
 \title{Publication-Ready ggplot2 Themes}
 \usage{
-theme_nature(base_size = 7, base_family = "Arial", grid = FALSE, border = TRUE)
+theme_nature(base_size = 7, base_family = "sans", grid = FALSE, border = TRUE)
 }
 \arguments{
 \item{base_size}{Base font size in points. Default is 7pt per Nature guidelines.}
 
-\item{base_family}{Font family. Default is "Arial" (Nature standard).}
+\item{base_family}{Font family. Default is "sans" (Helvetica equivalent).}
 
 \item{grid}{Logical. Whether to show grid lines. Default is FALSE for clean look.}
 

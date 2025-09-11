@@ -4,12 +4,12 @@
 \alias{theme_nejm}
 \title{New England Journal of Medicine Theme}
 \usage{
-theme_nejm(base_size = 8, base_family = "Arial", clinical = TRUE)
+theme_nejm(base_size = 8, base_family = "sans", clinical = TRUE)
 }
 \arguments{
 \item{base_size}{Base font size in points. Default is 8pt.}
 
-\item{base_family}{Font family. Default is "Arial".}
+\item{base_family}{Font family. Default is "sans" (Helvetica equivalent).}
 
 \item{clinical}{Logical. If TRUE, applies clinical trial specific styling.}
 }

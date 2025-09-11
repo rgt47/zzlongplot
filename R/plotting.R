@@ -139,18 +139,18 @@ generate_plot <- function(
       
       # Add boxplot elements: box (IQR), whiskers, median line, and mean point
       plot <- plot + 
-        # Box representing IQR (Q1 to Q3)
+        # Box representing IQR (Q1 to Q3) - made wider and more visible
         ggplot2::geom_rect(
           ggplot2::aes(
-            xmin = as.numeric(.data[[x_var]]) - 0.15,
-            xmax = as.numeric(.data[[x_var]]) + 0.15,
+            xmin = as.numeric(.data[[x_var]]) - 0.25,
+            xmax = as.numeric(.data[[x_var]]) + 0.25,
             ymin = .data[["q25_value"]],
             ymax = .data[["q75_value"]],
             fill = .data[[group_var]]
           ),
-          alpha = 0.7,
+          alpha = 0.8,
           color = "black",
-          linewidth = 0.5,
+          linewidth = 1,
           position = dodge_pos
         ) +
         # Whiskers (extends to bound_lower and bound_upper)
@@ -172,32 +172,32 @@ generate_plot <- function(
           ),
           position = dodge_pos
         ) +
-        # Median line (bold horizontal line)
+        # Median line (bold horizontal line) - made wider to match box
         ggplot2::geom_segment(
           ggplot2::aes(
-            x = as.numeric(.data[[x_var]]) - 0.15,
-            xend = as.numeric(.data[[x_var]]) + 0.15,
+            x = as.numeric(.data[[x_var]]) - 0.25,
+            xend = as.numeric(.data[[x_var]]) + 0.25,
             y = .data[[y_var]],  # This is the median for boxplot
             yend = .data[[y_var]]
           ),
           color = "black",
-          linewidth = 1.2,
+          linewidth = 1.5,
           position = dodge_pos
         )
     } else {
       # Single group boxplots without dodging
       plot <- plot + 
-        # Box representing IQR
+        # Box representing IQR - made wider and more visible
         ggplot2::geom_rect(
           ggplot2::aes(
-            xmin = as.numeric(.data[[x_var]]) - 0.2,
-            xmax = as.numeric(.data[[x_var]]) + 0.2,
+            xmin = as.numeric(.data[[x_var]]) - 0.3,
+            xmax = as.numeric(.data[[x_var]]) + 0.3,
             ymin = .data[["q25_value"]],
             ymax = .data[["q75_value"]]
           ),
-          alpha = 0.7,
+          alpha = 0.8,
           color = "black",
-          linewidth = 0.5
+          linewidth = 1
         ) +
         # Whiskers
         ggplot2::geom_segment(
@@ -216,16 +216,16 @@ generate_plot <- function(
             yend = .data[["bound_lower"]]
           )
         ) +
-        # Median line
+        # Median line - made wider to match box
         ggplot2::geom_segment(
           ggplot2::aes(
-            x = as.numeric(.data[[x_var]]) - 0.2,
-            xend = as.numeric(.data[[x_var]]) + 0.2,
+            x = as.numeric(.data[[x_var]]) - 0.3,
+            xend = as.numeric(.data[[x_var]]) + 0.3,
             y = .data[[y_var]],
             yend = .data[[y_var]]
           ),
           color = "black",
-          linewidth = 1.2
+          linewidth = 1.5
         )
     }
   } else {
