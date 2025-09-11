@@ -30,25 +30,20 @@ knitr::opts_chunk$set(
   fig.height = 6,
   warning = FALSE,
   message = FALSE,
-  eval = FALSE  # Set to FALSE since many packages may not be installed
+  eval = TRUE  # Enable evaluation for demonstration plots
 )
 
-# Load available packages - suppress errors for demonstration purposes
-suppressMessages({
-  if (require(ggplot2, quietly = TRUE)) library(ggplot2)
-  if (require(dplyr, quietly = TRUE)) library(dplyr)
-  if (require(survival, quietly = TRUE)) library(survival)
-  if (require(knitr, quietly = TRUE)) library(knitr)
-})
+# Load required packages
+library(ggplot2)
+library(dplyr)
+library(survival)
+library(survminer)
+library(forestplot)
+library(meta)
+library(knitr)
 
-# Function to check if package exists
-check_pkg <- function(pkg) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    message(paste("Package", pkg, "not available - code examples shown for illustration"))
-    return(FALSE)
-  }
-  return(TRUE)
-}
+# Set up for demonstration plots with actual data
+set.seed(123)  # For reproducible examples
 ```
 
 # Executive Summary
@@ -84,48 +79,53 @@ The R ecosystem for survival analysis is dominated by the `survminer` package, w
 library(survminer)
 library(survival)
 
-# Current state-of-the-art survival plot with risk tables
-data(lung)
-fit <- survfit(Surv(time, status) ~ sex, data = lung)
+# Create synthetic survival data for demonstration
+set.seed(123)
+n_patients <- 200
+survival_demo <- data.frame(
+  patient_id = 1:n_patients,
+  time = rexp(n_patients, rate = 0.01),
+  status = rbinom(n_patients, 1, 0.7),
+  treatment = sample(c("Control", "Treatment A"), n_patients, replace = TRUE),
+  age_group = sample(c("< 65", ">= 65"), n_patients, replace = TRUE)
+)
 
-# Basic survival plot with comprehensive features
-ggsurvplot(
+# Adjust survival times by treatment (treatment effect)
+survival_demo$time[survival_demo$treatment == "Treatment A"] <- 
+  survival_demo$time[survival_demo$treatment == "Treatment A"] * 1.5
+
+# Create survival fit
+fit <- survfit(Surv(time, status) ~ treatment, data = survival_demo)
+
+# Basic survival plot with comprehensive features  
+p_survival <- ggsurvplot(
   fit,
-  data = lung,
+  data = survival_demo,
   size = 1.2,                          # Line thickness
   palette = c("#E7B800", "#2E9FDF"),   # Custom colors
   conf.int = TRUE,                     # Confidence intervals
   pval = TRUE,                         # P-value from log-rank test
-  pval.coord = c(100, 0.03),          # P-value positioning
   risk.table = TRUE,                   # Numbers at risk
   risk.table.col = "strata",           # Color by strata
   risk.table.height = 0.25,            # Risk table height
-  legend.labs = c("Male", "Female"),    # Legend labels
-  break.time.by = 100,                 # Time axis breaks
-  ggtheme = theme_bw(),               # ggplot2 theme
+  legend.labs = c("Control", "Treatment A"),  # Legend labels
+  break.time.by = 50,                  # Time axis breaks
+  ggtheme = theme_minimal(),           # ggplot2 theme
   tables.theme = theme_cleantable()    # Risk table theme
 )
 
-# Advanced features: Multiple plots with faceting
+print(p_survival)
+
+# Advanced features: Faceted survival plot
 ggsurvplot_facet(
-  survfit(Surv(time, status) ~ sex + rx, data = lung),
-  data = lung,
-  facet.by = "rx",
+  survfit(Surv(time, status) ~ treatment, data = survival_demo),
+  data = survival_demo,
+  facet.by = "age_group",
   palette = "jco",
   pval = TRUE,
   conf.int = TRUE,
   risk.table = TRUE
 )
-
-# Combine multiple survival objects
-splots <- list()
-splots$sex <- ggsurvplot(survfit(Surv(time, status) ~ sex, data = lung),
-                        data = lung, risk.table = TRUE)
-splots$rx <- ggsurvplot(survfit(Surv(time, status) ~ rx, data = lung),
-                       data = lung, risk.table = TRUE)
-
-# Arrange multiple plots
-arrange_ggsurvplots(splots, ncol = 2, nrow = 1)
 ```
 
 #### ggsurvfit Package - Modern ggplot2 Approach
@@ -236,7 +236,7 @@ Forest plots are essential for displaying subgroup analyses and meta-analysis re
 
 #### forestplot Package - Traditional Forest Plots
 
-```{r forestplot_example, eval=FALSE}
+```{r forestplot_example, eval=TRUE}
 library(forestplot)
 
 # Current state-of-the-art traditional forest plot
@@ -481,31 +481,47 @@ Swimmer plots have gained popularity in oncology for visualizing individual pati
 
 #### swimplot Package - Basic Swimmer Plots
 
-```{r swimmer_example, eval=FALSE}
-library(swimplot)
-
-# Current swimmer plot approach - basic functionality
+```{r swimmer_example, eval=TRUE}
+# Create swimmer plot using ggplot2 (since swimplot may not be available)
 swimmer_data <- data.frame(
-  id = 1:10,
-  start = rep(0, 10),
-  end = c(12, 8, 16, 20, 4, 24, 18, 14, 10, 22),
-  response = c("PR", "PD", "CR", "PR", "PD", "CR", "SD", "PR", "PD", "CR"),
-  progression = c(8, 4, NA, 15, 3, NA, 12, 10, 6, NA),
-  death = c(NA, 8, NA, NA, 4, NA, NA, NA, 10, NA)
+  patient_id = paste0("P", sprintf("%02d", 1:15)),
+  treatment_duration = c(12, 8, 16, 20, 4, 24, 18, 14, 10, 22, 6, 19, 15, 13, 25),
+  best_response = c("PR", "PD", "CR", "PR", "PD", "CR", "SD", "PR", "PD", "CR", 
+                   "PD", "PR", "SD", "CR", "PR"),
+  progression_time = c(8, 4, NA, 15, 3, NA, 12, 10, 6, NA, 4, 16, 13, NA, 20),
+  death_time = c(NA, 8, NA, NA, 4, NA, NA, NA, 10, NA, 6, NA, NA, NA, NA),
+  treatment_arm = rep(c("Experimental", "Control"), length.out = 15)
 )
 
-# Basic swimmer plot
-p <- swimplot(swimmer_data, id = "id", start = "start", end = "end", 
-              fill = "response") +
-  add_marker(aes(x = progression, y = id), 
-             marker = "circle", color = "red", size = 3) +
-  add_marker(aes(x = death, y = id), 
-             marker = "square", color = "black", size = 3) +
-  scale_fill_manual(values = c("PR" = "lightblue", "CR" = "darkgreen", 
-                              "SD" = "yellow", "PD" = "red")) +
-  theme_minimal()
+# Sort by treatment duration for better visualization
+swimmer_data <- swimmer_data %>% 
+  arrange(desc(treatment_duration)) %>%
+  mutate(patient_order = factor(patient_id, levels = patient_id))
 
-print(p)
+# Create swimmer plot using ggplot2
+p_swimmer <- ggplot(swimmer_data, aes(y = patient_order)) +
+  # Treatment duration bars colored by response
+  geom_col(aes(x = treatment_duration, fill = best_response), 
+           width = 0.7, alpha = 0.8) +
+  # Progression markers (triangles)
+  geom_point(aes(x = progression_time), 
+             shape = 17, size = 3, color = "red", na.rm = TRUE) +
+  # Death markers (X)
+  geom_point(aes(x = death_time), 
+             shape = 4, size = 4, color = "black", stroke = 2, na.rm = TRUE) +
+  # Response colors (RECIST standard)
+  scale_fill_manual(values = c("CR" = "#2E8B57", "PR" = "#4169E1", 
+                              "SD" = "#DAA520", "PD" = "#DC143C"),
+                    name = "Best Response") +
+  facet_wrap(~treatment_arm, scales = "free_y") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8)) +
+  labs(x = "Time on Study (months)", 
+       y = "Patient (sorted by treatment duration)",
+       title = "Patient Treatment Timelines and Outcomes",
+       subtitle = "Progression (▲), Death (✕)")
+
+print(p_swimmer)
 ```
 
 #### Custom ggplot2 Swimmer Plot - Advanced Features
@@ -802,7 +818,7 @@ Waterfall plots are crucial for visualizing tumor response data in oncology tria
 
 ### Current Best Practice Example
 
-```{r waterfall_example, eval=FALSE}
+```{r waterfall_example, eval=TRUE}
 # Current waterfall plot approach
 tumor_data <- data.frame(
   patient_id = paste0("P", 1:30),
@@ -1668,6 +1684,241 @@ This comprehensive enhancement roadmap positions `zzlongplot` as the definitive 
 5. **Interactive Exploration**: Modern dashboard and monitoring tools
 
 The proposed features address critical gaps in the current R ecosystem while maintaining the package's core philosophy of simplicity and clinical relevance. Implementation following the suggested roadmap will establish `zzlongplot` as an essential tool for pharmaceutical statisticians, clinical researchers, and regulatory professionals.
+
+# Working Demonstration Plots
+
+This section provides actual working examples of the types of plots that would be enhanced in `zzlongplot`, using available R packages.
+
+## Demonstration: Waterfall Plot for Tumor Response
+
+```{r demo_waterfall, eval=TRUE, fig.height=5, fig.width=8}
+# Create realistic tumor response data
+set.seed(123)
+tumor_data <- data.frame(
+  patient_id = paste0("P", sprintf("%02d", 1:30)),
+  percent_change = c(
+    # Complete/Partial Response patients (negative values)
+    runif(8, -60, -30),
+    # Stable Disease patients  
+    runif(12, -29, 19),
+    # Progressive Disease patients (positive values)
+    runif(10, 20, 80)
+  ),
+  treatment_arm = rep(c("Experimental", "Control"), each = 15)
+) %>%
+  arrange(percent_change) %>%
+  mutate(
+    patient_order = factor(patient_id, levels = patient_id),
+    best_response = case_when(
+      percent_change <= -30 ~ "PR", # Partial Response
+      percent_change <= 20 ~ "SD",  # Stable Disease  
+      TRUE ~ "PD"                   # Progressive Disease
+    )
+  )
+
+# Create waterfall plot
+ggplot(tumor_data, aes(x = patient_order, y = percent_change)) +
+  geom_col(aes(fill = best_response), width = 0.8, alpha = 0.8) +
+  geom_hline(yintercept = c(-30, 20), linetype = "dashed", 
+             color = "red", size = 0.5) +
+  scale_fill_manual(
+    values = c("PR" = "#2E8B57", "SD" = "#DAA520", "PD" = "#DC143C"),
+    name = "Best Response"
+  ) +
+  facet_wrap(~ treatment_arm, scales = "free_x") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(
+    x = "Patients (sorted by response)",
+    y = "Best % Change from Baseline",
+    title = "Tumor Response Waterfall Plot",
+    subtitle = "Dashed lines indicate RECIST response thresholds (-30%, +20%)",
+    caption = "PR = Partial Response, SD = Stable Disease, PD = Progressive Disease"
+  )
+```
+
+## Demonstration: Patient Swimmer Plot
+
+```{r demo_swimmer, eval=TRUE, fig.height=6, fig.width=10}
+# Create swimmer plot data
+swimmer_data <- data.frame(
+  patient_id = paste0("P", sprintf("%02d", 1:20)),
+  treatment_duration = c(12, 8, 16, 20, 4, 24, 18, 14, 10, 22, 
+                        6, 19, 15, 13, 25, 11, 17, 9, 21, 7),
+  best_response = sample(c("CR", "PR", "SD", "PD"), 20, replace = TRUE,
+                        prob = c(0.1, 0.3, 0.4, 0.2)),
+  progression_time = ifelse(runif(20) > 0.4, 
+                           pmin(c(8, 4, 14, 15, 3, 22, 12, 10, 6, 18,
+                                 4, 16, 13, 11, 20, 9, 15, 7, 19, 5), 
+                               c(12, 8, 16, 20, 4, 24, 18, 14, 10, 22, 
+                                6, 19, 15, 13, 25, 11, 17, 9, 21, 7) - 1), 
+                           NA),
+  death_time = ifelse(runif(20) > 0.7,
+                     pmax(c(12, 8, 16, 20, 4, 24, 18, 14, 10, 22, 
+                           6, 19, 15, 13, 25, 11, 17, 9, 21, 7),
+                          c(10, 9, 18, 22, 5, 26, 20, 16, 12, 24, 
+                           8, 21, 17, 15, 27, 13, 19, 11, 23, 9)),
+                     NA),
+  treatment_arm = rep(c("Experimental Drug", "Standard of Care"), each = 10)
+) %>%
+  arrange(desc(treatment_duration)) %>%
+  mutate(patient_order = factor(patient_id, levels = patient_id))
+
+# Create swimmer plot
+ggplot(swimmer_data, aes(y = patient_order)) +
+  # Treatment duration bars
+  geom_col(aes(x = treatment_duration, fill = best_response), 
+           width = 0.7, alpha = 0.8) +
+  # Progression events (triangles)
+  geom_point(aes(x = progression_time), 
+             shape = 17, size = 2.5, color = "red", na.rm = TRUE) +
+  # Death events (X marks)  
+  geom_point(aes(x = death_time),
+             shape = 4, size = 3, color = "black", stroke = 2, na.rm = TRUE) +
+  # RECIST response colors
+  scale_fill_manual(
+    values = c("CR" = "#2E8B57", "PR" = "#4169E1", 
+              "SD" = "#DAA520", "PD" = "#DC143C"),
+    name = "Best Response"
+  ) +
+  facet_wrap(~ treatment_arm, scales = "free_y") +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 7),
+    panel.grid.minor.x = element_blank(),
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Time on Study (months)",
+    y = "Patient (sorted by treatment duration)", 
+    title = "Patient Treatment Timelines and Clinical Events",
+    subtitle = "Progression (▲), Death (✕)",
+    caption = "CR = Complete Response, PR = Partial Response, SD = Stable Disease, PD = Progressive Disease"
+  )
+```
+
+## Demonstration: Forest Plot for Subgroup Analysis
+
+```{r demo_forest, eval=TRUE, fig.height=6, fig.width=10}
+# Create subgroup analysis data
+subgroup_data <- data.frame(
+  Subgroup = c("Overall", "Age < 65", "Age ≥ 65", "Male", "Female", 
+               "ECOG 0", "ECOG 1", "Adenocarcinoma", "Squamous", "Never Smoker", "Former/Current Smoker"),
+  N = c(450, 180, 270, 267, 183, 201, 249, 315, 135, 156, 294),
+  HR = c(0.75, 0.68, 0.82, 0.71, 0.84, 0.69, 0.79, 0.73, 0.81, 0.65, 0.78),
+  Lower_CI = c(0.61, 0.49, 0.64, 0.56, 0.62, 0.52, 0.62, 0.58, 0.58, 0.48, 0.63),
+  Upper_CI = c(0.93, 0.95, 1.05, 0.91, 1.13, 0.92, 1.01, 0.93, 1.13, 0.89, 0.98),
+  P_Value = c(0.009, 0.025, 0.115, 0.006, 0.238, 0.012, 0.058, 0.008, 0.364, 0.004, 0.032)
+) %>%
+  mutate(
+    Subgroup_Order = factor(Subgroup, levels = rev(Subgroup)),
+    Significant = P_Value < 0.05
+  )
+
+# Create forest plot using ggplot2
+ggplot(subgroup_data, aes(y = Subgroup_Order)) +
+  # Confidence intervals
+  geom_errorbarh(aes(xmin = Lower_CI, xmax = Upper_CI, 
+                    color = Significant), 
+                height = 0.3, size = 1) +
+  # Point estimates
+  geom_point(aes(x = HR, color = Significant, size = N), 
+            shape = 15) +
+  # Reference line at HR = 1
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
+  # Color coding for significance
+  scale_color_manual(values = c("TRUE" = "#DC143C", "FALSE" = "#4169E1"),
+                    name = "P < 0.05") +
+  scale_size_continuous(range = c(3, 6), name = "Sample Size") +
+  scale_x_log10(breaks = c(0.5, 0.75, 1.0, 1.25, 1.5),
+               labels = c("0.5", "0.75", "1.0", "1.25", "1.5")) +
+  theme_minimal() +
+  theme(
+    panel.grid.minor.x = element_blank(),
+    axis.text.y = element_text(size = 10),
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Hazard Ratio (95% CI)",
+    y = "Subgroup",
+    title = "Treatment Effect by Patient Subgroup",
+    subtitle = "Hazard ratios < 1 favor experimental treatment",
+    caption = "Point size proportional to subgroup sample size"
+  ) +
+  coord_cartesian(xlim = c(0.4, 1.6))
+```
+
+## Demonstration: Longitudinal Clinical Trial Plot
+
+```{r demo_longitudinal, eval=TRUE, fig.height=5, fig.width=10}
+# Create longitudinal clinical trial data
+set.seed(456)
+longitudinal_data <- expand.grid(
+  patient_id = paste0("PT", sprintf("%03d", 1:100)),
+  visit = c("Baseline", "Week 4", "Week 8", "Week 12", "Week 16")
+) %>%
+  mutate(
+    treatment = rep(c("Placebo", "Low Dose", "High Dose"), length.out = n()),
+    visit_num = case_when(
+      visit == "Baseline" ~ 0,
+      visit == "Week 4" ~ 4, 
+      visit == "Week 8" ~ 8,
+      visit == "Week 12" ~ 12,
+      visit == "Week 16" ~ 16
+    ),
+    # Simulate efficacy with treatment effect
+    efficacy = 50 + 
+               case_when(
+                 treatment == "Placebo" ~ -visit_num * 0.2 + rnorm(n(), 0, 8),
+                 treatment == "Low Dose" ~ -visit_num * 0.8 + rnorm(n(), 0, 7),
+                 treatment == "High Dose" ~ -visit_num * 1.5 + rnorm(n(), 0, 6)
+               ),
+    site = sample(c("Site A", "Site B", "Site C"), n(), replace = TRUE)
+  )
+
+# Calculate summary statistics
+summary_stats <- longitudinal_data %>%
+  group_by(treatment, visit, visit_num) %>%
+  summarise(
+    n = n(),
+    mean_efficacy = mean(efficacy, na.rm = TRUE),
+    se_efficacy = sd(efficacy, na.rm = TRUE) / sqrt(n),
+    ci_lower = mean_efficacy - 1.96 * se_efficacy,
+    ci_upper = mean_efficacy + 1.96 * se_efficacy,
+    .groups = "drop"
+  )
+
+# Create longitudinal plot
+ggplot(summary_stats, aes(x = visit_num, y = mean_efficacy, color = treatment)) +
+  geom_line(size = 1.2, alpha = 0.8) +
+  geom_point(size = 3, alpha = 0.9) +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), 
+                width = 1, alpha = 0.7) +
+  scale_color_manual(values = c("Placebo" = "#7F7F7F", 
+                               "Low Dose" = "#1F77B4", 
+                               "High Dose" = "#D62728")) +
+  scale_x_continuous(breaks = c(0, 4, 8, 12, 16),
+                    labels = c("Baseline", "Week 4", "Week 8", "Week 12", "Week 16")) +
+  theme_minimal() +
+  theme(
+    panel.grid.minor.x = element_blank(),
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Study Visit",
+    y = "Mean Efficacy Score (± 95% CI)", 
+    title = "Treatment Efficacy Over Time",
+    subtitle = "Primary endpoint analysis by treatment group",
+    color = "Treatment Group",
+    caption = "Error bars represent 95% confidence intervals"
+  )
+```
+
+These demonstration plots illustrate the types of visualizations that the enhanced `zzlongplot` package would provide through its unified formula-based syntax, while maintaining the statistical rigor and regulatory compliance required for clinical trial reporting.
 
 # References
 
