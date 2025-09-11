@@ -1,0 +1,1263 @@
+---
+title: "zzlongplot Feature Enhancement Roadmap"
+subtitle: "Comprehensive Clinical Trial Visualization Extensions"
+author: "zzlongplot Development Team"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+    code_folding: show
+  pdf_document:
+    toc: true
+    number_sections: true
+    latex_engine: xelatex
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{zzlongplot Feature Enhancement Roadmap}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 10,
+  fig.height = 6,
+  warning = FALSE,
+  message = FALSE
+)
+
+library(ggplot2)
+library(dplyr)
+library(survival)
+library(survminer)
+library(forestplot)
+library(knitr)
+library(kableExtra)
+```
+
+# Executive Summary
+
+This document outlines a comprehensive roadmap for enhancing the `zzlongplot` package with 10 major new features specifically designed for clinical trial and biomedical research visualization. Based on extensive analysis of competing R packages in the pharmaverse ecosystem, survival analysis, and meta-analysis domains, these enhancements will position `zzlongplot` as a comprehensive, unified solution for regulatory-compliant clinical data visualization.
+
+The proposed features maintain the package's core philosophy of formula-based syntax while expanding capabilities to cover the full spectrum of clinical trial graphics, from basic longitudinal plots to complex survival analysis, forest plots, and patient timeline visualizations.
+
+## Key Enhancement Areas
+
+1. **Survival Analysis Integration** - Time-to-event endpoints with risk tables
+2. **Forest Plot Capabilities** - Subgroup analysis and meta-analysis visualization
+3. **Patient Timeline Visualization** - Swimmer plots for individual patient journeys
+4. **Waterfall Plot Support** - Tumor response and treatment effect visualization
+5. **Missing Data Visualization** - Pattern analysis and sensitivity testing
+6. **Enhanced Statistical Overlays** - Multiple comparison procedures and trend analysis
+7. **Regulatory-Ready Export** - ICH/FDA compliant output formats
+8. **Biomarker Correlation Plots** - Multi-dimensional efficacy-biomarker relationships
+9. **Advanced Clinical Faceting** - Population stratification and subgroup analysis
+10. **Interactive Clinical Dashboards** - Dynamic exploration capabilities
+
+# Feature 1: Survival Analysis Integration
+
+## Current State-of-the-Art
+
+The R ecosystem for survival analysis is dominated by the `survminer` package, which provides publication-ready survival curves built on `ggplot2`. The package offers sophisticated features including risk tables, confidence bands, and statistical annotations.
+
+### Current Best Practice Examples
+
+#### survminer Package - Publication Ready Survival Curves
+
+```{r survival_example, eval=FALSE}
+library(survminer)
+library(survival)
+
+# Current state-of-the-art survival plot with risk tables
+data(lung)
+fit <- survfit(Surv(time, status) ~ sex, data = lung)
+
+# Basic survival plot with comprehensive features
+ggsurvplot(
+  fit,
+  data = lung,
+  size = 1.2,                          # Line thickness
+  palette = c("#E7B800", "#2E9FDF"),   # Custom colors
+  conf.int = TRUE,                     # Confidence intervals
+  pval = TRUE,                         # P-value from log-rank test
+  pval.coord = c(100, 0.03),          # P-value positioning
+  risk.table = TRUE,                   # Numbers at risk
+  risk.table.col = "strata",           # Color by strata
+  risk.table.height = 0.25,            # Risk table height
+  legend.labs = c("Male", "Female"),    # Legend labels
+  break.time.by = 100,                 # Time axis breaks
+  ggtheme = theme_bw(),               # ggplot2 theme
+  tables.theme = theme_cleantable()    # Risk table theme
+)
+
+# Advanced features: Multiple plots with faceting
+ggsurvplot_facet(
+  survfit(Surv(time, status) ~ sex + rx, data = lung),
+  data = lung,
+  facet.by = "rx",
+  palette = "jco",
+  pval = TRUE,
+  conf.int = TRUE,
+  risk.table = TRUE
+)
+
+# Combine multiple survival objects
+splots <- list()
+splots$sex <- ggsurvplot(survfit(Surv(time, status) ~ sex, data = lung),
+                        data = lung, risk.table = TRUE)
+splots$rx <- ggsurvplot(survfit(Surv(time, status) ~ rx, data = lung),
+                       data = lung, risk.table = TRUE)
+
+# Arrange multiple plots
+arrange_ggsurvplots(splots, ncol = 2, nrow = 1)
+```
+
+#### ggsurvfit Package - Modern ggplot2 Approach
+
+```{r ggsurvfit_example, eval=FALSE}
+library(ggsurvfit)
+
+# Modern approach with better ggplot2 integration
+survfit2(Surv(time, status) ~ sex, data = lung) %>%
+  ggsurvfit() +
+  add_confidence_interval() +
+  add_risktable() +
+  add_quantile(y_value = 0.5, color = "gray50", linewidth = 0.75) +
+  scale_ggsurvfit() +
+  labs(
+    title = "Overall Survival by Sex",
+    subtitle = "NCCTG Lung Cancer Data"
+  ) +
+  theme_minimal()
+```
+
+#### Key Advantages of Current SOTA:
+- **Risk Tables**: Automatic generation with proper alignment
+- **Statistical Tests**: Built-in log-rank tests and hazard ratios  
+- **Confidence Intervals**: Multiple display options (bands, ribbons)
+- **Customization**: Extensive theming and color options
+- **Multiple Endpoints**: Faceting and combining capabilities
+- **Export Ready**: Publication-quality output
+
+## Proposed zzlongplot Enhancement
+
+### Syntax Design
+
+```{r zzlongplot_survival_syntax, eval=FALSE}
+library(zzlongplot)
+
+# Proposed zzlongplot survival syntax
+lplot(lung_data,
+      form = Surv(time, status) ~ 1 | sex,
+      plot_type = "survival",
+      clinical_mode = TRUE,
+      risk_table = TRUE,
+      confidence_bands = TRUE,
+      statistical_tests = "logrank",
+      title = "Overall Survival by Gender",
+      ylab = "Survival Probability")
+
+# Multiple endpoint survival analysis
+lplot(clinical_data,
+      form = Surv(time, event) ~ 1 | treatment,
+      facet_form = ~ endpoint_type,  # OS, PFS, DFS
+      plot_type = "survival",
+      risk_table = TRUE,
+      hazard_ratio = TRUE,
+      regulatory_theme = "FDA")
+```
+
+### Implementation Architecture
+
+The survival analysis integration would require:
+
+1. **Formula Parser Enhancement**: Extend `parse_formula()` to recognize `Surv()` objects
+2. **Survival Statistics Module**: New functions for computing Kaplan-Meier estimates
+3. **Risk Table Component**: Automatic generation of numbers-at-risk tables
+4. **Statistical Testing**: Integration of log-rank tests and hazard ratio calculations
+
+```{r survival_implementation, eval=FALSE}
+# Internal implementation structure
+compute_survival_stats <- function(df, surv_formula, group_var = NULL) {
+  # Kaplan-Meier estimation
+  km_fit <- survival::survfit(surv_formula, data = df)
+  
+  # Risk table computation
+  risk_table <- compute_risk_table(km_fit)
+  
+  # Statistical tests
+  if (!is.null(group_var)) {
+    logrank_test <- survival::survdiff(surv_formula, data = df)
+    hr_result <- compute_hazard_ratio(surv_formula, df)
+  }
+  
+  return(list(km_fit = km_fit, risk_table = risk_table, 
+              tests = list(logrank = logrank_test, hr = hr_result)))
+}
+```
+
+### Clinical Use Cases
+
+1. **Primary Endpoint Analysis**: Overall survival in oncology trials
+2. **Secondary Endpoint Visualization**: Progression-free survival, disease-free survival
+3. **Subgroup Analysis**: Survival differences across biomarker strata
+4. **Regulatory Submissions**: FDA/EMA compliant survival curve formatting
+
+### Regulatory Requirements
+
+- **ICH E9 Compliance**: Statistical principles for clinical trials
+- **FDA Guidance**: Oncology clinical trial endpoints
+- **Risk Table Standards**: Numbers at risk at specified time intervals
+- **Confidence Interval Display**: 95% CI bands around survival curves
+
+# Feature 2: Forest Plot Capabilities
+
+## Current State-of-the-Art
+
+Forest plots are essential for displaying subgroup analyses and meta-analysis results. The `forestplot` and `meta` packages provide comprehensive solutions.
+
+### Current Best Practice Examples
+
+#### forestplot Package - Traditional Forest Plots
+
+```{r forestplot_example, eval=FALSE}
+library(forestplot)
+
+# Current state-of-the-art traditional forest plot
+cochrane_from_rmeta <- 
+  structure(list(
+    mean  = c(NA, NA, 0.578, 0.165, 0.246, 0.700, 0.348, 0.139, 1.017),
+    lower = c(NA, NA, 0.372, 0.018, 0.072, 0.333, 0.083, 0.016, 0.365),
+    upper = c(NA, NA, 0.898, 1.517, 0.833, 1.474, 1.455, 1.209, 2.831)),
+    .Names = c("mean", "lower", "upper"),
+    row.names = c(NA, -9L),
+    class = "data.frame")
+
+tabletext <- cbind(
+  c("", "Study", "Auckland", "Block", "Doran", "Gamsu", 
+    "Morrison", "Papageorgiou", "Tauesch"),
+  c("", "Deaths", "36", "1", "4", "14", "3", "1", "8"),
+  c("", "Total", "532", "85", "52", "135", "108", "103", "242"),
+  c("", "OR (95% CI)", "0.58 (0.37, 0.90)", "0.16 (0.02, 1.52)", 
+    "0.25 (0.07, 0.83)", "0.70 (0.33, 1.47)", "0.35 (0.08, 1.45)", 
+    "0.14 (0.02, 1.21)", "1.02 (0.37, 2.83)"))
+
+# Advanced forest plot with custom styling
+forestplot(tabletext, 
+           cochrane_from_rmeta,
+           new_page = TRUE,
+           is.summary = c(TRUE, TRUE, rep(FALSE, 7)),
+           clip = c(0.1, 2.5),
+           xlog = TRUE,
+           col = fpColors(box = "royalblue", 
+                         line = "darkblue", 
+                         summary = "red"),
+           vertices = TRUE,
+           graph.pos = 3,
+           hrzl_lines = list("2" = gpar(lwd = 1, col = "#99999922"),
+                            "9" = gpar(lwd = 1, col = "#99999922")),
+           txt_gp = fpTxtGp(label = gpar(cex = 1.25),
+                           ticks = gpar(cex = 1.1),
+                           xlab = gpar(cex = 1.2)))
+```
+
+#### meta Package - Meta-Analysis Forest Plots
+
+```{r meta_forestplot_example, eval=FALSE}
+library(meta)
+
+# Meta-analysis with comprehensive forest plot
+data(Fleiss1993cont)
+
+# Fixed effects meta-analysis
+m.cont <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+                   data = Fleiss1993cont, studlab = paste(study, year),
+                   sm = "SMD", method.smd = "Hedges")
+
+# Comprehensive forest plot
+forest(m.cont,
+       sortvar = TE,                    # Sort by effect size
+       prediction = TRUE,               # Prediction interval
+       print.tau2 = FALSE,              # Don't print tau²
+       leftlabs = c("Author", "N", "Mean", "SD", "N", "Mean", "SD"),
+       leftcols = c("studlab", "n.psyc", "mean.psyc", "sd.psyc", 
+                   "n.cont", "mean.cont", "sd.cont"),
+       text.fixed = "Fixed effect model",
+       text.random = "Random effects model",
+       col.diamond = "blue",
+       col.diamond.lines = "black",
+       col.predict = "red")
+
+# Subgroup analysis forest plot
+forest(m.cont,
+       byvar = year < 1990,
+       bylab = "Publication before 1990",
+       print.byvar = FALSE,
+       byseparator = " = ")
+```
+
+#### forestploter Package - ggplot2-Based Forest Plots
+
+```{r forestploter_example, eval=FALSE}
+library(forestploter)
+
+# Modern ggplot2-based approach
+dt <- read.csv(system.file("extdata", "example_data.csv", package = "forestploter"))
+
+# Prepare data with confidence intervals
+dt$` ` <- paste(rep(" ", 20), collapse = " ")
+dt$`HR (95% CI)` <- ifelse(is.na(dt$se), "",
+                          sprintf("%.2f (%.2f to %.2f)",
+                                  dt$est, dt$low, dt$hi))
+
+# Advanced forest plot with custom themes
+p <- forest(dt[,c(1:3, 20:21)],
+            est = dt$est,
+            lower = dt$low, 
+            upper = dt$hi,
+            sizes = dt$se,
+            ci_column = 4,
+            ref_line = 1,
+            arrow_lab = c("Placebo Better", "Treatment Better"),
+            xlim = c(0, 4),
+            ticks_at = c(0.5, 1, 2, 4),
+            footnote = "This is the demo data. Please feel free to change \nthe rows and columns")
+
+# Add theme and save
+plot(p) + theme_minimal()
+```
+
+#### Clinical Trial Subgroup Analysis Example
+
+```{r clinical_subgroup_forest, eval=FALSE}
+# Realistic clinical trial subgroup analysis
+subgroup_data <- data.frame(
+  Subgroup = c("Overall Population", "", "Age", "  < 65 years", "  ≥ 65 years", 
+               "", "Sex", "  Male", "  Female", "", "ECOG PS", "  0", "  1", 
+               "", "Histology", "  Adenocarcinoma", "  Squamous"),
+  N = c(450, NA, NA, 180, 270, NA, NA, 267, 183, NA, NA, 201, 249, 
+        NA, NA, 315, 135),
+  Events = c(320, NA, NA, 125, 195, NA, NA, 189, 131, NA, NA, 142, 178, 
+            NA, NA, 225, 95),
+  HR = c(0.75, NA, NA, 0.68, 0.82, NA, NA, 0.71, 0.84, NA, NA, 0.69, 0.79, 
+         NA, NA, 0.73, 0.81),
+  Lower = c(0.61, NA, NA, 0.49, 0.64, NA, NA, 0.56, 0.62, NA, NA, 0.52, 0.62, 
+           NA, NA, 0.58, 0.58),
+  Upper = c(0.93, NA, NA, 0.95, 1.05, NA, NA, 0.91, 1.13, NA, NA, 0.92, 1.01, 
+           NA, NA, 0.93, 1.13),
+  PValue = c(0.009, NA, NA, 0.025, 0.115, NA, NA, 0.006, 0.238, NA, NA, 
+            0.012, 0.058, NA, NA, 0.008, 0.364)
+)
+
+# Format for clinical presentation
+subgroup_data$`HR (95% CI)` <- ifelse(is.na(subgroup_data$HR), "",
+                                      sprintf("%.2f (%.2f-%.2f)",
+                                              subgroup_data$HR,
+                                              subgroup_data$Lower,
+                                              subgroup_data$Upper))
+
+subgroup_data$`P Value` <- ifelse(is.na(subgroup_data$PValue), "",
+                                 ifelse(subgroup_data$PValue < 0.001, "<0.001",
+                                        sprintf("%.3f", subgroup_data$PValue)))
+
+# Clinical forest plot
+forest(subgroup_data[,c("Subgroup", "N", "Events", "HR (95% CI)", "P Value")],
+       est = subgroup_data$HR,
+       lower = subgroup_data$Lower,
+       upper = subgroup_data$Upper,
+       sizes = 0.4,
+       ci_column = 4,
+       ref_line = 1,
+       xlim = c(0.3, 1.5),
+       ticks_at = c(0.5, 0.75, 1.0, 1.25),
+       arrow_lab = c("Favors Treatment", "Favors Control"),
+       footnote = "Hazard ratios from stratified Cox proportional hazards model\nP-values from likelihood ratio test")
+```
+
+#### Key Advantages of Current Forest Plot SOTA:
+- **Flexible Table Integration**: Rich tabular data alongside plots
+- **Meta-Analysis Support**: Heterogeneity statistics and prediction intervals  
+- **Subgroup Capabilities**: Hierarchical grouping and stratification
+- **Statistical Integration**: Automatic effect size calculations
+- **Publication Quality**: Journal-ready formatting options
+- **Clinical Customization**: Regulatory-compliant layouts
+
+## Proposed zzlongplot Enhancement
+
+### Syntax Design
+
+```{r zzlongplot_forest_syntax, eval=FALSE}
+# Subgroup analysis forest plot
+lplot(subgroup_data,
+      form = effect_size ~ 1 | subgroup,
+      plot_type = "forest",
+      effect_type = "hazard_ratio",
+      confidence_level = 0.95,
+      reference_line = 1,
+      sort_by = "effect_size",
+      show_weights = TRUE,
+      title = "Hazard Ratio by Subgroup")
+
+# Meta-analysis forest plot with heterogeneity
+lplot(meta_data,
+      form = effect ~ 1 | study,
+      plot_type = "forest",
+      meta_analysis = TRUE,
+      heterogeneity_test = TRUE,
+      random_effects = TRUE,
+      prediction_interval = TRUE)
+```
+
+### Implementation Architecture
+
+Forest plot implementation requires:
+
+1. **Effect Size Calculation**: Automatic computation of HR, OR, RR with confidence intervals
+2. **Meta-Analysis Integration**: Random/fixed effects models
+3. **Heterogeneity Assessment**: I² and Q statistics
+4. **Customizable Display**: Study weights, prediction intervals
+
+```{r forest_implementation, eval=FALSE}
+# Internal forest plot structure
+generate_forest_plot <- function(data, effect_var, group_var, effect_type) {
+  # Calculate effect sizes and confidence intervals
+  forest_data <- data %>%
+    group_by(!!sym(group_var)) %>%
+    summarise(
+      effect = calculate_effect_size(!!sym(effect_var), type = effect_type),
+      lower_ci = effect - 1.96 * se,
+      upper_ci = effect + 1.96 * se,
+      weight = calculate_weight(n, effect_type)
+    )
+  
+  # Create forest plot
+  p <- ggplot(forest_data, aes(y = !!sym(group_var))) +
+    geom_point(aes(x = effect, size = weight)) +
+    geom_errorbarh(aes(xmin = lower_ci, xmax = upper_ci)) +
+    geom_vline(xintercept = ifelse(effect_type %in% c("HR", "OR"), 1, 0), 
+               linetype = "dashed") +
+    theme_clinical()
+  
+  return(p)
+}
+```
+
+### Clinical Use Cases
+
+1. **Subgroup Analysis**: Treatment effects across patient characteristics
+2. **Meta-Analysis**: Pooled results from multiple studies
+3. **Biomarker Analysis**: Effect modification by biomarker status
+4. **Safety Analysis**: Adverse event rates across treatment groups
+
+### Regulatory Standards
+
+- **CONSORT Guidelines**: Transparent reporting of clinical trials
+- **PRISMA Standards**: Meta-analysis reporting requirements
+- **FDA Subgroup Guidance**: Pre-specified vs. post-hoc analysis labeling
+
+# Feature 3: Patient Timeline Visualization (Swimmer Plots)
+
+## Current State-of-the-Art
+
+Swimmer plots have gained popularity in oncology for visualizing individual patient treatment journeys. The `swimplot` package provides basic functionality.
+
+### Current Best Practice Examples
+
+#### swimplot Package - Basic Swimmer Plots
+
+```{r swimmer_example, eval=FALSE}
+library(swimplot)
+
+# Current swimmer plot approach - basic functionality
+swimmer_data <- data.frame(
+  id = 1:10,
+  start = rep(0, 10),
+  end = c(12, 8, 16, 20, 4, 24, 18, 14, 10, 22),
+  response = c("PR", "PD", "CR", "PR", "PD", "CR", "SD", "PR", "PD", "CR"),
+  progression = c(8, 4, NA, 15, 3, NA, 12, 10, 6, NA),
+  death = c(NA, 8, NA, NA, 4, NA, NA, NA, 10, NA)
+)
+
+# Basic swimmer plot
+p <- swimplot(swimmer_data, id = "id", start = "start", end = "end", 
+              fill = "response") +
+  add_marker(aes(x = progression, y = id), 
+             marker = "circle", color = "red", size = 3) +
+  add_marker(aes(x = death, y = id), 
+             marker = "square", color = "black", size = 3) +
+  scale_fill_manual(values = c("PR" = "lightblue", "CR" = "darkgreen", 
+                              "SD" = "yellow", "PD" = "red")) +
+  theme_minimal()
+
+print(p)
+```
+
+#### Custom ggplot2 Swimmer Plot - Advanced Features
+
+```{r advanced_swimmer_example, eval=FALSE}
+library(ggplot2)
+library(dplyr)
+
+# More realistic clinical trial swimmer plot data
+clinical_swimmer <- data.frame(
+  patient_id = paste0("P", sprintf("%03d", 1:25)),
+  treatment_arm = rep(c("Experimental", "Control"), length.out = 25),
+  treatment_start = 0,
+  treatment_end = c(15, 8, 22, 18, 6, 28, 12, 19, 24, 14,
+                   11, 7, 20, 16, 9, 25, 13, 17, 21, 10,
+                   26, 15, 8, 19, 23),
+  best_response = sample(c("CR", "PR", "SD", "PD"), 25, replace = TRUE,
+                        prob = c(0.12, 0.35, 0.38, 0.15)),
+  progression_time = c(12, 6, NA, 15, 5, NA, 10, 16, NA, 12,
+                      9, 6, 18, 14, 8, NA, 11, 15, NA, 9,
+                      22, 13, 7, 17, NA),
+  death_time = c(NA, 8, NA, NA, 6, NA, NA, NA, 24, NA,
+                NA, 7, NA, NA, 9, NA, NA, NA, 21, 10,
+                NA, NA, 8, NA, 23),
+  dosing_interruption_1 = c(5, NA, 8, NA, 3, 12, NA, 7, 10, NA,
+                           4, NA, 9, 6, NA, 15, 5, NA, 8, 4,
+                           11, 7, NA, 9, 12),
+  dosing_interruption_2 = c(NA, NA, 15, NA, NA, 18, NA, 14, NA, NA,
+                           NA, NA, 16, NA, NA, 22, NA, NA, 17, NA,
+                           19, 14, NA, 16, 20)
+)
+
+# Prepare data for plotting
+swimmer_long <- clinical_swimmer %>%
+  arrange(desc(treatment_end)) %>%
+  mutate(
+    patient_order = factor(patient_id, levels = patient_id),
+    response_color = case_when(
+      best_response == "CR" ~ "#2E8B57",  # Sea green
+      best_response == "PR" ~ "#4169E1",  # Royal blue  
+      best_response == "SD" ~ "#DAA520",  # Goldenrod
+      best_response == "PD" ~ "#DC143C"   # Crimson
+    )
+  )
+
+# Create advanced swimmer plot
+p_advanced <- ggplot(swimmer_long, aes(y = patient_order)) +
+  # Treatment duration bars
+  geom_segment(aes(x = treatment_start, xend = treatment_end, 
+                  color = best_response), 
+               size = 6, alpha = 0.8) +
+  
+  # Progression markers (triangles)
+  geom_point(aes(x = progression_time), 
+             shape = 17, size = 3, color = "red", 
+             na.rm = TRUE) +
+  
+  # Death markers (X)
+  geom_point(aes(x = death_time), 
+             shape = 4, size = 4, color = "black", 
+             stroke = 2, na.rm = TRUE) +
+  
+  # Dose interruption markers (diamonds)
+  geom_point(aes(x = dosing_interruption_1), 
+             shape = 18, size = 2, color = "orange", 
+             na.rm = TRUE) +
+  geom_point(aes(x = dosing_interruption_2), 
+             shape = 18, size = 2, color = "orange", 
+             na.rm = TRUE) +
+  
+  # Facet by treatment arm
+  facet_wrap(~treatment_arm, scales = "free_y", ncol = 2) +
+  
+  # Styling
+  scale_color_manual(values = c("CR" = "#2E8B57", "PR" = "#4169E1", 
+                               "SD" = "#DAA520", "PD" = "#DC143C"),
+                    name = "Best Response") +
+  
+  scale_x_continuous(breaks = seq(0, 30, 5), limits = c(0, 30)) +
+  
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 8),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold")
+  ) +
+  
+  labs(
+    x = "Time on Study (months)",
+    y = "Patient ID (sorted by treatment duration)",
+    title = "Patient Treatment Timelines and Outcomes",
+    subtitle = "Progression (▲), Death (✕), Dose Interruption (♦)",
+    caption = "Patients sorted by treatment duration within each arm"
+  )
+
+print(p_advanced)
+```
+
+#### ggswim Package - Modern Swimmer Plot Approach
+
+```{r ggswim_example, eval=FALSE}
+# Note: ggswim is in development, syntax may vary
+library(ggswim)  # Hypothetical syntax
+
+# Modern swimmer plot with ggswim
+ggswim(clinical_swimmer, 
+       aes(x = treatment_start, xend = treatment_end, y = patient_id)) +
+  geom_swim_lane(aes(fill = best_response), width = 0.8) +
+  geom_swim_point(aes(x = progression_time), 
+                 shape = "triangle", color = "red", size = 3) +
+  geom_swim_point(aes(x = death_time), 
+                 shape = "cross", color = "black", size = 3) +
+  facet_swim(~treatment_arm) +
+  scale_fill_response() +  # Predefined clinical response colors
+  theme_swim() +
+  labs(title = "Treatment Duration and Clinical Events")
+```
+
+#### Oncology-Specific Swimmer Plot
+
+```{r oncology_swimmer_example, eval=FALSE}
+# Realistic oncology trial swimmer plot
+oncology_data <- data.frame(
+  patient = paste0("PT", 1:30),
+  arm = rep(c("Pembrolizumab", "Investigator's Choice"), each = 15),
+  randomization_date = as.Date("2022-01-01") + sample(0:180, 30),
+  treatment_duration = c(18, 12, 26, 8, 35, 15, 22, 9, 31, 14,
+                        6, 28, 17, 24, 11, 13, 7, 19, 25, 16,
+                        21, 10, 29, 18, 12, 8, 33, 20, 14, 27),
+  
+  # RECIST responses over time
+  first_assessment = sample(c("PR", "SD", "PD"), 30, replace = TRUE, 
+                           prob = c(0.25, 0.65, 0.10)),
+  best_response = sample(c("CR", "PR", "SD", "PD"), 30, replace = TRUE, 
+                        prob = c(0.08, 0.32, 0.45, 0.15)),
+  
+  # Time to events
+  progression_time = ifelse(runif(30) > 0.3, 
+                           pmax(3, pmin(treatment_duration - 1, 
+                                       rnorm(30, 12, 5))), NA),
+  death_time = ifelse(runif(30) > 0.7,
+                     pmax(6, treatment_duration + rnorm(30, 3, 2)), NA),
+  
+  # Toxicity events
+  grade3_ae_time = ifelse(runif(30) > 0.6,
+                         sample(1:20, 30, replace = TRUE), NA),
+  treatment_discontinuation = treatment_duration
+)
+
+# Create comprehensive oncology swimmer plot
+ggplot(oncology_data, aes(y = reorder(patient, treatment_duration))) +
+  # Treatment duration bars colored by best response
+  geom_col(aes(x = treatment_duration, fill = best_response), 
+           width = 0.7, alpha = 0.8) +
+  
+  # Progression markers
+  geom_point(aes(x = progression_time), 
+             shape = 25, size = 3, fill = "red", color = "darkred",
+             na.rm = TRUE) +
+  
+  # Death markers  
+  geom_point(aes(x = death_time),
+             shape = 4, size = 4, color = "black", stroke = 2,
+             na.rm = TRUE) +
+  
+  # Grade 3+ AE markers
+  geom_point(aes(x = grade3_ae_time),
+             shape = 23, size = 2, fill = "yellow", color = "orange",
+             na.rm = TRUE) +
+  
+  # Facet by treatment arm
+  facet_wrap(~arm, scales = "free_y") +
+  
+  # RECIST response colors
+  scale_fill_manual(
+    values = c("CR" = "#2E8B57", "PR" = "#4169E1", 
+              "SD" = "#DAA520", "PD" = "#DC143C"),
+    name = "Best Response"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 8),
+    panel.grid.minor.x = element_blank(),
+    legend.position = "bottom"
+  ) +
+  
+  labs(
+    x = "Time on Study (months)",
+    y = "Patient (sorted by treatment duration)",
+    title = "Oncology Trial: Treatment Duration and Clinical Outcomes",
+    subtitle = "Progression (▼), Death (✕), Grade ≥3 AE (♢)",
+    caption = "Data shown from randomization to treatment discontinuation"
+  )
+```
+
+#### Key Advantages of Current Swimmer Plot SOTA:
+- **Individual Patient Visualization**: Clear treatment journey representation
+- **Multi-Event Overlay**: Simultaneous display of multiple clinical events
+- **Flexible Timeline Scales**: Monthly, weekly, or daily representations
+- **Response Integration**: RECIST criteria and biomarker responses
+- **Treatment Arm Comparison**: Side-by-side or faceted displays
+- **Clinical Event Coding**: Standardized symbols for progression, death, AEs
+
+## Proposed zzlongplot Enhancement
+
+### Syntax Design
+
+```{r zzlongplot_swimmer_syntax, eval=FALSE}
+# Individual patient timeline
+lplot(patient_data,
+      form = treatment_duration ~ 1 | treatment_arm,
+      plot_type = "swimmer",
+      patient_id = "USUBJID",
+      event_markers = list(
+        progression = list(var = "progression_date", shape = "triangle", color = "red"),
+        death = list(var = "death_date", shape = "x", color = "black"),
+        response = list(var = "best_response", shape = "circle")
+      ),
+      response_bars = "best_overall_response",
+      sort_by = "treatment_duration",
+      title = "Patient Treatment Timelines")
+
+# Multi-period swimmer plot
+lplot(treatment_data,
+      form = duration ~ treatment_line | response_category,
+      plot_type = "swimmer",
+      patient_id = "patient_id",
+      treatment_periods = list(
+        induction = "period_1",
+        maintenance = "period_2", 
+        salvage = "period_3"
+      ),
+      facet_form = ~ histology)
+```
+
+### Implementation Architecture
+
+Swimmer plot implementation involves:
+
+1. **Timeline Construction**: Patient-specific treatment duration bars
+2. **Event Overlay**: Multiple event types with customizable markers
+3. **Response Visualization**: Color-coded treatment response periods
+4. **Sorting and Grouping**: Flexible patient ordering options
+
+```{r swimmer_implementation, eval=FALSE}
+# Internal swimmer plot structure
+generate_swimmer_plot <- function(data, duration_var, patient_var, events) {
+  # Prepare timeline data
+  timeline_data <- data %>%
+    select(all_of(c(patient_var, duration_var))) %>%
+    arrange(desc(!!sym(duration_var)))
+  
+  # Create base swimmer plot
+  p <- ggplot(timeline_data, aes(y = factor(!!sym(patient_var), 
+                                           levels = unique(!!sym(patient_var))))) +
+    geom_col(aes(x = !!sym(duration_var)), width = 0.6) +
+    theme_minimal() +
+    labs(y = "Patient ID", x = "Treatment Duration (months)")
+  
+  # Add event markers
+  for (event in names(events)) {
+    event_data <- prepare_event_data(data, event, events[[event]])
+    p <- p + geom_point(data = event_data, 
+                       aes(x = event_time, y = !!sym(patient_var)),
+                       shape = events[[event]]$shape,
+                       color = events[[event]]$color,
+                       size = 3)
+  }
+  
+  return(p)
+}
+```
+
+### Clinical Use Cases
+
+1. **Oncology Trials**: Treatment duration and tumor response over time
+2. **Immunotherapy Studies**: Immune-related response patterns
+3. **Combination Therapy**: Multi-agent treatment timelines
+4. **Dose Escalation Studies**: Individual patient dose modifications
+
+### Visualization Standards
+
+- **Patient Anonymization**: De-identified patient ordering
+- **Timeline Accuracy**: Precise event timing representation
+- **Response Standardization**: RECIST-compliant response categorization
+
+# Feature 4: Waterfall Plot Support
+
+## Current State-of-the-Art
+
+Waterfall plots are crucial for visualizing tumor response data in oncology trials. Currently implemented through custom `ggplot2` code.
+
+### Current Best Practice Example
+
+```{r waterfall_example, eval=FALSE}
+# Current waterfall plot approach
+tumor_data <- data.frame(
+  patient_id = paste0("P", 1:30),
+  percent_change = c(seq(-50, -20, length.out = 10),
+                     seq(-20, 20, length.out = 10), 
+                     seq(20, 80, length.out = 10)),
+  best_response = c(rep("CR", 3), rep("PR", 7), rep("SD", 10), rep("PD", 10))
+)
+
+ggplot(tumor_data, aes(x = reorder(patient_id, percent_change), 
+                       y = percent_change, fill = best_response)) +
+  geom_col(width = 0.7) +
+  geom_hline(yintercept = c(-30, 20), linetype = "dashed", color = "red") +
+  scale_fill_manual(values = c("CR" = "darkgreen", "PR" = "green", 
+                               "SD" = "yellow", "PD" = "red")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "Patient", y = "Best % Change from Baseline", 
+       fill = "Best Response")
+```
+
+## Proposed zzlongplot Enhancement
+
+### Syntax Design
+
+```{r zzlongplot_waterfall_syntax, eval=FALSE}
+# Tumor response waterfall
+lplot(tumor_data,
+      form = percent_change_from_baseline ~ 1 | treatment_arm,
+      plot_type = "waterfall",
+      patient_id = "USUBJID",
+      response_categories = "best_overall_response",
+      response_thresholds = list(
+        complete_response = -100,
+        partial_response = -30,
+        stable_disease = 20,
+        progressive_disease = Inf
+      ),
+      sort_by = "percent_change_from_baseline",
+      reference_lines = c(-30, 20),
+      title = "Best Tumor Response")
+
+# Multi-timepoint waterfall
+lplot(longitudinal_tumor_data,
+      form = tumor_measurement ~ timepoint | treatment,
+      plot_type = "waterfall",
+      patient_id = "patient_id",
+      baseline_timepoint = "Baseline",
+      facet_form = ~ histology_type)
+```
+
+### Implementation Architecture
+
+Waterfall plot functionality requires:
+
+1. **Response Calculation**: Automatic percent change computation
+2. **RECIST Integration**: Standard oncology response criteria
+3. **Patient Sorting**: Flexible ordering by response magnitude
+4. **Threshold Visualization**: Customizable response cutoff lines
+
+```{r waterfall_implementation, eval=FALSE}
+# Internal waterfall plot structure
+generate_waterfall_plot <- function(data, change_var, patient_var, 
+                                   response_var = NULL) {
+  # Calculate percent change and sort patients
+  waterfall_data <- data %>%
+    arrange(!!sym(change_var)) %>%
+    mutate(patient_order = factor(!!sym(patient_var), 
+                                 levels = unique(!!sym(patient_var))))
+  
+  # Create waterfall plot
+  p <- ggplot(waterfall_data, aes(x = patient_order, y = !!sym(change_var))) +
+    geom_col(width = 0.7) +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()) +
+    labs(x = "Patients (sorted by response)", 
+         y = "Percent Change from Baseline")
+  
+  # Add response coloring if provided
+  if (!is.null(response_var)) {
+    p <- p + aes(fill = !!sym(response_var))
+  }
+  
+  return(p)
+}
+```
+
+### Clinical Use Cases
+
+1. **Oncology Efficacy**: Tumor shrinkage visualization
+2. **Biomarker Studies**: Response correlation with biomarker levels
+3. **Dose-Response Studies**: Effect magnitude across dose levels
+4. **Combination Therapy**: Additive vs. synergistic effects
+
+### RECIST Compliance
+
+- **Standard Thresholds**: -30% (PR), +20% (PD) cutoffs
+- **Response Categories**: CR, PR, SD, PD classification
+- **Measurement Validation**: Target lesion sum calculations
+
+# Feature 5: Missing Data Visualization
+
+## Current Challenges
+
+Missing data is pervasive in clinical trials and requires explicit visualization and sensitivity analysis. Current packages provide limited missing data visualization capabilities.
+
+### Current Approaches
+
+```{r missing_data_current, eval=FALSE}
+library(VIM)
+library(naniar)
+
+# Current missing data visualization
+vis_miss(clinical_data)
+gg_miss_var(clinical_data)
+gg_miss_fct(clinical_data, visit)
+```
+
+## Proposed zzlongplot Enhancement
+
+### Syntax Design
+
+```{r zzlongplot_missing_syntax, eval=FALSE}
+# Missing data pattern visualization
+lplot(clinical_data,
+      form = efficacy ~ visit | treatment,
+      plot_type = "missing_pattern",
+      missing_method = "pattern",
+      cluster_var = "patient_id",
+      title = "Missing Data Patterns")
+
+# Sensitivity analysis with multiple imputation
+lplot(clinical_data,
+      form = efficacy ~ visit | treatment,
+      missing_handling = list(
+        observed = "complete_cases",
+        locf = "last_observation_carried_forward",
+        bocf = "baseline_observation_carried_forward",
+        mi = "multiple_imputation"
+      ),
+      plot_type = "both",
+      sensitivity_analysis = TRUE)
+```
+
+### Implementation Architecture
+
+Missing data features include:
+
+1. **Pattern Detection**: Automatic identification of missing data patterns
+2. **Imputation Methods**: LOCF, BOCF, multiple imputation options
+3. **Sensitivity Analysis**: Multiple analysis approaches
+4. **Regulatory Compliance**: ICH E9(R1) missing data principles
+
+```{r missing_implementation, eval=FALSE}
+# Missing data analysis structure
+analyze_missing_data <- function(data, outcome_var, time_var, group_var) {
+  # Pattern analysis
+  missing_patterns <- data %>%
+    group_by(!!sym(group_var)) %>%
+    summarise(
+      complete_cases = sum(complete.cases(.)),
+      total_cases = n(),
+      missing_rate = 1 - complete_cases/total_cases,
+      .groups = "drop"
+    )
+  
+  # Imputation methods
+  imputed_data <- list(
+    locf = apply_locf(data, outcome_var, time_var),
+    bocf = apply_bocf(data, outcome_var, time_var),
+    mi = apply_multiple_imputation(data, outcome_var, time_var)
+  )
+  
+  return(list(patterns = missing_patterns, imputed = imputed_data))
+}
+```
+
+### Clinical Use Cases
+
+1. **Primary Analysis**: Complete case analysis with missing data assessment
+2. **Sensitivity Analysis**: Multiple imputation scenarios
+3. **Regulatory Submission**: ICH E9(R1) compliant missing data handling
+4. **Study Monitoring**: Real-time missing data pattern detection
+
+### Regulatory Requirements
+
+- **ICH E9(R1)**: Addendum on estimands and sensitivity analysis
+- **Missing Data Assumptions**: MAR, MCAR, MNAR classification
+- **Sensitivity Testing**: Multiple analysis approaches required
+
+# Feature 6: Enhanced Statistical Overlays
+
+## Current Limitations
+
+Existing packages provide basic statistical testing but lack comprehensive multiple comparison procedures and trend analysis capabilities.
+
+## Proposed zzlongplot Enhancement
+
+### Syntax Design
+
+```{r zzlongplot_stats_syntax, eval=FALSE}
+# Comprehensive statistical testing
+lplot(clinical_data,
+      form = efficacy ~ visit | treatment,
+      statistical_tests = list(
+        overall = list(method = "anova", type = "repeated_measures"),
+        pairwise = list(method = "t.test", adjustment = "bonferroni"),
+        trend = list(method = "jonckheere", direction = "increasing"),
+        dose_response = list(method = "contrast", type = "linear")
+      ),
+      significance_level = 0.05,
+      effect_size = "cohens_d",
+      power_analysis = TRUE)
+
+# Multiplicity adjustment
+lplot(multi_endpoint_data,
+      form = cbind(endpoint1, endpoint2, endpoint3) ~ visit | treatment,
+      statistical_tests = "hotelling_t2",
+      multiplicity_adjustment = "hochberg",
+      family_wise_error = 0.05)
+```
+
+### Implementation Architecture
+
+Enhanced statistics require:
+
+1. **Multiple Comparison Procedures**: Bonferroni, Holm, FDR corrections
+2. **Trend Analysis**: Jonckheere-Terpstra, linear contrast tests  
+3. **Effect Size Calculation**: Cohen's d, hedges' g, eta-squared
+4. **Power Analysis**: Post-hoc power calculations
+
+### Clinical Use Cases
+
+1. **Dose-Response Studies**: Linear and non-linear trend testing
+2. **Multi-Endpoint Trials**: Global statistical testing
+3. **Adaptive Designs**: Sequential testing procedures
+4. **Biomarker Validation**: Effect modification testing
+
+# Feature 7: Regulatory-Ready Export
+
+## Current Export Limitations
+
+Most R packages produce graphics suitable for manuscripts but lack the specific formatting requirements for regulatory submissions.
+
+## Proposed zzlongplot Enhancement
+
+### Syntax Design
+
+```{r zzlongplot_export_syntax, eval=FALSE}
+# Regulatory export functionality
+export_clinical_plot(plot_object,
+  format = c("rtf", "pdf", "wmf"),
+  regulatory_standard = "FDA",
+  title = list(
+    number = "Figure 14.2.1.1",
+    text = "Efficacy Over Time by Treatment Group",
+    subtitle = "Full Analysis Set"
+  ),
+  footnotes = c(
+    "Study ABC-123, Database Cutoff: 01JAN2024",
+    "Missing data handled using LOCF method",
+    "P-values from mixed-effects model repeated measures"
+  ),
+  study_metadata = list(
+    protocol = "ABC-123",
+    population = "FAS", 
+    analysis_date = Sys.Date()
+  ),
+  file_specs = list(
+    width = 10, height = 6, dpi = 300,
+    font_family = "Times New Roman",
+    font_size = 11
+  ))
+```
+
+### Implementation Features
+
+1. **Multiple Formats**: RTF, PDF, WMF, PNG with regulatory specifications
+2. **Metadata Integration**: Automatic study information inclusion
+3. **Template System**: Pre-built regulatory templates
+4. **Version Control**: Automatic versioning and audit trail
+
+### Regulatory Compliance
+
+- **FDA Requirements**: eCTD formatting specifications
+- **EMA Standards**: European submission guidelines  
+- **ICH Guidelines**: International harmonization requirements
+
+# Feature 8: Biomarker Correlation Plots
+
+## Current Approaches
+
+Biomarker-efficacy correlations typically require custom visualization code combining multiple data sources.
+
+## Proposed zzlongplot Enhancement
+
+### Syntax Design
+
+```{r zzlongplot_biomarker_syntax, eval=FALSE}
+# Biomarker-efficacy correlation
+lplot(biomarker_data,
+      form = efficacy ~ biomarker_level | treatment,
+      plot_type = "correlation",
+      correlation_method = "spearman",
+      color_by = "response_category",
+      size_by = "tumor_burden",
+      facet_form = ~ mutation_status,
+      trend_line = TRUE,
+      confidence_bands = TRUE)
+
+# Multi-biomarker heatmap
+lplot(multi_biomarker_data,
+      form = response_probability ~ biomarker_1 + biomarker_2 | treatment,
+      plot_type = "heatmap",
+      biomarker_thresholds = list(
+        biomarker_1 = c(low = 10, high = 100),
+        biomarker_2 = c(low = 5, high = 50)
+      ))
+```
+
+### Clinical Use Cases
+
+1. **Predictive Biomarkers**: Treatment selection markers
+2. **Prognostic Biomarkers**: Disease outcome prediction
+3. **Pharmacodynamic Markers**: Drug mechanism confirmation
+4. **Companion Diagnostics**: Biomarker-drug co-development
+
+# Feature 9: Advanced Clinical Faceting
+
+## Enhanced Population Stratification
+
+### Syntax Design
+
+```{r zzlongplot_advanced_faceting_syntax, eval=FALSE}
+# Population-stratified analysis
+lplot(clinical_data,
+      form = efficacy ~ visit | treatment,
+      facet_form = analysis_population ~ site_group,
+      population_definitions = list(
+        FAS = "FASFL == 'Y'",
+        Safety = "SAFFL == 'Y'", 
+        PK = "PKFL == 'Y'"
+      ),
+      sample_size_annotation = "per_facet",
+      statistical_tests = "per_facet")
+
+# Biomarker stratification
+lplot(stratified_data,
+      form = survival_months ~ 1 | treatment,
+      facet_form = biomarker_high ~ mutation_status,
+      plot_type = "survival",
+      stratification_method = "median_split")
+```
+
+### Implementation Features
+
+1. **Dynamic Population Filtering**: Automatic subset analysis
+2. **Hierarchical Faceting**: Multi-level stratification
+3. **Sample Size Monitoring**: Automatic N reporting
+4. **Statistical Power Assessment**: Per-stratum power calculations
+
+# Feature 10: Interactive Clinical Dashboards
+
+## Proposed Interactive Features
+
+### Syntax Design
+
+```{r zzlongplot_interactive_syntax, eval=FALSE}
+# Interactive patient explorer
+lplot(patient_data,
+      form = efficacy ~ visit | treatment,
+      interactive = TRUE,
+      hover_info = c("patient_id", "adverse_events", "concomitant_meds"),
+      click_action = "patient_profile",
+      filters = c("age_group", "baseline_severity", "prior_therapy"),
+      export_options = c("pdf", "png", "data"))
+
+# Real-time study monitoring dashboard
+clinical_dashboard(
+  primary_endpoint = lplot(data, os ~ month | treatment, plot_type = "survival"),
+  secondary_endpoints = lplot(data, pfs ~ month | treatment, plot_type = "survival"),
+  safety_overview = lplot(data, ae_grade ~ visit | treatment),
+  enrollment_tracker = lplot(data, cumulative_enrollment ~ week | site),
+  update_frequency = "weekly",
+  alert_thresholds = list(
+    efficacy_boundary = 0.05,
+    safety_boundary = 0.10
+  )
+)
+```
+
+### Implementation Architecture
+
+Interactive features would require:
+
+1. **Shiny Integration**: Web-based dashboard framework
+2. **Real-time Data Connection**: Live database integration  
+3. **User Authentication**: Secure access control
+4. **Export Functionality**: Interactive plot saving
+
+### Clinical Use Cases
+
+1. **Data Monitoring Committees**: Real-time safety monitoring
+2. **Regulatory Interactions**: Interactive submission materials
+3. **Investigator Portals**: Site-specific data exploration
+4. **Patient Reported Outcomes**: Dynamic quality of life tracking
+
+# Implementation Roadmap
+
+## Phase 1: Core Statistical Graphics (Months 1-6)
+- Survival Analysis Integration
+- Forest Plot Capabilities  
+- Statistical Overlays Enhancement
+
+## Phase 2: Patient-Centric Visualizations (Months 7-12)
+- Swimmer Plot Implementation
+- Waterfall Plot Support
+- Missing Data Visualization
+
+## Phase 3: Regulatory and Advanced Features (Months 13-18)
+- Regulatory Export Functionality
+- Biomarker Correlation Plots
+- Advanced Clinical Faceting
+
+## Phase 4: Interactive and Dashboard Features (Months 19-24)
+- Interactive Clinical Dashboards
+- Real-time Monitoring Capabilities
+- Integration with Clinical Data Management Systems
+
+# Technical Requirements
+
+## Dependencies
+- **Core**: ggplot2 (≥3.4.0), dplyr (≥1.1.0), survival (≥3.4.0)
+- **Statistical**: emmeans, multcomp, meta, metafor
+- **Interactive**: shiny, plotly, DT
+- **Export**: officer, flextable, rtf
+
+## Performance Considerations
+- **Large Datasets**: Efficient handling of 10,000+ patients
+- **Memory Management**: Streaming data processing for large trials
+- **Computation Speed**: Optimized statistical calculations
+
+## Quality Assurance
+- **Unit Testing**: Comprehensive test coverage (>90%)
+- **Regulatory Validation**: FDA/EMA compliance testing
+- **Clinical User Testing**: Statistician and clinician feedback
+- **Documentation**: Complete vignette coverage for all features
+
+# Conclusion
+
+This comprehensive enhancement roadmap positions `zzlongplot` as the definitive R package for clinical trial data visualization. By implementing these 10 major features, the package will provide:
+
+1. **Unified Syntax**: Single formula-based interface for all clinical graphics
+2. **Regulatory Compliance**: Built-in FDA/EMA standards adherence  
+3. **Clinical Workflow Integration**: Seamless CDISC/ADaM compatibility
+4. **Advanced Analytics**: Comprehensive statistical testing capabilities
+5. **Interactive Exploration**: Modern dashboard and monitoring tools
+
+The proposed features address critical gaps in the current R ecosystem while maintaining the package's core philosophy of simplicity and clinical relevance. Implementation following the suggested roadmap will establish `zzlongplot` as an essential tool for pharmaceutical statisticians, clinical researchers, and regulatory professionals.
+
+# References
+
+- Clinical Data Interchange Standards Consortium (CDISC). Analysis Data Model Implementation Guide v1.1. 2021.
+- Food and Drug Administration. Statistical Principles for Clinical Trials: ICH E9. 1998.
+- European Medicines Agency. Guideline on Missing Data in Confirmatory Clinical Trials. 2010.
+- International Council for Harmonisation. Addendum on Estimands and Sensitivity Analysis in Clinical Trials to the Guideline on Statistical Principles for Clinical Trials E9(R1). 2019.
