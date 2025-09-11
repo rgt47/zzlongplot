@@ -381,6 +381,8 @@ get_publication_theme <- function(theme_name = "nature", ...) {
 #' @param plot A ggplot object.
 #' @param theme_name Character string specifying theme name.
 #' @param color_palette Character string specifying color palette or vector of colors.
+#'   Options: "clinical", "treatment", "severity", "outcome", "fda", or journal-specific
+#'   palettes: "nejm", "nature", "lancet", "jama", "science", "jco".
 #' @param ... Additional arguments passed to theme function.
 #'
 #' @return Modified ggplot object.
@@ -388,6 +390,11 @@ get_publication_theme <- function(theme_name = "nature", ...) {
 #' @examples  
 #' p <- ggplot(mtcars, aes(wt, mpg, color = factor(cyl))) + geom_point()
 #' p_pub <- apply_publication_style(p, "nature", "clinical")
+#' 
+#' # Apply journal-specific theme and colors together
+#' p_nejm <- apply_publication_style(p, "nejm", "nejm")
+#' p_nature <- apply_publication_style(p, "nature", "nature")
+#' p_lancet <- apply_publication_style(p, "lancet", "lancet")
 #' 
 #' @export
 apply_publication_style <- function(plot, theme_name = "nature", 
@@ -398,9 +405,14 @@ apply_publication_style <- function(plot, theme_name = "nature",
   
   # Apply color palette if specified
   if (!is.null(color_palette)) {
-    if (length(color_palette) == 1 && color_palette %in% c("clinical", "treatment")) {
-      # Use clinical colors
-      colors <- clinical_colors("treatment")
+    # Check if it's a known clinical/journal palette
+    known_palettes <- c("clinical", "treatment", "severity", "outcome", "fda",
+                        "nejm", "nature", "lancet", "jama", "science", "jco")
+    
+    if (length(color_palette) == 1 && color_palette %in% known_palettes) {
+      # Use clinical/journal colors
+      palette_type <- ifelse(color_palette == "clinical", "treatment", color_palette)
+      colors <- clinical_colors(palette_type)
       plot <- plot + 
         ggplot2::scale_color_manual(values = colors) +
         ggplot2::scale_fill_manual(values = colors)

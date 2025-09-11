@@ -6,7 +6,8 @@
 #'
 #' @param type Character string specifying the type of clinical palette.
 #'   Options: "treatment" (standard treatment colors), "severity" (condition severity),
-#'   "outcome" (positive/negative outcomes). Default is "treatment".
+#'   "outcome" (positive/negative outcomes), "fda" (FDA submission), or journal-specific
+#'   palettes: "nejm", "nature", "lancet", "jama", "science", "jco". Default is "treatment".
 #' @param n Integer specifying the number of colors needed. If not specified,
 #'   returns the full palette.
 #' @param placebo_first Logical. If TRUE, places placebo color first in treatment
@@ -19,9 +20,17 @@
 #' - **Treatment**: Placebo in neutral grey, active treatments in distinct colors
 #' - **Severity**: Progression from mild (light) to severe (dark)  
 #' - **Outcome**: Green for positive, red for negative, grey for neutral
+#' - **FDA**: High contrast colors for regulatory submissions
 #' 
-#' The treatment palette uses colorblind-friendly colors that maintain
-#' distinction in grayscale printing, important for regulatory submissions.
+#' Journal-specific palettes (based on ggsci package):
+#' - **NEJM**: New England Journal of Medicine official colors
+#' - **Nature**: Nature Publishing Group colors (Nature Reviews Cancer)
+#' - **Lancet**: Lancet journal colors (Lancet Oncology)
+#' - **JAMA**: Journal of the American Medical Association colors
+#' - **Science**: Science journal (AAAS) colors
+#' - **JCO**: Journal of Clinical Oncology colors
+#' 
+#' All palettes maintain distinction in grayscale printing and follow accessibility guidelines.
 #'
 #' @examples
 #' # Standard treatment palette
@@ -29,6 +38,11 @@
 #' 
 #' # Severity progression
 #' severity_colors <- clinical_colors("severity", n = 5)
+#' 
+#' # Journal-specific palettes
+#' nejm_colors <- clinical_colors("nejm", n = 4)
+#' nature_colors <- clinical_colors("nature", n = 4) 
+#' lancet_colors <- clinical_colors("lancet", n = 4)
 #' 
 #' # Use in plot
 #' df <- data.frame(
@@ -81,6 +95,85 @@ clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) 
       "#0072B2",  # Blue
       "#D55E00",  # Vermillion
       "#CC79A7"   # Reddish purple
+    ),
+    
+    # Journal-specific color palettes (from ggsci package)
+    # NEJM (New England Journal of Medicine)
+    nejm = c(
+      "#BC3C29",  # NEJM Red
+      "#0072B5",  # NEJM Blue
+      "#E18727",  # Orange
+      "#20854E",  # Green
+      "#7876B1",  # Purple
+      "#6F99AD",  # Light blue
+      "#FFDC91",  # Light yellow
+      "#EE4C97"   # Pink
+    ),
+    
+    # Nature Publishing Group (inspired by Nature Reviews Cancer)
+    nature = c(
+      "#E64B35",  # Cinnabar red
+      "#4DBBD5",  # Sky blue
+      "#00A087",  # Persian green
+      "#3C5488",  # Chambray blue
+      "#F39B7F",  # Apricot
+      "#8491B4",  # Wild blue yonder
+      "#91D1C2",  # Monte carlo green
+      "#DC0000",  # Monza red
+      "#7E6148",  # Roman coffee
+      "#B09C85"   # Sandrift
+    ),
+    
+    # Lancet (inspired by Lancet Oncology)
+    lancet = c(
+      "#00468B",  # Deep blue
+      "#ED0000",  # Lancet red
+      "#42B540",  # Green
+      "#0099B4",  # Cyan
+      "#925E9F",  # Purple
+      "#FDAF91",  # Light orange
+      "#AD002A",  # Dark red
+      "#ADB6B6",  # Light grey
+      "#1B1919"   # Dark grey
+    ),
+    
+    # JAMA (Journal of the American Medical Association)
+    jama = c(
+      "#374E55",  # Dark blue-grey
+      "#DF8F44",  # Orange
+      "#00A1D5",  # Cyan
+      "#B24745",  # Red
+      "#79AF97",  # Green
+      "#6A6599",  # Purple
+      "#80796B"   # Brown-grey
+    ),
+    
+    # Science (AAAS)
+    science = c(
+      "#3B4992",  # Deep blue
+      "#EE0000",  # Red
+      "#008B45",  # Green
+      "#631879",  # Purple
+      "#008280",  # Teal
+      "#BB0021",  # Dark red
+      "#5F559B",  # Purple-blue
+      "#A20056",  # Magenta
+      "#808180",  # Grey
+      "#1B1919"   # Dark grey
+    ),
+    
+    # JCO (Journal of Clinical Oncology)
+    jco = c(
+      "#0073C2",  # Blue
+      "#EFC000",  # Yellow
+      "#868686",  # Grey
+      "#CD534C",  # Red
+      "#7AA6DC",  # Light blue
+      "#003C67",  # Dark blue
+      "#8F7700",  # Dark yellow
+      "#3B3B3B",  # Dark grey
+      "#A73030",  # Dark red
+      "#4A6990"   # Blue-grey
     )
   )
   

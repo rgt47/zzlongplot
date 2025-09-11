@@ -75,8 +75,9 @@ utils::globalVariables(c(
 #' @param show_sample_sizes Logical. If TRUE, shows sample sizes at each timepoint.
 #' @param visit_windows List. Named list defining visit windows for grouping 
 #'   (e.g., list("Week 4" = c(22, 35))).
-#' @param theme Character. Predefined theme for regulatory compliance 
-#'   ("fda", "ema", or NULL for default).
+#' @param theme Character. Predefined publication theme with matching colors.
+#'   Options: "nejm", "nature", "lancet", "jama", "science", "jco", "fda", or NULL.
+#'   Applies both typography/layout AND journal-specific color palette automatically.
 #' @param publication_ready Logical. If TRUE, applies publication-ready defaults
 #'   (professional theme, proper typography, clean styling).
 #' @param statistical_annotations Logical. If TRUE, adds p-values and significance
@@ -106,6 +107,12 @@ utils::globalVariables(c(
 #' # Plot using median and IQR instead of mean and CI
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", summary_statistic = "median")
+#' 
+#' # Apply complete journal styling (theme + colors) with single parameter
+#' lplot(df, measure ~ visit | group, baseline_value = 0,
+#'       cluster_var = "subject_id", theme = "nejm")    # NEJM theme + colors
+#' lplot(df, measure ~ visit | group, baseline_value = 0,
+#'       cluster_var = "subject_id", theme = "nature")  # Nature theme + colors
 #'
 #' # Example with categorical x variable
 #' df2 <- data.frame(
@@ -274,11 +281,28 @@ lplot <- function(
     statistical_annotations = statistical_annotations
   )
   
-  # Apply publication theme if specified
+  # Apply publication theme and colors if specified
   if (!is.null(theme)) {
+    # Apply theme
     pub_theme <- get_publication_theme(theme)
     fig_obs <- fig_obs + pub_theme
     fig_change <- fig_change + pub_theme
+    
+    # Apply matching journal colors if available and no color_palette specified
+    journal_themes <- c("nejm", "nature", "lancet", "jama", "science", "jco")
+    if (theme %in% journal_themes && is.null(color_palette)) {
+      # Get journal-specific colors
+      journal_colors <- clinical_colors(theme)
+      
+      # Apply colors to both plots
+      fig_obs <- fig_obs + 
+        ggplot2::scale_color_manual(values = journal_colors) +
+        ggplot2::scale_fill_manual(values = journal_colors)
+      
+      fig_change <- fig_change + 
+        ggplot2::scale_color_manual(values = journal_colors) +
+        ggplot2::scale_fill_manual(values = journal_colors)
+    }
   }
   
   # Return the requested plots
