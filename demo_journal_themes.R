@@ -147,6 +147,29 @@ cat("lplot(data, form, theme = 'nejm')    # Complete NEJM styling\n")
 cat("lplot(data, form, theme = 'nature')  # Complete Nature styling\n")
 cat("lplot(data, form, theme = 'nejm', color_palette = 'clinical')  # Override colors\n")
 
+# Demonstrate summary statistics options
+cat("\nTesting summary statistics options...\n")
+
+p_summary_comparison <- (
+  lplot(demo_data, efficacy ~ visit | treatment,
+        cluster_var = "subject_id", baseline_value = 0,
+        theme = "nature", summary_statistic = "mean", confidence_interval = 0.95,
+        title = "Mean ± 95% CI") +
+  lplot(demo_data, efficacy ~ visit | treatment,
+        cluster_var = "subject_id", baseline_value = 0,
+        theme = "nature", summary_statistic = "mean_se",
+        title = "Mean ± SE")
+) / (
+  lplot(demo_data, efficacy ~ visit | treatment,
+        cluster_var = "subject_id", baseline_value = 0,
+        theme = "nature", summary_statistic = "median",
+        title = "Median + IQR") +
+  lplot(demo_data, efficacy ~ visit | treatment,
+        cluster_var = "subject_id", baseline_value = 0,
+        theme = "nature", summary_statistic = "boxplot",
+        title = "Boxplot Summary")
+)
+
 cat("\nSupported journal themes:\n")
 cat("- nejm: New England Journal of Medicine\n")
 cat("- nature: Nature Publishing Group\n") 
@@ -154,3 +177,9 @@ cat("- lancet: The Lancet\n")
 cat("- jama: Journal of the American Medical Association\n")
 cat("- science: Science (AAAS)\n")
 cat("- jco: Journal of Clinical Oncology\n")
+
+cat("\nSupported summary statistics:\n")
+cat("- mean: Mean ± CI (when confidence_interval specified) or SE\n")
+cat("- mean_se: Always uses Mean ± SE (standard error)\n")
+cat("- median: Median with IQR bounds (25th-75th percentiles)\n")
+cat("- boxplot: Median with whiskers (1.5 × IQR rule)\n")
