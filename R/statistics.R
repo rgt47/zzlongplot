@@ -43,17 +43,19 @@
 #'   "mean_se" (mean ± SE), "median" (median + IQR), or "boxplot" (quartiles + whiskers).
 #' @param show_sample_sizes Logical. If TRUE, includes sample sizes in output.
 #' @param statistical_tests Logical. If TRUE, performs statistical comparisons.
+#' @param facet_vars Character vector. Names of variables to use for faceting (optional).
 #'
 #' @import dplyr
 #' @export
 compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_value, 
                          confidence_interval = NULL, summary_statistic = "mean",
-                         show_sample_sizes = FALSE, statistical_tests = FALSE) {
+                         show_sample_sizes = FALSE, statistical_tests = FALSE,
+                         facet_vars = NULL) {
   # Parse group into individual components
   groups <- if (!is.null(group_var)) strsplit(group_var, "\\s*\\+\\s*")[[1]] else NULL
   
   # Validate that required columns are present in the data frame
-  required_cols <- c(x_var, y_var, cluster_var, groups)
+  required_cols <- c(x_var, y_var, cluster_var, groups, facet_vars)
   required_cols <- required_cols[!is.null(required_cols)]
   missing_cols <- setdiff(required_cols, names(df))
   
@@ -90,9 +92,10 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
     ) %>%
     dplyr::ungroup()
   
-  # Group by x and any group variables
-  if (!is.null(groups)) {
-    group_cols <- c(groups, x_var)
+  # Group by x and any group variables (including facet variables)
+  all_grouping_vars <- c(groups, facet_vars)
+  if (!is.null(all_grouping_vars)) {
+    group_cols <- c(all_grouping_vars, x_var)
     df <- df %>% dplyr::group_by(dplyr::across(dplyr::all_of(group_cols)))
   } else {
     df <- df %>% dplyr::group_by(.data[[x_var]])

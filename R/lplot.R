@@ -236,7 +236,34 @@ lplot <- function(
   parsed_form <- parse_formula(form)
   parsed_facet <- if (!is.null(facet_form)) parse_formula(facet_form) else NULL
   
+  # Convert parsed_facet to plotting function format
+  facet_spec <- NULL
+  if (!is.null(parsed_facet)) {
+    # For simple ~ variable formulas, treat as column facet
+    if (parsed_facet$y == "" && !is.null(parsed_facet$x) && parsed_facet$x != "") {
+      facet_spec <- list(facet_x = parsed_facet$x, facet_y = NULL)
+    }
+    # For row_var ~ col_var formulas, use both
+    else if (!is.null(parsed_facet$y) && parsed_facet$y != "" && 
+             !is.null(parsed_facet$x) && parsed_facet$x != "") {
+      facet_spec <- list(facet_x = parsed_facet$x, facet_y = parsed_facet$y)
+    }
+    # For more complex facet formulas, use the facets component
+    else if (!is.null(parsed_facet$facets) && length(parsed_facet$facets) > 0) {
+      facet_spec <- list(
+        facet_x = if (length(parsed_facet$facets) >= 1) parsed_facet$facets[1] else NULL,
+        facet_y = if (length(parsed_facet$facets) >= 2) parsed_facet$facets[2] else NULL
+      )
+    }
+  }
+  
   # Compute grouped statistics
+  facet_variables <- NULL
+  if (!is.null(facet_spec)) {
+    facet_variables <- c(facet_spec$facet_x, facet_spec$facet_y)
+    facet_variables <- facet_variables[!is.null(facet_variables)]
+  }
+  
   stats <- compute_stats(
     df = df, 
     x_var = parsed_form$x, 
@@ -247,7 +274,8 @@ lplot <- function(
     confidence_interval = confidence_interval,
     summary_statistic = summary_statistic,
     show_sample_sizes = show_sample_sizes,
-    statistical_tests = statistical_annotations
+    statistical_tests = statistical_annotations,
+    facet_vars = facet_variables
   )
   
   # Prepare stats for change plot
@@ -276,7 +304,7 @@ lplot <- function(
     title = title, 
     subtitle = subtitle, 
     caption = caption, 
-    facet = parsed_facet,
+    facet = facet_spec,
     color_palette = color_palette,
     reference_lines = reference_lines,
     show_sample_sizes = show_sample_sizes,
@@ -298,7 +326,7 @@ lplot <- function(
     title = title2, 
     subtitle = subtitle2, 
     caption = caption2, 
-    facet = parsed_facet,
+    facet = facet_spec,
     color_palette = color_palette,
     reference_lines = reference_lines,
     show_sample_sizes = show_sample_sizes,
