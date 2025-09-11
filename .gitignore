@@ -6,3 +6,13 @@
 .quarto
 /doc/
 /Meta/
+/docs/
+archive/
+*.html
+*.pdf
+*.log
+*.aux
+*.tex
+*.knit.md
+*.bak
+*~
