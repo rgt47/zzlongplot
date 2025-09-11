@@ -85,6 +85,9 @@ utils::globalVariables(c(
 #'   indicators to the plots.
 #' @param reference_lines List of reference line specifications. Each should be a 
 #'   list with 'value', 'axis' ("x"/"y"), 'color', 'linetype', etc.
+#' @param ribbon_alpha Numeric. Transparency level for ribbon/band error representations.
+#'   Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.
+#' @param ribbon_fill Character. Custom fill color for ribbons. If NULL, uses group colors.
 #'
 #' @return A ggplot2 object or a combination of objects representing the requested 
 #'   plots.
@@ -116,6 +119,11 @@ utils::globalVariables(c(
 #' # Plot using boxplot summary (quartiles + whiskers)
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", summary_statistic = "boxplot")
+#'
+#' # Customize ribbon appearance
+#' lplot(df, measure ~ visit | group, baseline_value = 0,
+#'       cluster_var = "subject_id", error_type = "band", 
+#'       ribbon_alpha = 0.4, ribbon_fill = "lightblue")
 #' 
 #' # Apply complete journal styling (theme + colors) with single parameter
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
@@ -155,11 +163,11 @@ lplot <- function(
   xlab = "visit", ylab = "measure", ylab2 = "measure change",
   title = "Observed Values", title2 = "Change from Baseline",
   subtitle = "", subtitle2 = "", caption = "", caption2 = "",
-  plot_type = "obs", error_type = "bar", jitter_width = 0.1, color_palette = NULL,
+  plot_type = "obs", error_type = "bar", jitter_width = 0.15, color_palette = NULL,
   clinical_mode = FALSE, treatment_colors = NULL, confidence_interval = NULL,
   summary_statistic = "mean", show_sample_sizes = FALSE, visit_windows = NULL, theme = NULL,
   publication_ready = FALSE, statistical_annotations = FALSE,
-  reference_lines = NULL
+  reference_lines = NULL, ribbon_alpha = 0.2, ribbon_fill = NULL
 ) {
   # Input validation
   if (!is.data.frame(df)) {
@@ -268,7 +276,10 @@ lplot <- function(
     color_palette = color_palette,
     reference_lines = reference_lines,
     show_sample_sizes = show_sample_sizes,
-    statistical_annotations = statistical_annotations
+    statistical_annotations = statistical_annotations,
+    use_boxplot = (summary_statistic == "boxplot"),
+    ribbon_alpha = ribbon_alpha,
+    ribbon_fill = ribbon_fill
   )
   
   fig_change <- generate_plot(
@@ -287,7 +298,10 @@ lplot <- function(
     color_palette = color_palette,
     reference_lines = reference_lines,
     show_sample_sizes = show_sample_sizes,
-    statistical_annotations = statistical_annotations
+    statistical_annotations = statistical_annotations,
+    use_boxplot = (summary_statistic == "boxplot"),
+    ribbon_alpha = ribbon_alpha,
+    ribbon_fill = ribbon_fill
   )
   
   # Apply publication theme and colors if specified

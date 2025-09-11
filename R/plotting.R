@@ -28,6 +28,10 @@
 #'   be a list with components: value, axis ("x" or "y"), color, linetype, size.
 #' @param show_sample_sizes Logical. If TRUE, adds sample size annotations.
 #' @param statistical_annotations Logical. If TRUE, adds p-values and significance.
+#' @param use_boxplot Logical. If TRUE, renders actual boxplots instead of line graphs.
+#' @param ribbon_alpha Numeric. Transparency level for ribbon/band error representations.
+#'   Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.
+#' @param ribbon_fill Character. Custom fill color for ribbons. If NULL, uses group colors.
 #'
 #' @return A `ggplot` object representing the visualization.
 #' 
@@ -87,7 +91,10 @@ generate_plot <- function(
   color_palette = NULL,
   reference_lines = NULL,
   show_sample_sizes = FALSE,
-  statistical_annotations = FALSE
+  statistical_annotations = FALSE,
+  use_boxplot = FALSE,
+  ribbon_alpha = 0.2,
+  ribbon_fill = NULL
 ) {
   # Set x-axis scale based on whether x is continuous
   x_scale <- if (stats$is_continuous[1]) {
@@ -123,21 +130,121 @@ generate_plot <- function(
   # Determine if we need to apply dodging/jittering for multiple groups
   has_groups <- !is.null(group_var) && group_var %in% names(stats) && length(unique(stats[[group_var]])) > 1
   
-  # Add line and point layers with appropriate positioning
-  if (has_groups && jitter_width > 0) {
-    # Use position_dodge for multiple groups
-    plot <- plot + 
-      ggplot2::geom_line(position = ggplot2::position_dodge(width = jitter_width)) +
-      ggplot2::geom_point(position = ggplot2::position_dodge(width = jitter_width))
+  # Add plotting layers based on plot type
+  if (use_boxplot) {
+    # Create boxplots using summary statistics
+    # For boxplots, we need to create the boxplot elements manually since we have summary stats
+    if (has_groups && jitter_width > 0) {
+      dodge_pos <- ggplot2::position_dodge(width = jitter_width)
+      
+      # Add boxplot elements: box (IQR), whiskers, median line, and mean point
+      plot <- plot + 
+        # Box representing IQR (Q1 to Q3)
+        ggplot2::geom_rect(
+          ggplot2::aes(
+            xmin = as.numeric(.data[[x_var]]) - 0.15,
+            xmax = as.numeric(.data[[x_var]]) + 0.15,
+            ymin = .data[["q25_value"]],
+            ymax = .data[["q75_value"]],
+            fill = .data[[group_var]]
+          ),
+          alpha = 0.7,
+          color = "black",
+          linewidth = 0.5,
+          position = dodge_pos
+        ) +
+        # Whiskers (extends to bound_lower and bound_upper)
+        ggplot2::geom_segment(
+          ggplot2::aes(
+            x = as.numeric(.data[[x_var]]),
+            xend = as.numeric(.data[[x_var]]),
+            y = .data[["q75_value"]],
+            yend = .data[["bound_upper"]]
+          ),
+          position = dodge_pos
+        ) +
+        ggplot2::geom_segment(
+          ggplot2::aes(
+            x = as.numeric(.data[[x_var]]),
+            xend = as.numeric(.data[[x_var]]),
+            y = .data[["q25_value"]],
+            yend = .data[["bound_lower"]]
+          ),
+          position = dodge_pos
+        ) +
+        # Median line (bold horizontal line)
+        ggplot2::geom_segment(
+          ggplot2::aes(
+            x = as.numeric(.data[[x_var]]) - 0.15,
+            xend = as.numeric(.data[[x_var]]) + 0.15,
+            y = .data[[y_var]],  # This is the median for boxplot
+            yend = .data[[y_var]]
+          ),
+          color = "black",
+          linewidth = 1.2,
+          position = dodge_pos
+        )
+    } else {
+      # Single group boxplots without dodging
+      plot <- plot + 
+        # Box representing IQR
+        ggplot2::geom_rect(
+          ggplot2::aes(
+            xmin = as.numeric(.data[[x_var]]) - 0.2,
+            xmax = as.numeric(.data[[x_var]]) + 0.2,
+            ymin = .data[["q25_value"]],
+            ymax = .data[["q75_value"]]
+          ),
+          alpha = 0.7,
+          color = "black",
+          linewidth = 0.5
+        ) +
+        # Whiskers
+        ggplot2::geom_segment(
+          ggplot2::aes(
+            x = as.numeric(.data[[x_var]]),
+            xend = as.numeric(.data[[x_var]]),
+            y = .data[["q75_value"]],
+            yend = .data[["bound_upper"]]
+          )
+        ) +
+        ggplot2::geom_segment(
+          ggplot2::aes(
+            x = as.numeric(.data[[x_var]]),
+            xend = as.numeric(.data[[x_var]]),
+            y = .data[["q25_value"]],
+            yend = .data[["bound_lower"]]
+          )
+        ) +
+        # Median line
+        ggplot2::geom_segment(
+          ggplot2::aes(
+            x = as.numeric(.data[[x_var]]) - 0.2,
+            xend = as.numeric(.data[[x_var]]) + 0.2,
+            y = .data[[y_var]],
+            yend = .data[[y_var]]
+          ),
+          color = "black",
+          linewidth = 1.2
+        )
+    }
   } else {
-    # Standard lines and points without dodging
-    plot <- plot + 
-      ggplot2::geom_line() +
-      ggplot2::geom_point()
+    # Add line and point layers with appropriate positioning
+    if (has_groups && jitter_width > 0) {
+      # Use position_dodge for multiple groups
+      plot <- plot + 
+        ggplot2::geom_line(position = ggplot2::position_dodge(width = jitter_width)) +
+        ggplot2::geom_point(position = ggplot2::position_dodge(width = jitter_width))
+    } else {
+      # Standard lines and points without dodging
+      plot <- plot + 
+        ggplot2::geom_line() +
+        ggplot2::geom_point()
+    }
   }
   
-  # Add error representation based on type
-  if (error_type == "bar") {
+  # Add error representation based on type (skip for boxplots as they have their own whiskers)
+  if (!use_boxplot && error_type == "bar") {
     if (has_groups && jitter_width > 0) {
       # Use position_dodge for multiple groups
       plot <- plot + ggplot2::geom_errorbar(
@@ -162,15 +269,31 @@ generate_plot <- function(
         alpha = 0.3
       )
     }
-  } else {
-    plot <- plot + ggplot2::geom_ribbon(
-      ggplot2::aes(
-        ymin = .data[["bound_lower"]], 
-        ymax = .data[["bound_upper"]],
-        color = NULL
-      ), 
-      alpha = 0.2
-    )
+  } else if (!use_boxplot) {
+    # Add error bands (ribbons) - skip for boxplots
+    if (is.null(ribbon_fill)) {
+      # Use group colors for ribbons
+      plot <- plot + ggplot2::geom_ribbon(
+        ggplot2::aes(
+          ymin = .data[["bound_lower"]], 
+          ymax = .data[["bound_upper"]],
+          fill = if (!is.null(group_var)) .data[[group_var]] else NULL,
+          color = NULL
+        ), 
+        alpha = ribbon_alpha
+      )
+    } else {
+      # Use custom fill color for ribbons
+      plot <- plot + ggplot2::geom_ribbon(
+        ggplot2::aes(
+          ymin = .data[["bound_lower"]], 
+          ymax = .data[["bound_upper"]],
+          color = NULL
+        ), 
+        fill = ribbon_fill,
+        alpha = ribbon_alpha
+      )
+    }
   }
   
   # Add labels
