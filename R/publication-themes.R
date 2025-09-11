@@ -14,7 +14,7 @@
 #' @description
 #' Creates a publication-ready theme following Nature journal guidelines.
 #'
-#' @param base_size Base font size in points. Default is 8pt per Nature guidelines.
+#' @param base_size Base font size in points. Default is 7pt per Nature guidelines.
 #' @param base_family Font family. Default is "Arial" (Nature standard).
 #' @param grid Logical. Whether to show grid lines. Default is FALSE for clean look.
 #' @param border Logical. Whether to show panel border. Default is TRUE.
@@ -23,7 +23,7 @@
 #'
 #' @details
 #' Nature journal specifications:
-#' - Font: Arial or Helvetica, 5-8pt
+#' - Font: Arial or Helvetica, 5-7pt
 #' - Dimensions: 90mm (single) or 180mm (double column)
 #' - Clean backgrounds, minimal grid lines
 #' - Professional appearance for peer review
@@ -35,7 +35,7 @@
 #'   theme_nature()
 #'   
 #' @export
-theme_nature <- function(base_size = 8, base_family = "Arial", 
+theme_nature <- function(base_size = 7, base_family = "Arial", 
                          grid = FALSE, border = TRUE) {
   
   # Base theme
