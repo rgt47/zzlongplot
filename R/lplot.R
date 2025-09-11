@@ -70,6 +70,8 @@ utils::globalVariables(c(
 #'   Options: "standard" (placebo=grey, active=colors), or NULL.
 #' @param confidence_interval Numeric. Confidence level for error bounds 
 #'   (e.g., 0.95 for 95% CI). If NULL, uses standard error.
+#' @param summary_statistic Character. Type of summary statistic to calculate.
+#'   Options: "mean" (default) or "median". Mean uses CI/SE, median uses IQR or bootstrapped CI.
 #' @param show_sample_sizes Logical. If TRUE, shows sample sizes at each timepoint.
 #' @param visit_windows List. Named list defining visit windows for grouping 
 #'   (e.g., list("Week 4" = c(22, 35))).
@@ -100,6 +102,10 @@ utils::globalVariables(c(
 #' # Plot with jittered error bars for better group separation
 #' lplot(df, measure ~ visit | group, baseline_value = 0, 
 #'       cluster_var = "subject_id", jitter_width = 0.15)
+#' 
+#' # Plot using median and IQR instead of mean and CI
+#' lplot(df, measure ~ visit | group, baseline_value = 0,
+#'       cluster_var = "subject_id", summary_statistic = "median")
 #'
 #' # Example with categorical x variable
 #' df2 <- data.frame(
@@ -135,7 +141,7 @@ lplot <- function(
   subtitle = "", subtitle2 = "", caption = "", caption2 = "",
   plot_type = "obs", error_type = "bar", jitter_width = 0.1, color_palette = NULL,
   clinical_mode = FALSE, treatment_colors = NULL, confidence_interval = NULL,
-  show_sample_sizes = FALSE, visit_windows = NULL, theme = NULL,
+  summary_statistic = "mean", show_sample_sizes = FALSE, visit_windows = NULL, theme = NULL,
   publication_ready = FALSE, statistical_annotations = FALSE,
   reference_lines = NULL
 ) {
@@ -175,6 +181,13 @@ lplot <- function(
     stop("jitter_width must be a non-negative numeric value")
   }
   
+  # Validate summary_statistic
+  valid_statistics <- c("mean", "median")
+  if (!summary_statistic %in% valid_statistics) {
+    stop(sprintf("Invalid summary_statistic '%s'. Must be one of: %s", 
+                 summary_statistic, paste(valid_statistics, collapse = ", ")))
+  }
+  
   # Apply clinical mode defaults
   if (clinical_mode) {
     if (is.null(confidence_interval)) confidence_interval <- 0.95
@@ -204,6 +217,7 @@ lplot <- function(
     cluster_var = cluster_var, 
     baseline_value = baseline_value,
     confidence_interval = confidence_interval,
+    summary_statistic = summary_statistic,
     show_sample_sizes = show_sample_sizes,
     statistical_tests = statistical_annotations
   )

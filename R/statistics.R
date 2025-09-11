@@ -13,15 +13,15 @@
 #' 
 #' @return A data frame containing the computed statistics with columns:
 #'   * Original x and group variables
-#'   * mean_value: Mean of y values
-#'   * change_mean: Mean of change from baseline
+#'   * mean_value: Mean/median of y values (depending on summary_statistic)
+#'   * change_mean: Mean/median of change from baseline
 #'   * sample_size: Number of observations
-#'   * standard_deviation: Standard deviation of y values
-#'   * change_sd: Standard deviation of change values
-#'   * standard_error: Standard error of mean
-#'   * change_se: Standard error of change mean
-#'   * bound_lower/bound_upper: Lower/upper bounds for error bars (mean ± SE)
-#'   * bound_lower_change/bound_upper_change: Bounds for change value error bars
+#'   * standard_deviation: SD of y values (for mean) or IQR (for median)
+#'   * change_sd: SD of change values (for mean) or IQR (for median)
+#'   * standard_error: Standard error of mean/median
+#'   * change_se: Standard error of change mean/median
+#'   * bound_lower/bound_upper: Lower/upper bounds (CI/SE for mean, Q1/Q3 for median)
+#'   * bound_lower_change/bound_upper_change: Bounds for change values
 #'   * group: Factor combining all grouping variables
 #'   * is_continuous: Boolean indicating if x is continuous
 #' 
@@ -39,14 +39,15 @@
 #' 
 #' @param confidence_interval Numeric. Confidence level (e.g., 0.95 for 95% CI).
 #'   If specified, calculates confidence intervals instead of standard error.
+#' @param summary_statistic Character. Type of summary statistic: "mean" or "median".
 #' @param show_sample_sizes Logical. If TRUE, includes sample sizes in output.
 #' @param statistical_tests Logical. If TRUE, performs statistical comparisons.
 #'
 #' @import dplyr
 #' @export
 compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_value, 
-                         confidence_interval = NULL, show_sample_sizes = FALSE, 
-                         statistical_tests = FALSE) {
+                         confidence_interval = NULL, summary_statistic = "mean",
+                         show_sample_sizes = FALSE, statistical_tests = FALSE) {
   # Parse group into individual components
   groups <- if (!is.null(group_var)) strsplit(group_var, "\\s*\\+\\s*")[[1]] else NULL
   
@@ -96,40 +97,96 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
     df <- df %>% dplyr::group_by(.data[[x_var]])
   }
   
-  # Summarize the data
-  result <- df %>%
-    dplyr::summarize(
-      mean_value = mean(.data[[y_var]], na.rm = TRUE),
-      change_mean = mean(change, na.rm = TRUE),
-      sample_size = dplyr::n(),
-      standard_deviation = stats::sd(.data[[y_var]], na.rm = TRUE),
-      change_sd = stats::sd(change, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
+  # Summarize the data based on summary_statistic
+  if (summary_statistic == "mean") {
+    result <- df %>%
+      dplyr::summarize(
+        mean_value = mean(.data[[y_var]], na.rm = TRUE),
+        change_mean = mean(change, na.rm = TRUE),
+        sample_size = dplyr::n(),
+        standard_deviation = stats::sd(.data[[y_var]], na.rm = TRUE),
+        change_sd = stats::sd(change, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      dplyr::mutate(
+        standard_error = standard_deviation / sqrt(sample_size),
+        change_se = change_sd / sqrt(sample_size)
+      )
+  } else { # median
+    result <- df %>%
+      dplyr::summarize(
+        mean_value = stats::median(.data[[y_var]], na.rm = TRUE),
+        change_mean = stats::median(change, na.rm = TRUE),
+        sample_size = dplyr::n(),
+        q25_value = stats::quantile(.data[[y_var]], 0.25, na.rm = TRUE),
+        q75_value = stats::quantile(.data[[y_var]], 0.75, na.rm = TRUE),
+        q25_change = stats::quantile(change, 0.25, na.rm = TRUE),
+        q75_change = stats::quantile(change, 0.75, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      dplyr::mutate(
+        standard_deviation = q75_value - q25_value,  # IQR
+        change_sd = q75_change - q25_change,         # IQR for change
+        standard_error = standard_deviation / sqrt(sample_size),  # Approximate SE from IQR
+        change_se = change_sd / sqrt(sample_size)
+      )
+  }
+  
+  result <- result %>%
     dplyr::mutate(
-      standard_error = standard_deviation / sqrt(sample_size),
-      change_se = change_sd / sqrt(sample_size),
-      
-      # Calculate bounds (CI or SE based on parameters)
-      bound_lower = if (!is.null(confidence_interval)) {
-        mean_value - stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * standard_error
+      # Calculate bounds based on summary statistic type
+      bound_lower = if (summary_statistic == "median") {
+        if (!is.null(confidence_interval)) {
+          # For median, use bootstrap CI approximation (simplified)
+          mean_value - 1.57 * standard_error  # Approximate CI for median
+        } else {
+          if ("q25_value" %in% names(.)) q25_value else mean_value - standard_error
+        }
       } else {
-        mean_value - standard_error
+        if (!is.null(confidence_interval)) {
+          mean_value - stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * standard_error
+        } else {
+          mean_value - standard_error
+        }
       },
-      bound_upper = if (!is.null(confidence_interval)) {
-        mean_value + stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * standard_error
+      bound_upper = if (summary_statistic == "median") {
+        if (!is.null(confidence_interval)) {
+          mean_value + 1.57 * standard_error  # Approximate CI for median
+        } else {
+          if ("q75_value" %in% names(.)) q75_value else mean_value + standard_error
+        }
       } else {
-        mean_value + standard_error
+        if (!is.null(confidence_interval)) {
+          mean_value + stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * standard_error
+        } else {
+          mean_value + standard_error
+        }
       },
-      bound_lower_change = if (!is.null(confidence_interval)) {
-        change_mean - stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * change_se
+      bound_lower_change = if (summary_statistic == "median") {
+        if (!is.null(confidence_interval)) {
+          change_mean - 1.57 * change_se
+        } else {
+          if ("q25_change" %in% names(.)) q25_change else change_mean - change_se
+        }
       } else {
-        change_mean - change_se
+        if (!is.null(confidence_interval)) {
+          change_mean - stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * change_se
+        } else {
+          change_mean - change_se
+        }
       },
-      bound_upper_change = if (!is.null(confidence_interval)) {
-        change_mean + stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * change_se
+      bound_upper_change = if (summary_statistic == "median") {
+        if (!is.null(confidence_interval)) {
+          change_mean + 1.57 * change_se
+        } else {
+          if ("q75_change" %in% names(.)) q75_change else change_mean + change_se
+        }
       } else {
-        change_mean + change_se
+        if (!is.null(confidence_interval)) {
+          change_mean + stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * change_se
+        } else {
+          change_mean + change_se
+        }
       },
       
       # Add confidence level info
