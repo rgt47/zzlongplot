@@ -306,6 +306,68 @@ p_bands <- lplot(demo_data,
 p_bars + p_bands
 ```
 
+# Ribbon Customization
+
+You can customize the appearance of error bands (ribbons) with transparency and fill color controls:
+
+```{r ribbon-custom, fig.width=16, fig.height=8}
+# Create data with some variability for ribbon demonstration
+ribbon_demo <- data.frame(
+  subject_id = rep(1:25, each = 4),
+  visit = rep(c(0, 4, 8, 12), times = 25),
+  efficacy = rnorm(100, mean = rep(c(50, 55, 60, 65), times = 25), sd = 8),
+  treatment = rep(c("Control", "Treatment"), each = 50)
+)
+
+# Default ribbons
+p_ribbon_default <- lplot(ribbon_demo, efficacy ~ visit | treatment,
+                         cluster_var = "subject_id", baseline_value = 0,
+                         error_type = "band",
+                         theme = "nature",
+                         title = "Default Ribbons (Alpha = 0.2)",
+                         xlab = "Week", ylab = "Efficacy Score")
+
+# Custom transparency
+p_ribbon_alpha <- lplot(ribbon_demo, efficacy ~ visit | treatment,
+                       cluster_var = "subject_id", baseline_value = 0,
+                       error_type = "band", ribbon_alpha = 0.5,
+                       theme = "nature",
+                       title = "Higher Transparency (Alpha = 0.5)",
+                       xlab = "Week", ylab = "Efficacy Score")
+
+# Custom fill color
+p_ribbon_fill <- lplot(ribbon_demo, efficacy ~ visit | treatment,
+                      cluster_var = "subject_id", baseline_value = 0,
+                      error_type = "band", 
+                      ribbon_alpha = 0.4, ribbon_fill = "lightsteelblue",
+                      theme = "nature",
+                      title = "Custom Fill Color + Alpha",
+                      xlab = "Week", ylab = "Efficacy Score")
+
+# Very transparent for subtle effect
+p_ribbon_subtle <- lplot(ribbon_demo, efficacy ~ visit | treatment,
+                        cluster_var = "subject_id", baseline_value = 0,
+                        error_type = "band", ribbon_alpha = 0.1,
+                        theme = "nature",
+                        title = "Subtle Ribbons (Alpha = 0.1)",
+                        xlab = "Week", ylab = "Efficacy Score")
+
+# Arrange ribbon examples
+(p_ribbon_default + p_ribbon_alpha) / (p_ribbon_fill + p_ribbon_subtle)
+```
+
+**Ribbon Parameters:**
+
+- **`ribbon_alpha`**: Controls transparency (0 = fully transparent, 1 = fully opaque)
+  - Default: 0.2 for subtle background effect
+  - Higher values (0.4-0.6) for more prominent error regions
+  - Lower values (0.1-0.2) for subtle confidence regions
+
+- **`ribbon_fill`**: Controls fill color
+  - Default: `NULL` uses group colors automatically
+  - Custom colors: `"lightblue"`, `"gray90"`, `"#E8F4F8"`, etc.
+  - Useful for creating consistent ribbon colors across groups
+
 # Summary Statistics Options
 
 The `zzlongplot` package supports multiple summary statistics to display your data:
@@ -350,12 +412,12 @@ p_median <- lplot(stats_demo, efficacy ~ visit | treatment,
                   title = "Median + IQR",
                   xlab = "Week", ylab = "Efficacy Score")
 
-# Boxplot summary (Quartiles + Whiskers)
+# Boxplot summary (Actual boxes + whiskers)
 p_boxplot <- lplot(stats_demo, efficacy ~ visit | treatment,
                    cluster_var = "subject_id", baseline_value = 0,
                    summary_statistic = "boxplot",
                    theme = "nature",
-                   title = "Boxplot Summary",
+                   title = "Boxplots",
                    xlab = "Week", ylab = "Efficacy Score")
 
 # Arrange all plots
@@ -382,8 +444,9 @@ p_boxplot <- lplot(stats_demo, efficacy ~ visit | treatment,
    - Best for: Skewed data, non-parametric analysis
 
 4. **`summary_statistic = "boxplot"`**:
-   - Uses median with whiskers (1.5 × IQR rule)
-   - Shows full data range and identifies outliers
+   - Creates actual boxplots with rectangular boxes showing IQR
+   - Median line within each box, whiskers extend to 1.5 × IQR
+   - Shows full data distribution and identifies outliers
    - Best for: Exploring data distribution, identifying outliers
 
 # Accessibility and Color Options
