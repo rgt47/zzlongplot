@@ -339,13 +339,205 @@ theme_fda <- function(base_size = 10, base_family = "Arial", high_contrast = TRU
     )
 }
 
+#' Lancet Journal Theme
+#'
+#' @description
+#' Creates a publication-ready theme following Lancet journal guidelines.
+#'
+#' @param base_size Base font size in points. Default is 8pt.
+#' @param base_family Font family. Default is "Arial".
+#' @param grid Logical. Whether to show grid lines. Default is FALSE.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @details
+#' Lancet journal specifications:
+#' - Professional medical styling
+#' - Clean, readable design for clinical research
+#' - Conservative color scheme
+#'
+#' @examples
+#' ggplot(mtcars, aes(wt, mpg)) + 
+#'   geom_point() + 
+#'   theme_lancet()
+#'   
+#' @export
+theme_lancet <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
+  
+  ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
+    ggplot2::theme(
+      # Clean backgrounds
+      panel.background = ggplot2::element_rect(fill = "white", colour = NA),
+      plot.background = ggplot2::element_rect(fill = "white", colour = NA),
+      
+      # Grid lines
+      panel.grid.major = if (grid) {
+        ggplot2::element_line(colour = "#F0F0F0", size = 0.25)
+      } else {
+        ggplot2::element_blank()
+      },
+      panel.grid.minor = ggplot2::element_blank(),
+      
+      # Clean panel border
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 0.5),
+      
+      # Axes
+      axis.ticks = ggplot2::element_line(colour = "black", size = 0.25),
+      axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
+      axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1)),
+      
+      # Titles
+      plot.title = ggplot2::element_text(
+        size = ggplot2::rel(1.2), hjust = 0, 
+        margin = ggplot2::margin(b = 10)
+      ),
+      
+      # Legend
+      legend.position = "bottom",
+      legend.key = ggplot2::element_rect(fill = "white", colour = NA),
+      legend.background = ggplot2::element_rect(fill = "white", colour = NA),
+      
+      # Facet strips
+      strip.background = ggplot2::element_rect(fill = "#F0F0F0", colour = "black"),
+      strip.text = ggplot2::element_text(size = ggplot2::rel(1.0))
+    )
+}
+
+#' JAMA Journal Theme
+#'
+#' @description
+#' Creates a publication-ready theme following JAMA journal guidelines.
+#'
+#' @param base_size Base font size in points. Default is 8pt.
+#' @param base_family Font family. Default is "Arial".
+#' @param grid Logical. Whether to show grid lines. Default is FALSE.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @details
+#' JAMA journal specifications:
+#' - Conservative, professional styling
+#' - Medical journal typography
+#' - Clean, readable design
+#'
+#' @examples
+#' ggplot(mtcars, aes(wt, mpg)) + 
+#'   geom_point() + 
+#'   theme_jama()
+#'   
+#' @export
+theme_jama <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
+  
+  ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
+    ggplot2::theme(
+      # Clean backgrounds
+      panel.background = ggplot2::element_rect(fill = "white", colour = NA),
+      plot.background = ggplot2::element_rect(fill = "white", colour = NA),
+      
+      # Grid lines
+      panel.grid.major = if (grid) {
+        ggplot2::element_line(colour = "#F5F5F5", size = 0.25)
+      } else {
+        ggplot2::element_blank()
+      },
+      panel.grid.minor = ggplot2::element_blank(),
+      
+      # Clean panel border
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 0.5),
+      
+      # Axes
+      axis.ticks = ggplot2::element_line(colour = "black", size = 0.25),
+      axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
+      axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1)),
+      
+      # Titles
+      plot.title = ggplot2::element_text(
+        size = ggplot2::rel(1.2), hjust = 0,
+        margin = ggplot2::margin(b = 10)
+      ),
+      
+      # Legend
+      legend.position = "bottom",
+      legend.key = ggplot2::element_rect(fill = "white", colour = NA),
+      legend.background = ggplot2::element_rect(fill = "white", colour = NA),
+      
+      # Facet strips  
+      strip.background = ggplot2::element_rect(fill = "#F0F0F0", colour = "black"),
+      strip.text = ggplot2::element_text(size = ggplot2::rel(1.0))
+    )
+}
+
+#' JCO Journal Theme
+#'
+#' @description
+#' Creates a publication-ready theme following JCO journal guidelines.
+#'
+#' @param base_size Base font size in points. Default is 8pt.
+#' @param base_family Font family. Default is "Arial".
+#' @param grid Logical. Whether to show grid lines. Default is FALSE.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @details
+#' JCO journal specifications:
+#' - Oncology-focused styling
+#' - Professional clinical appearance
+#' - Clean, medical design
+#'
+#' @examples
+#' ggplot(mtcars, aes(wt, mpg)) + 
+#'   geom_point() + 
+#'   theme_jco()
+#'   
+#' @export
+theme_jco <- function(base_size = 8, base_family = "Arial", grid = FALSE) {
+  
+  ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
+    ggplot2::theme(
+      # Clean backgrounds
+      panel.background = ggplot2::element_rect(fill = "white", colour = NA),
+      plot.background = ggplot2::element_rect(fill = "white", colour = NA),
+      
+      # Grid lines
+      panel.grid.major = if (grid) {
+        ggplot2::element_line(colour = "#F0F0F0", size = 0.25)
+      } else {
+        ggplot2::element_blank()
+      },
+      panel.grid.minor = ggplot2::element_blank(),
+      
+      # Clean panel border
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 0.5),
+      
+      # Axes
+      axis.ticks = ggplot2::element_line(colour = "black", size = 0.25),
+      axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
+      axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1)),
+      
+      # Titles
+      plot.title = ggplot2::element_text(
+        size = ggplot2::rel(1.2), hjust = 0,
+        margin = ggplot2::margin(b = 10)
+      ),
+      
+      # Legend
+      legend.position = "bottom", 
+      legend.key = ggplot2::element_rect(fill = "white", colour = NA),
+      legend.background = ggplot2::element_rect(fill = "white", colour = NA),
+      
+      # Facet strips
+      strip.background = ggplot2::element_rect(fill = "#F0F0F0", colour = "black"),
+      strip.text = ggplot2::element_text(size = ggplot2::rel(1.0))
+    )
+}
+
 #' Get Publication Theme by Name
 #'
 #' @description
 #' Convenience function to get publication themes by name.
 #'
 #' @param theme_name Character string specifying theme name.
-#'   Options: "nature", "science", "nejm", "fda", "default".
+#'   Options: "nature", "science", "nejm", "lancet", "jama", "jco", "fda", "default".
 #' @param ... Additional arguments passed to specific theme functions.
 #'
 #' @return A ggplot2 theme object.
@@ -357,7 +549,7 @@ theme_fda <- function(base_size = 10, base_family = "Arial", high_contrast = TRU
 #' @export
 get_publication_theme <- function(theme_name = "nature", ...) {
   
-  available_themes <- c("nature", "science", "nejm", "fda", "default")
+  available_themes <- c("nature", "science", "nejm", "lancet", "jama", "jco", "fda", "default")
   
   if (!theme_name %in% available_themes) {
     stop(sprintf("Unknown theme '%s'. Available themes: %s",
@@ -368,6 +560,9 @@ get_publication_theme <- function(theme_name = "nature", ...) {
          "nature" = theme_nature(...),
          "science" = theme_science(...),
          "nejm" = theme_nejm(...),
+         "lancet" = theme_lancet(...),
+         "jama" = theme_jama(...),
+         "jco" = theme_jco(...),
          "fda" = theme_fda(...),
          "default" = ggplot2::theme_bw(...)
   )

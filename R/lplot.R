@@ -71,7 +71,8 @@ utils::globalVariables(c(
 #' @param confidence_interval Numeric. Confidence level for error bounds 
 #'   (e.g., 0.95 for 95% CI). If NULL, uses standard error.
 #' @param summary_statistic Character. Type of summary statistic to calculate.
-#'   Options: "mean" (default) or "median". Mean uses CI/SE, median uses IQR or bootstrapped CI.
+#'   Options: "mean" (mean ± CI/SE), "mean_se" (mean ± SE), "median" (median + IQR), 
+#'   or "boxplot" (boxplot summary with quartiles). Default is "mean".
 #' @param show_sample_sizes Logical. If TRUE, shows sample sizes at each timepoint.
 #' @param visit_windows List. Named list defining visit windows for grouping 
 #'   (e.g., list("Week 4" = c(22, 35))).
@@ -107,6 +108,14 @@ utils::globalVariables(c(
 #' # Plot using median and IQR instead of mean and CI
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", summary_statistic = "median")
+#' 
+#' # Plot using mean ± SE (standard error)
+#' lplot(df, measure ~ visit | group, baseline_value = 0,
+#'       cluster_var = "subject_id", summary_statistic = "mean_se")
+#'
+#' # Plot using boxplot summary (quartiles + whiskers)
+#' lplot(df, measure ~ visit | group, baseline_value = 0,
+#'       cluster_var = "subject_id", summary_statistic = "boxplot")
 #' 
 #' # Apply complete journal styling (theme + colors) with single parameter
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
@@ -189,7 +198,7 @@ lplot <- function(
   }
   
   # Validate summary_statistic
-  valid_statistics <- c("mean", "median")
+  valid_statistics <- c("mean", "mean_se", "median", "boxplot")
   if (!summary_statistic %in% valid_statistics) {
     stop(sprintf("Invalid summary_statistic '%s'. Must be one of: %s", 
                  summary_statistic, paste(valid_statistics, collapse = ", ")))

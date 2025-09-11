@@ -39,7 +39,8 @@
 #' 
 #' @param confidence_interval Numeric. Confidence level (e.g., 0.95 for 95% CI).
 #'   If specified, calculates confidence intervals instead of standard error.
-#' @param summary_statistic Character. Type of summary statistic: "mean" or "median".
+#' @param summary_statistic Character. Type of summary statistic: "mean" (mean ± CI/SE), 
+#'   "mean_se" (mean ± SE), "median" (median + IQR), or "boxplot" (quartiles + whiskers).
 #' @param show_sample_sizes Logical. If TRUE, includes sample sizes in output.
 #' @param statistical_tests Logical. If TRUE, performs statistical comparisons.
 #'
@@ -98,7 +99,8 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
   }
   
   # Summarize the data based on summary_statistic
-  if (summary_statistic == "mean") {
+  if (summary_statistic %in% c("mean", "mean_se")) {
+    # Mean-based summaries
     result <- df %>%
       dplyr::summarize(
         mean_value = mean(.data[[y_var]], na.rm = TRUE),
@@ -112,7 +114,8 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
         standard_error = standard_deviation / sqrt(sample_size),
         change_se = change_sd / sqrt(sample_size)
       )
-  } else { # median
+  } else if (summary_statistic == "median") {
+    # Median-based summaries
     result <- df %>%
       dplyr::summarize(
         mean_value = stats::median(.data[[y_var]], na.rm = TRUE),
@@ -130,63 +133,104 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
         standard_error = standard_deviation / sqrt(sample_size),  # Approximate SE from IQR
         change_se = change_sd / sqrt(sample_size)
       )
+  } else if (summary_statistic == "boxplot") {
+    # Boxplot summaries (quartiles + whiskers)
+    result <- df %>%
+      dplyr::summarize(
+        mean_value = stats::median(.data[[y_var]], na.rm = TRUE),  # Median as center
+        change_mean = stats::median(change, na.rm = TRUE),
+        sample_size = dplyr::n(),
+        q25_value = stats::quantile(.data[[y_var]], 0.25, na.rm = TRUE),
+        q75_value = stats::quantile(.data[[y_var]], 0.75, na.rm = TRUE),
+        q25_change = stats::quantile(change, 0.25, na.rm = TRUE),
+        q75_change = stats::quantile(change, 0.75, na.rm = TRUE),
+        # Calculate whiskers (1.5 * IQR rule)
+        iqr_value = q75_value - q25_value,
+        iqr_change = q75_change - q25_change,
+        whisker_lower = pmax(min(.data[[y_var]], na.rm = TRUE), q25_value - 1.5 * iqr_value),
+        whisker_upper = pmin(max(.data[[y_var]], na.rm = TRUE), q75_value + 1.5 * iqr_value),
+        whisker_lower_change = pmax(min(change, na.rm = TRUE), q25_change - 1.5 * iqr_change),
+        whisker_upper_change = pmin(max(change, na.rm = TRUE), q75_change + 1.5 * iqr_change),
+        .groups = "drop"
+      ) %>%
+      dplyr::mutate(
+        standard_deviation = iqr_value,  # Use IQR as spread measure
+        change_sd = iqr_change,
+        standard_error = iqr_value / sqrt(sample_size),
+        change_se = iqr_change / sqrt(sample_size)
+      )
   }
   
   result <- result %>%
     dplyr::mutate(
       # Calculate bounds based on summary statistic type
-      bound_lower = if (summary_statistic == "median") {
-        if (!is.null(confidence_interval)) {
-          # For median, use bootstrap CI approximation (simplified)
-          mean_value - 1.57 * standard_error  # Approximate CI for median
-        } else {
-          if ("q25_value" %in% names(.)) q25_value else mean_value - standard_error
-        }
-      } else {
-        if (!is.null(confidence_interval)) {
+      bound_lower = if (summary_statistic %in% c("mean", "mean_se")) {
+        if (summary_statistic == "mean" && !is.null(confidence_interval)) {
           mean_value - stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * standard_error
         } else {
           mean_value - standard_error
         }
-      },
-      bound_upper = if (summary_statistic == "median") {
+      } else if (summary_statistic == "median") {
         if (!is.null(confidence_interval)) {
-          mean_value + 1.57 * standard_error  # Approximate CI for median
+          mean_value - 1.57 * standard_error  # Approximate CI for median
         } else {
-          if ("q75_value" %in% names(.)) q75_value else mean_value + standard_error
+          q25_value  # IQR
         }
+      } else if (summary_statistic == "boxplot") {
+        whisker_lower  # Whisker
       } else {
-        if (!is.null(confidence_interval)) {
+        mean_value - standard_error
+      },
+      bound_upper = if (summary_statistic %in% c("mean", "mean_se")) {
+        if (summary_statistic == "mean" && !is.null(confidence_interval)) {
           mean_value + stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * standard_error
         } else {
           mean_value + standard_error
         }
-      },
-      bound_lower_change = if (summary_statistic == "median") {
+      } else if (summary_statistic == "median") {
         if (!is.null(confidence_interval)) {
-          change_mean - 1.57 * change_se
+          mean_value + 1.57 * standard_error  # Approximate CI for median
         } else {
-          if ("q25_change" %in% names(.)) q25_change else change_mean - change_se
+          q75_value  # IQR
         }
+      } else if (summary_statistic == "boxplot") {
+        whisker_upper  # Whisker
       } else {
-        if (!is.null(confidence_interval)) {
+        mean_value + standard_error
+      },
+      bound_lower_change = if (summary_statistic %in% c("mean", "mean_se")) {
+        if (summary_statistic == "mean" && !is.null(confidence_interval)) {
           change_mean - stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * change_se
         } else {
           change_mean - change_se
         }
-      },
-      bound_upper_change = if (summary_statistic == "median") {
+      } else if (summary_statistic == "median") {
         if (!is.null(confidence_interval)) {
-          change_mean + 1.57 * change_se
+          change_mean - 1.57 * change_se  # Approximate CI for median
         } else {
-          if ("q75_change" %in% names(.)) q75_change else change_mean + change_se
+          q25_change  # IQR
         }
+      } else if (summary_statistic == "boxplot") {
+        whisker_lower_change  # Whisker
       } else {
-        if (!is.null(confidence_interval)) {
+        change_mean - change_se
+      },
+      bound_upper_change = if (summary_statistic %in% c("mean", "mean_se")) {
+        if (summary_statistic == "mean" && !is.null(confidence_interval)) {
           change_mean + stats::qt((1 + confidence_interval) / 2, df = sample_size - 1) * change_se
         } else {
           change_mean + change_se
         }
+      } else if (summary_statistic == "median") {
+        if (!is.null(confidence_interval)) {
+          change_mean + 1.57 * change_se  # Approximate CI for median
+        } else {
+          q75_change  # IQR
+        }
+      } else if (summary_statistic == "boxplot") {
+        whisker_upper_change  # Whisker
+      } else {
+        change_mean + change_se
       },
       
       # Add confidence level info

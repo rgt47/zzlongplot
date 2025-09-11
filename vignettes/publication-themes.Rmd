@@ -1,0 +1,458 @@
+---
+title: "Publication-Ready Themes and Journal Color Palettes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Publication-Ready Themes and Journal Color Palettes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6,
+  fig.align = "center",
+  dpi = 150
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(zzlongplot)
+library(ggplot2)
+library(patchwork)
+```
+
+# Overview
+
+The `zzlongplot` package provides publication-ready themes and color palettes specifically designed for major medical journals. This vignette demonstrates the various themes available and shows how they can be used to create professional, journal-ready figures.
+
+## Key Features
+
+- **Complete journal styling** with a single `theme` parameter
+- **Official color palettes** from major medical journals (via ggsci package)
+- **Accessibility compliance** with colorblind-friendly options
+- **Professional typography** following journal guidelines
+- **Automatic color application** with manual override capability
+
+# Sample Data
+
+Let's create a realistic clinical trial dataset to demonstrate the themes:
+
+```{r sample-data}
+# Create comprehensive clinical trial dataset
+set.seed(123)
+n_subjects <- 90
+n_visits <- 4
+
+demo_data <- data.frame(
+  subject_id = rep(1:n_subjects, each = n_visits),
+  visit = rep(c(0, 4, 8, 12), times = n_subjects),
+  treatment = rep(c("Placebo", "Drug 10mg", "Drug 20mg"), each = n_visits * 30)
+)
+
+# Generate realistic clinical outcomes
+for (subj in unique(demo_data$subject_id)) {
+  subj_rows <- which(demo_data$subject_id == subj)
+  treatment <- demo_data$treatment[subj_rows[1]]
+  
+  # Baseline efficacy score
+  baseline <- 50 + rnorm(1, 0, 10)
+  
+  # Treatment-specific efficacy improvements
+  if (treatment == "Placebo") {
+    effects <- c(0, 2, 3, 4)  # Small placebo effect
+  } else if (treatment == "Drug 10mg") {
+    effects <- c(0, 8, 14, 18)  # Moderate dose effect
+  } else {  # Drug 20mg
+    effects <- c(0, 12, 22, 28)  # High dose effect
+  }
+  
+  # Generate data with realistic variability
+  demo_data$efficacy[subj_rows] <- baseline + effects + rnorm(4, 0, 8)
+}
+
+# Display data structure
+str(demo_data)
+head(demo_data, 12)
+```
+
+# Major Medical Journal Themes
+
+## New England Journal of Medicine (NEJM)
+
+The NEJM theme provides professional, clinical styling with the journal's official color palette.
+
+```{r nejm-theme, fig.width=10, fig.height=6}
+p_nejm <- lplot(demo_data, 
+               efficacy ~ visit | treatment,
+               cluster_var = "subject_id",
+               baseline_value = 0,
+               theme = "nejm",
+               title = "Clinical Efficacy Over Time",
+               subtitle = "NEJM Theme with Official Colors",
+               xlab = "Week",
+               ylab = "Efficacy Score (points)")
+
+p_nejm
+```
+
+**NEJM Theme Features:**
+- Professional clinical appearance
+- Bold axis titles for clarity
+- Clean, no-grid design
+- Official NEJM color palette: Red (#BC3C29), Blue (#0072B5), Orange (#E18727)
+
+## Nature Publishing Group
+
+The Nature theme follows Nature journal guidelines with modern, sophisticated styling.
+
+```{r nature-theme, fig.width=10, fig.height=6}
+p_nature <- lplot(demo_data,
+                 efficacy ~ visit | treatment,
+                 cluster_var = "subject_id", 
+                 baseline_value = 0,
+                 theme = "nature",
+                 title = "Clinical Efficacy Over Time",
+                 subtitle = "Nature Theme with Official Colors",
+                 xlab = "Week",
+                 ylab = "Efficacy Score (points)")
+
+p_nature
+```
+
+**Nature Theme Features:**
+- 7pt font size (Nature requirement)
+- Clean backgrounds with optional borders
+- Nature color palette: Cinnabar (#E64B35), Sky Blue (#4DBBD5), Persian Green (#00A087)
+- Professional scientific appearance
+
+## The Lancet
+
+The Lancet theme provides distinctive styling with the journal's recognizable color scheme.
+
+```{r lancet-theme, fig.width=10, fig.height=6}
+p_lancet <- lplot(demo_data,
+                 efficacy ~ visit | treatment,
+                 cluster_var = "subject_id",
+                 baseline_value = 0, 
+                 theme = "lancet",
+                 title = "Clinical Efficacy Over Time",
+                 subtitle = "Lancet Theme with Official Colors",
+                 xlab = "Week",
+                 ylab = "Efficacy Score (points)")
+
+p_lancet
+```
+
+**Lancet Theme Features:**
+- Deep blue (#00468B) and Lancet red (#ED0000) signature colors
+- Professional medical journal styling
+- Clear data presentation optimized for clinical research
+
+## Journal of the American Medical Association (JAMA)
+
+The JAMA theme offers conservative, professional styling appropriate for clinical publications.
+
+```{r jama-theme, fig.width=10, fig.height=6}
+p_jama <- lplot(demo_data,
+               efficacy ~ visit | treatment,
+               cluster_var = "subject_id",
+               baseline_value = 0,
+               theme = "jama",
+               title = "Clinical Efficacy Over Time",
+               subtitle = "JAMA Theme with Official Colors",
+               xlab = "Week", 
+               ylab = "Efficacy Score (points)")
+
+p_jama
+```
+
+**JAMA Theme Features:**
+- Conservative color palette with dark blue-grey (#374E55) and orange (#DF8F44)
+- Professional typography suitable for medical publications
+- Clear, readable design for clinical data
+
+## Science (AAAS)
+
+The Science theme provides modern scientific styling with the journal's official color scheme.
+
+```{r science-theme, fig.width=10, fig.height=6}
+p_science <- lplot(demo_data,
+                  efficacy ~ visit | treatment,
+                  cluster_var = "subject_id",
+                  baseline_value = 0,
+                  theme = "science",
+                  title = "Clinical Efficacy Over Time",
+                  subtitle = "Science Theme with Official Colors",
+                  xlab = "Week",
+                  ylab = "Efficacy Score (points)")
+
+p_science
+```
+
+**Science Theme Features:**
+- 7pt font size (Science requirement)
+- Subtle grid lines for data reading
+- Science color palette: Deep blue (#3B4992), Red (#EE0000), Green (#008B45)
+
+## Journal of Clinical Oncology (JCO)
+
+The JCO theme is specifically designed for oncology and clinical research publications.
+
+```{r jco-theme, fig.width=10, fig.height=6}
+p_jco <- lplot(demo_data,
+              efficacy ~ visit | treatment, 
+              cluster_var = "subject_id",
+              baseline_value = 0,
+              theme = "jco",
+              title = "Clinical Efficacy Over Time",
+              subtitle = "JCO Theme with Official Colors",
+              xlab = "Week",
+              ylab = "Efficacy Score (points)")
+
+p_jco
+```
+
+**JCO Theme Features:**
+- Clinical blue (#0073C2) and yellow (#EFC000) color scheme
+- Designed specifically for oncology research
+- Professional medical styling
+
+# Regulatory and Clinical Themes
+
+## FDA Regulatory Theme
+
+The FDA theme provides high-contrast styling suitable for regulatory submissions.
+
+```{r fda-theme, fig.width=10, fig.height=6}
+p_fda <- lplot(demo_data,
+              efficacy ~ visit | treatment,
+              cluster_var = "subject_id",
+              baseline_value = 0,
+              theme = "fda",
+              title = "Clinical Efficacy Over Time",
+              subtitle = "FDA Theme for Regulatory Submissions",
+              xlab = "Week",
+              ylab = "Efficacy Score (points)")
+
+p_fda
+```
+
+**FDA Theme Features:**
+- High contrast for regulatory review
+- 10pt font size for readability
+- Grid lines for precise data reading
+- Conservative, professional appearance
+
+# Theme Comparison
+
+Let's create a comprehensive comparison showing multiple themes side by side:
+
+```{r theme-comparison, fig.width=16, fig.height=12}
+# Create simplified plots for comparison
+create_comparison_plot <- function(theme_name, title_suffix) {
+  lplot(demo_data,
+        efficacy ~ visit | treatment,
+        cluster_var = "subject_id",
+        baseline_value = 0,
+        theme = theme_name,
+        title = paste("Efficacy Analysis -", title_suffix),
+        xlab = "Week",
+        ylab = "Efficacy (pts)")
+}
+
+# Create all theme variations
+p1 <- create_comparison_plot("nejm", "NEJM")
+p2 <- create_comparison_plot("nature", "Nature")
+p3 <- create_comparison_plot("lancet", "Lancet")
+p4 <- create_comparison_plot("jama", "JAMA")
+p5 <- create_comparison_plot("science", "Science")
+p6 <- create_comparison_plot("jco", "JCO")
+
+# Arrange in grid
+(p1 + p2 + p3) / (p4 + p5 + p6)
+```
+
+# Using Error Bands vs Error Bars
+
+All themes work with both error bars and error bands. Here's a comparison:
+
+```{r error-types, fig.width=12, fig.height=8}
+# Error bars (default)
+p_bars <- lplot(demo_data,
+               efficacy ~ visit | treatment,
+               cluster_var = "subject_id",
+               baseline_value = 0,
+               theme = "nature",
+               error_type = "bar",
+               jitter_width = 0.15,
+               title = "Error Bars with Jitter",
+               xlab = "Week",
+               ylab = "Efficacy Score")
+
+# Error bands
+p_bands <- lplot(demo_data,
+                efficacy ~ visit | treatment,
+                cluster_var = "subject_id",
+                baseline_value = 0,
+                theme = "nature",
+                error_type = "band",
+                title = "Error Bands (Ribbons)",
+                xlab = "Week",
+                ylab = "Efficacy Score")
+
+p_bars + p_bands
+```
+
+# Summary Statistics Options
+
+The `zzlongplot` package supports multiple summary statistics to display your data:
+
+```{r summary-stats, fig.width=16, fig.height=10}
+# Create test data with some variability
+set.seed(42)
+n_subjects <- 40
+stats_demo <- data.frame(
+  subject_id = rep(1:n_subjects, each = 4),
+  visit = rep(c(0, 4, 8, 12), times = n_subjects),
+  efficacy = c(
+    rnorm(n_subjects, mean = 50, sd = 8),      # baseline
+    rnorm(n_subjects, mean = 52, sd = 9),      # visit 4 
+    rnorm(n_subjects, mean = 55, sd = 10),     # visit 8
+    rnorm(n_subjects, mean = 58, sd = 11)      # visit 12
+  ),
+  treatment = rep(c("Placebo", "Treatment"), each = 80)
+)
+
+# Mean ± 95% CI
+p_mean_ci <- lplot(stats_demo, efficacy ~ visit | treatment,
+                   cluster_var = "subject_id", baseline_value = 0,
+                   summary_statistic = "mean", confidence_interval = 0.95,
+                   theme = "nature",
+                   title = "Mean ± 95% CI",
+                   xlab = "Week", ylab = "Efficacy Score")
+
+# Mean ± SE (Standard Error)
+p_mean_se <- lplot(stats_demo, efficacy ~ visit | treatment,
+                   cluster_var = "subject_id", baseline_value = 0,
+                   summary_statistic = "mean_se",
+                   theme = "nature",
+                   title = "Mean ± SE",
+                   xlab = "Week", ylab = "Efficacy Score")
+
+# Median + IQR (Interquartile Range)
+p_median <- lplot(stats_demo, efficacy ~ visit | treatment,
+                  cluster_var = "subject_id", baseline_value = 0,
+                  summary_statistic = "median",
+                  theme = "nature",
+                  title = "Median + IQR",
+                  xlab = "Week", ylab = "Efficacy Score")
+
+# Boxplot summary (Quartiles + Whiskers)
+p_boxplot <- lplot(stats_demo, efficacy ~ visit | treatment,
+                   cluster_var = "subject_id", baseline_value = 0,
+                   summary_statistic = "boxplot",
+                   theme = "nature",
+                   title = "Boxplot Summary",
+                   xlab = "Week", ylab = "Efficacy Score")
+
+# Arrange all plots
+(p_mean_ci + p_mean_se) / (p_median + p_boxplot)
+```
+
+## Summary Statistics Guide
+
+**When to use each option:**
+
+1. **`summary_statistic = "mean"`** (default): 
+   - Uses mean as central tendency
+   - Error bounds: CI when `confidence_interval` specified, otherwise SE
+   - Best for: Normally distributed data, regulatory submissions
+
+2. **`summary_statistic = "mean_se"`**:
+   - Always uses mean ± standard error
+   - More conservative than CI, faster to compute
+   - Best for: Quick exploratory analysis, when SE preferred over CI
+
+3. **`summary_statistic = "median"`**:
+   - Uses median as central tendency with IQR bounds (25th-75th percentiles)
+   - Robust to outliers
+   - Best for: Skewed data, non-parametric analysis
+
+4. **`summary_statistic = "boxplot"`**:
+   - Uses median with whiskers (1.5 × IQR rule)
+   - Shows full data range and identifies outliers
+   - Best for: Exploring data distribution, identifying outliers
+
+# Accessibility and Color Options
+
+## Colorblind-Friendly Alternative
+
+You can override journal colors with colorblind-friendly palettes:
+
+```{r accessibility, fig.width=12, fig.height=6}
+# Use journal theme but override with accessible colors
+p_accessible <- lplot(demo_data,
+                     efficacy ~ visit | treatment,
+                     cluster_var = "subject_id",
+                     baseline_value = 0,
+                     theme = "nejm",  # NEJM typography
+                     treatment_colors = "standard",  # Colorblind-friendly treatment colors
+                     title = "NEJM Theme + Colorblind-Friendly Colors",
+                     xlab = "Week",
+                     ylab = "Efficacy Score")
+
+p_accessible
+```
+
+## Available Color Palette Options
+
+```{r color-options, eval=FALSE}
+# Journal-specific palettes (auto-applied with themes)
+lplot(data, form, theme = "nejm")     # NEJM colors
+lplot(data, form, theme = "nature")   # Nature colors
+lplot(data, form, theme = "lancet")   # Lancet colors
+
+# Clinical palettes (manual specification)
+lplot(data, form, treatment_colors = "standard")  # Clinical trial colors
+lplot(data, form, color_palette = clinical_colors("severity"))   # Severity progression
+lplot(data, form, color_palette = clinical_colors("fda"))        # FDA high-contrast
+
+# Custom color vectors
+lplot(data, form, color_palette = c("#FF0000", "#00FF00", "#0000FF"))
+```
+
+# Usage Recommendations
+
+## For Different Journal Submissions
+
+1. **NEJM**: Use `theme = "nejm"` for clinical trials and medical research
+2. **Nature/Science**: Use `theme = "nature"` or `theme = "science"` for basic research
+3. **Lancet**: Use `theme = "lancet"` for clinical and epidemiological studies
+4. **JAMA**: Use `theme = "jama"` for clinical medicine and healthcare research
+5. **JCO**: Use `theme = "jco"` for oncology and cancer research
+
+## For Regulatory Submissions
+
+- **FDA**: Use `theme = "fda"` for high-contrast, regulatory-appropriate styling
+- **Clinical Study Reports**: Consider `theme = "nejm"` for professional medical appearance
+
+## For Accessibility
+
+- Always test with colorblind simulators
+- Use `treatment_colors = "standard"` for colorblind-friendly treatment colors
+- Consider `error_type = "band"` to reduce visual clutter
+
+# Summary
+
+The `zzlongplot` package provides comprehensive theming options for medical and scientific publications:
+
+- **6 major journal themes** with official color palettes
+- **Automatic styling** with single `theme` parameter  
+- **Accessibility compliance** with colorblind-friendly options
+- **Professional typography** following journal guidelines
+- **Flexible customization** with manual color overrides
+
+Choose the appropriate theme based on your target journal or regulatory requirement, and the package will automatically apply the correct styling and colors for publication-ready figures.
