@@ -274,12 +274,23 @@ assign_treatment_colors <- function(treatment_var, palette_type = "treatment") {
 #' @return Modified ggplot object with clinical colors applied.
 #'
 #' @examples
+#' \dontrun{
+#' library(ggplot2)
+#' 
+#' # Create sample data
+#' data <- data.frame(
+#'   visit = rep(1:4, each = 10),
+#'   efficacy = rnorm(40, mean = 50, sd = 10),
+#'   treatment = rep(c("Placebo", "Drug A"), length.out = 40)
+#' )
+#' 
 #' # Create base plot
 #' p <- ggplot(data, aes(x = visit, y = efficacy, color = treatment)) +
 #'   geom_line()
 #' 
 #' # Apply clinical colors
 #' p_clinical <- apply_clinical_colors(p, "treatment")
+#' }
 #' 
 #' @export
 apply_clinical_colors <- function(plot, treatment_var = NULL, 

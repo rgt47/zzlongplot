@@ -21,16 +21,20 @@ lplot(
   caption2 = "",
   plot_type = "obs",
   error_type = "bar",
+  jitter_width = 0.15,
   color_palette = NULL,
   clinical_mode = FALSE,
   treatment_colors = NULL,
   confidence_interval = NULL,
+  summary_statistic = "mean",
   show_sample_sizes = FALSE,
   visit_windows = NULL,
   theme = NULL,
   publication_ready = FALSE,
   statistical_annotations = FALSE,
-  reference_lines = NULL
+  reference_lines = NULL,
+  ribbon_alpha = 0.2,
+  ribbon_fill = NULL
 )
 }
 \arguments{
@@ -74,6 +78,10 @@ variables, this is treated as a numeric value.}
 (vertical lines showing standard error) or \code{"band"} for error ribbons
 (shaded areas around the line).}
 
+\item{jitter_width}{Numeric. Width of horizontal jitter for error bars when
+multiple groups are present. Default is 0.1. Set to 0 to disable jittering.
+Only applies when error_type = "bar".}
+
 \item{color_palette}{Optional vector of colors to use for groups. If NULL,
 default ggplot colors are used.}
 
@@ -86,13 +94,18 @@ Options: "standard" (placebo=grey, active=colors), or NULL.}
 \item{confidence_interval}{Numeric. Confidence level for error bounds
 (e.g., 0.95 for 95\% CI). If NULL, uses standard error.}
 
+\item{summary_statistic}{Character. Type of summary statistic to calculate.
+Options: "mean" (mean ± CI/SE), "mean_se" (mean ± SE), "median" (median + IQR),
+or "boxplot" (boxplot summary with quartiles). Default is "mean".}
+
 \item{show_sample_sizes}{Logical. If TRUE, shows sample sizes at each timepoint.}
 
 \item{visit_windows}{List. Named list defining visit windows for grouping
 (e.g., list("Week 4" = c(22, 35))).}
 
-\item{theme}{Character. Predefined theme for regulatory compliance
-("fda", "ema", or NULL for default).}
+\item{theme}{Character. Predefined publication theme with matching colors.
+Options: "nejm", "nature", "lancet", "jama", "science", "jco", "fda", or NULL.
+Applies both typography/layout AND journal-specific color palette automatically.}
 
 \item{publication_ready}{Logical. If TRUE, applies publication-ready defaults
 (professional theme, proper typography, clean styling).}
@@ -102,6 +115,11 @@ indicators to the plots.}
 
 \item{reference_lines}{List of reference line specifications. Each should be a
 list with 'value', 'axis' ("x"/"y"), 'color', 'linetype', etc.}
+
+\item{ribbon_alpha}{Numeric. Transparency level for ribbon/band error representations.
+Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.}
+
+\item{ribbon_fill}{Character. Custom fill color for ribbons. If NULL, uses group colors.}
 }
 \value{
 A ggplot2 object or a combination of objects representing the requested
@@ -123,6 +141,35 @@ df <- data.frame(
 lplot(df, measure ~ visit | group, baseline_value = 0, 
       cluster_var = "subject_id")
 
+# Plot with jittered error bars for better group separation
+lplot(df, measure ~ visit | group, baseline_value = 0, 
+      cluster_var = "subject_id", jitter_width = 0.15)
+
+# Plot using median and IQR instead of mean and CI
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id", summary_statistic = "median")
+
+# Plot using mean ± SE (standard error)
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id", summary_statistic = "mean_se")
+
+# Plot using boxplot summary (quartiles + whiskers)
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id", summary_statistic = "boxplot")
+
+# Customize ribbon appearance
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id", error_type = "band", 
+      ribbon_alpha = 0.4, ribbon_fill = "lightblue")
+
+\dontrun{
+# Apply complete journal styling (theme + colors) with single parameter
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id", theme = "nejm")    # NEJM theme + colors
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id", theme = "nature")  # Nature theme + colors
+}
+
 # Example with categorical x variable
 df2 <- data.frame(
   subject_id = rep(1:10, each = 3),
@@ -135,6 +182,7 @@ lplot(df2, measure ~ visit | group, baseline_value = "baseline",
       cluster_var = "subject_id", plot_type = "both",
       title = "Treatment Response", title2 = "Change from Baseline")
 
+\dontrun{
 # Clinical trial example with CDISC variables
 clinical_data <- data.frame(
   USUBJID = rep(paste0("001-", sprintf("\%03d", 1:20)), each = 4),
@@ -148,5 +196,6 @@ lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
       cluster_var = "USUBJID", baseline_value = 0,
       clinical_mode = TRUE, plot_type = "both",
       title = "Clinical Trial Results")
+}
 
 }

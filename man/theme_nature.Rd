@@ -4,10 +4,10 @@
 \alias{theme_nature}
 \title{Publication-Ready ggplot2 Themes}
 \usage{
-theme_nature(base_size = 8, base_family = "Arial", grid = FALSE, border = TRUE)
+theme_nature(base_size = 7, base_family = "Arial", grid = FALSE, border = TRUE)
 }
 \arguments{
-\item{base_size}{Base font size in points. Default is 8pt per Nature guidelines.}
+\item{base_size}{Base font size in points. Default is 7pt per Nature guidelines.}
 
 \item{base_family}{Font family. Default is "Arial" (Nature standard).}
 
@@ -32,7 +32,7 @@ Nature Journal Theme
 
 Nature journal specifications:
 \itemize{
-\item Font: Arial or Helvetica, 5-8pt
+\item Font: Arial or Helvetica, 5-7pt
 \item Dimensions: 90mm (single) or 180mm (double column)
 \item Clean backgrounds, minimal grid lines
 \item Professional appearance for peer review

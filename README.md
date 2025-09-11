@@ -238,9 +238,91 @@ For bug reports or feature requests, please open an issue on GitHub.
 
 ---
 
+## **PDF Rendering and Font Issues** ⚠️
+
+### **Font Requirements for PDF Output**
+
+When using publication themes with PDF output (e.g., via `ggsave()` or R Markdown), you may encounter font errors like:
+```
+font family 'Arial' not found in PostScript font database
+```
+
+This happens because R's graphics devices need explicit font registration for PDF rendering.
+
+### **Solution: Install and Register Fonts**
+
+**Option 1: Using the `showtext` package (Recommended)**
+
+```r
+# Install required package
+install.packages("showtext")
+
+library(showtext)
+
+# Register Arial fonts (macOS example)
+font_add('Arial', 
+         regular = '/System/Library/Fonts/Supplemental/Arial.ttf',
+         bold = '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
+         italic = '/System/Library/Fonts/Supplemental/Arial Italic.ttf',
+         bolditalic = '/System/Library/Fonts/Supplemental/Arial Bold Italic.ttf')
+
+# Enable for all devices
+showtext_auto()
+
+# Now create your plots - fonts will work in PDF
+plot <- lplot(data, AVAL ~ AVISITN | TRT01P, theme = "nejm")
+ggsave("plot.pdf", plot)
+```
+
+**Option 2: Using the `extrafont` package**
+
+```r
+# Install required package
+install.packages("extrafont")
+
+library(extrafont)
+
+# Import system fonts (one-time setup, takes several minutes)
+font_import()
+
+# Load fonts for PostScript devices
+loadfonts(device = "postscript")
+
+# Now create your plots
+plot <- lplot(data, AVAL ~ AVISITN | TRT01P, theme = "nejm")
+ggsave("plot.pdf", plot)
+```
+
+**Option 3: Use Default Fonts**
+
+If you don't need specific fonts, you can override theme fonts:
+
+```r
+# Create plot with default fonts
+plot <- lplot(data, AVAL ~ AVISITN | TRT01P, theme = "nejm")
+
+# Override font family
+plot <- plot + theme(text = element_text(family = "sans"))
+
+# Save as PDF
+ggsave("plot.pdf", plot)
+```
+
+### **Font Locations by Operating System**
+
+- **macOS**: `/System/Library/Fonts/Supplemental/Arial.ttf`
+- **Windows**: `C:/Windows/Fonts/arial.ttf` 
+- **Linux**: `/usr/share/fonts/truetype/liberation/` (or install `ttf-mscorefonts-installer`)
+
+### **HTML Output**
+
+HTML output (via R Markdown) works without additional setup - fonts are handled by the web browser.
+
+---
+
 ## **License**
 
-`zzlongplot` is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+`zzlongplot` is licensed under the GPL-3 License. See the [LICENSE](LICENSE) file for details.
 
 ---
 

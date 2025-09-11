@@ -232,7 +232,7 @@ save_publication <- function(plot, filename, journal = "nature",
   # Print summary
   cat(sprintf("Plot saved for %s:\n", specs$name))
   cat(sprintf("  File: %s\n", filename))
-  cat(sprintf("  Dimensions: %d × %d mm\n", round(width_mm), round(height_mm)))
+  cat(sprintf("  Dimensions: %d x %d mm\n", round(width_mm), round(height_mm)))
   cat(sprintf("  Resolution: %d DPI\n", dpi))
   cat(sprintf("  Format: %s\n", toupper(format)))
   if (!is.null(panel_label)) {

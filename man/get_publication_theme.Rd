@@ -8,7 +8,7 @@ get_publication_theme(theme_name = "nature", ...)
 }
 \arguments{
 \item{theme_name}{Character string specifying theme name.
-Options: "nature", "science", "nejm", "fda", "default".}
+Options: "nature", "science", "nejm", "lancet", "jama", "jco", "fda", "default".}
 
 \item{...}{Additional arguments passed to specific theme functions.}
 }

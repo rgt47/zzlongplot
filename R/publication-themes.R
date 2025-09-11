@@ -35,7 +35,7 @@
 #'   theme_nature()
 #'   
 #' @export
-theme_nature <- function(base_size = 7, base_family = "Arial", 
+theme_nature <- function(base_size = 7, base_family = "sans", 
                          grid = FALSE, border = TRUE) {
   
   # Base theme
@@ -583,6 +583,8 @@ get_publication_theme <- function(theme_name = "nature", ...) {
 #' @return Modified ggplot object.
 #'
 #' @examples  
+#' \dontrun{
+#' library(ggplot2)
 #' p <- ggplot(mtcars, aes(wt, mpg, color = factor(cyl))) + geom_point()
 #' p_pub <- apply_publication_style(p, "nature", "clinical")
 #' 
@@ -590,6 +592,7 @@ get_publication_theme <- function(theme_name = "nature", ...) {
 #' p_nejm <- apply_publication_style(p, "nejm", "nejm")
 #' p_nature <- apply_publication_style(p, "nature", "nature")
 #' p_lancet <- apply_publication_style(p, "lancet", "lancet")
+#' }
 #' 
 #' @export
 apply_publication_style <- function(plot, theme_name = "nature", 

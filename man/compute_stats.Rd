@@ -12,6 +12,7 @@ compute_stats(
   cluster_var,
   baseline_value,
   confidence_interval = NULL,
+  summary_statistic = "mean",
   show_sample_sizes = FALSE,
   statistical_tests = FALSE
 )
@@ -32,6 +33,9 @@ compute_stats(
 \item{confidence_interval}{Numeric. Confidence level (e.g., 0.95 for 95\% CI).
 If specified, calculates confidence intervals instead of standard error.}
 
+\item{summary_statistic}{Character. Type of summary statistic: "mean" (mean ± CI/SE),
+"mean_se" (mean ± SE), "median" (median + IQR), or "boxplot" (quartiles + whiskers).}
+
 \item{show_sample_sizes}{Logical. If TRUE, includes sample sizes in output.}
 
 \item{statistical_tests}{Logical. If TRUE, performs statistical comparisons.}
@@ -40,15 +44,15 @@ If specified, calculates confidence intervals instead of standard error.}
 A data frame containing the computed statistics with columns:
 \itemize{
 \item Original x and group variables
-\item mean_value: Mean of y values
-\item change_mean: Mean of change from baseline
+\item mean_value: Mean/median of y values (depending on summary_statistic)
+\item change_mean: Mean/median of change from baseline
 \item sample_size: Number of observations
-\item standard_deviation: Standard deviation of y values
-\item change_sd: Standard deviation of change values
-\item standard_error: Standard error of mean
-\item change_se: Standard error of change mean
-\item bound_lower/bound_upper: Lower/upper bounds for error bars (mean ± SE)
-\item bound_lower_change/bound_upper_change: Bounds for change value error bars
+\item standard_deviation: SD of y values (for mean) or IQR (for median)
+\item change_sd: SD of change values (for mean) or IQR (for median)
+\item standard_error: Standard error of mean/median
+\item change_se: Standard error of change mean/median
+\item bound_lower/bound_upper: Lower/upper bounds (CI/SE for mean, Q1/Q3 for median)
+\item bound_lower_change/bound_upper_change: Bounds for change values
 \item group: Factor combining all grouping variables
 \item is_continuous: Boolean indicating if x is continuous
 }

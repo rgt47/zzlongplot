@@ -20,6 +20,7 @@
 #'   the final plots or combined plots as specified.
 #'
 #' @import dplyr ggplot2 patchwork
+#' @importFrom stats complete.cases setNames
 NULL
 
 # Declare global variables to avoid R CMD check notes
@@ -27,7 +28,10 @@ NULL
 utils::globalVariables(c(
   "change", "standard_deviation", "sample_size", "change_sd", 
   "mean_value", "standard_error", "change_mean", "change_se", 
-  "bound_lower", "bound_upper", "bound_lower_change", "bound_upper_change"
+  "bound_lower", "bound_upper", "bound_lower_change", "bound_upper_change",
+  "q25_value", "q75_value", "q25_change", "q75_change",
+  "iqr_value", "iqr_change", "whisker_lower", "whisker_upper", 
+  "whisker_lower_change", "whisker_upper_change"
 ))
 
 #' @title Create Longitudinal Plots for Observed and Change Values
@@ -125,11 +129,13 @@ utils::globalVariables(c(
 #'       cluster_var = "subject_id", error_type = "band", 
 #'       ribbon_alpha = 0.4, ribbon_fill = "lightblue")
 #' 
+#' \dontrun{
 #' # Apply complete journal styling (theme + colors) with single parameter
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", theme = "nejm")    # NEJM theme + colors
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", theme = "nature")  # Nature theme + colors
+#' }
 #'
 #' # Example with categorical x variable
 #' df2 <- data.frame(
@@ -143,6 +149,7 @@ utils::globalVariables(c(
 #'       cluster_var = "subject_id", plot_type = "both",
 #'       title = "Treatment Response", title2 = "Change from Baseline")
 #'
+#' \dontrun{
 #' # Clinical trial example with CDISC variables
 #' clinical_data <- data.frame(
 #'   USUBJID = rep(paste0("001-", sprintf("%03d", 1:20)), each = 4),
@@ -156,6 +163,7 @@ utils::globalVariables(c(
 #'       cluster_var = "USUBJID", baseline_value = 0,
 #'       clinical_mode = TRUE, plot_type = "both",
 #'       title = "Clinical Trial Results")
+#' }
 #'
 #' @export
 lplot <- function(

@@ -27,11 +27,22 @@ Modified ggplot object with clinical colors applied.
 Convenience function to apply clinical color schemes to ggplot objects.
 }
 \examples{
+\dontrun{
+library(ggplot2)
+
+# Create sample data
+data <- data.frame(
+  visit = rep(1:4, each = 10),
+  efficacy = rnorm(40, mean = 50, sd = 10),
+  treatment = rep(c("Placebo", "Drug A"), length.out = 40)
+)
+
 # Create base plot
 p <- ggplot(data, aes(x = visit, y = efficacy, color = treatment)) +
   geom_line()
 
 # Apply clinical colors
 p_clinical <- apply_clinical_colors(p, "treatment")
+}
 
 }

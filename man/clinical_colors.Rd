@@ -9,7 +9,8 @@ clinical_colors(type = "treatment", n = NULL, placebo_first = TRUE)
 \arguments{
 \item{type}{Character string specifying the type of clinical palette.
 Options: "treatment" (standard treatment colors), "severity" (condition severity),
-"outcome" (positive/negative outcomes). Default is "treatment".}
+"outcome" (positive/negative outcomes), "fda" (FDA submission), or journal-specific
+palettes: "nejm", "nature", "lancet", "jama", "science", "jco". Default is "treatment".}
 
 \item{n}{Integer specifying the number of colors needed. If not specified,
 returns the full palette.}
@@ -30,10 +31,20 @@ Clinical color palettes follow these conventions:
 \item \strong{Treatment}: Placebo in neutral grey, active treatments in distinct colors
 \item \strong{Severity}: Progression from mild (light) to severe (dark)
 \item \strong{Outcome}: Green for positive, red for negative, grey for neutral
+\item \strong{FDA}: High contrast colors for regulatory submissions
 }
 
-The treatment palette uses colorblind-friendly colors that maintain
-distinction in grayscale printing, important for regulatory submissions.
+Journal-specific palettes (based on ggsci package):
+\itemize{
+\item \strong{NEJM}: New England Journal of Medicine official colors
+\item \strong{Nature}: Nature Publishing Group colors (Nature Reviews Cancer)
+\item \strong{Lancet}: Lancet journal colors (Lancet Oncology)
+\item \strong{JAMA}: Journal of the American Medical Association colors
+\item \strong{Science}: Science journal (AAAS) colors
+\item \strong{JCO}: Journal of Clinical Oncology colors
+}
+
+All palettes maintain distinction in grayscale printing and follow accessibility guidelines.
 }
 \examples{
 # Standard treatment palette
@@ -41,6 +52,11 @@ colors <- clinical_colors("treatment", n = 3)
 
 # Severity progression
 severity_colors <- clinical_colors("severity", n = 5)
+
+# Journal-specific palettes
+nejm_colors <- clinical_colors("nejm", n = 4)
+nature_colors <- clinical_colors("nature", n = 4) 
+lancet_colors <- clinical_colors("lancet", n = 4)
 
 # Use in plot
 df <- data.frame(

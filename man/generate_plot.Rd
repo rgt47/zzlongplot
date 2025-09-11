@@ -10,6 +10,7 @@ generate_plot(
   y_var,
   group_var = NULL,
   error_type = "bar",
+  jitter_width = 0.1,
   xlab = NULL,
   ylab = NULL,
   title = NULL,
@@ -19,7 +20,10 @@ generate_plot(
   color_palette = NULL,
   reference_lines = NULL,
   show_sample_sizes = FALSE,
-  statistical_annotations = FALSE
+  statistical_annotations = FALSE,
+  use_boxplot = FALSE,
+  ribbon_alpha = 0.2,
+  ribbon_fill = NULL
 )
 }
 \arguments{
@@ -35,6 +39,9 @@ and \code{bound_upper} for error visualization.}
 
 \item{error_type}{A string specifying the error type. Use \code{"bar"} for error bars or
 \code{"band"} for ribbons.}
+
+\item{jitter_width}{Numeric. Width of horizontal jitter for error bars when
+multiple groups are present. Only applies when error_type = "bar".}
 
 \item{xlab}{A string for the x-axis label.}
 
@@ -58,6 +65,13 @@ be a list with components: value, axis ("x" or "y"), color, linetype, size.}
 \item{show_sample_sizes}{Logical. If TRUE, adds sample size annotations.}
 
 \item{statistical_annotations}{Logical. If TRUE, adds p-values and significance.}
+
+\item{use_boxplot}{Logical. If TRUE, renders actual boxplots instead of line graphs.}
+
+\item{ribbon_alpha}{Numeric. Transparency level for ribbon/band error representations.
+Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.}
+
+\item{ribbon_fill}{Character. Custom fill color for ribbons. If NULL, uses group colors.}
 }
 \value{
 A \code{ggplot} object representing the visualization.
@@ -90,5 +104,19 @@ plot <- generate_plot(
   title = "Example Plot"
 )
 print(plot)
+
+# Create a plot with jittered error bars
+plot_jitter <- generate_plot(
+  stats = data,
+  x_var = "x", 
+  y_var = "mean_value",
+  group_var = "group",
+  error_type = "bar",
+  jitter_width = 0.2,
+  xlab = "Time",
+  ylab = "Measurement", 
+  title = "Example Plot with Jittered Error Bars"
+)
+print(plot_jitter)
 
 }
