@@ -1691,7 +1691,7 @@ This section provides actual working examples of the types of plots that would b
 
 ## Demonstration: Waterfall Plot for Tumor Response
 
-```{r demo_waterfall, eval=TRUE, fig.height=5, fig.width=8}
+```{r demo_waterfall, eval=TRUE, fig.height=4, fig.width=7}
 # Create realistic tumor response data
 set.seed(123)
 tumor_data <- data.frame(
@@ -1743,7 +1743,7 @@ ggplot(tumor_data, aes(x = patient_order, y = percent_change)) +
 
 ## Demonstration: Patient Swimmer Plot
 
-```{r demo_swimmer, eval=TRUE, fig.height=6, fig.width=10}
+```{r demo_swimmer, eval=TRUE, fig.height=5, fig.width=7}
 # Create swimmer plot data
 swimmer_data <- data.frame(
   patient_id = paste0("P", sprintf("%02d", 1:20)),
@@ -1788,9 +1788,12 @@ ggplot(swimmer_data, aes(y = patient_order)) +
   facet_wrap(~ treatment_arm, scales = "free_y") +
   theme_minimal() +
   theme(
-    axis.text.y = element_text(size = 7),
+    axis.text.y = element_text(size = 6),
+    axis.text.x = element_text(size = 8),
     panel.grid.minor.x = element_blank(),
-    legend.position = "bottom"
+    legend.position = "bottom",
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 9)
   ) +
   labs(
     x = "Time on Study (months)",
@@ -1803,7 +1806,7 @@ ggplot(swimmer_data, aes(y = patient_order)) +
 
 ## Demonstration: Forest Plot for Subgroup Analysis
 
-```{r demo_forest, eval=TRUE, fig.height=6, fig.width=10}
+```{r demo_forest, eval=TRUE, fig.height=5, fig.width=7}
 # Create subgroup analysis data
 subgroup_data <- data.frame(
   Subgroup = c("Overall", "Age < 65", "Age ≥ 65", "Male", "Female", 
@@ -1854,7 +1857,7 @@ ggplot(subgroup_data, aes(y = Subgroup_Order)) +
 
 ## Demonstration: Longitudinal Clinical Trial Plot
 
-```{r demo_longitudinal, eval=TRUE, fig.height=5, fig.width=10}
+```{r demo_longitudinal, eval=TRUE, fig.height=4, fig.width=7}
 # Create longitudinal clinical trial data
 set.seed(456)
 longitudinal_data <- expand.grid(
@@ -1916,6 +1919,63 @@ ggplot(summary_stats, aes(x = visit_num, y = mean_efficacy, color = treatment)) 
     color = "Treatment Group",
     caption = "Error bars represent 95% confidence intervals"
   )
+```
+
+## Demonstration: Survival Analysis Plot
+
+```{r demo_survival, eval=TRUE, fig.height=5, fig.width=7}
+# Create realistic survival data for clinical trial
+set.seed(789)
+n_patients <- 300
+survival_data <- data.frame(
+  patient_id = paste0("PT", sprintf("%03d", 1:n_patients)),
+  treatment = sample(c("Control", "Experimental"), n_patients, replace = TRUE),
+  age_group = sample(c("< 65 years", ">= 65 years"), n_patients, replace = TRUE)
+) %>%
+  mutate(
+    # Generate survival times with treatment effect
+    # Exponential distribution with different rates by treatment
+    time_months = case_when(
+      treatment == "Control" ~ rexp(n(), rate = 1/12),     # Median 12 months
+      treatment == "Experimental" ~ rexp(n(), rate = 1/18) # Median 18 months  
+    ),
+    # Generate events (1 = death, 0 = censored)
+    event = rbinom(n(), 1, 0.75),  # 75% event rate
+    # Some patients censored before their "event time"
+    censoring_time = runif(n(), 6, 30),  # Random censoring 6-30 months
+    # Observed time is minimum of event time and censoring time
+    time_observed = pmin(time_months, censoring_time),
+    status = ifelse(time_observed < time_months, 0, event)  # 0 if censored
+  )
+
+# Fit survival curves
+survival_fit <- survfit(Surv(time_observed, status) ~ treatment, data = survival_data)
+
+# Create survival plot with risk table
+p_survival <- ggsurvplot(
+  survival_fit,
+  data = survival_data,
+  pval = TRUE,                    # Show p-value
+  conf.int = TRUE,                # Show confidence intervals
+  risk.table = TRUE,              # Show risk table
+  risk.table.height = 0.25,       # Risk table height
+  break.time.by = 6,              # Time axis breaks every 6 months
+  xlab = "Time (months)",
+  ylab = "Overall Survival Probability",
+  title = "Overall Survival by Treatment Group",
+  legend.title = "Treatment",
+  legend.labs = c("Control", "Experimental"),
+  palette = c("#E7B800", "#2E9FDF"),
+  ggtheme = theme_minimal()
+)
+
+# Print the survival plot
+print(p_survival)
+
+# Add median survival times
+survival_summary <- surv_median(survival_fit)
+print("Median Survival Times:")
+print(survival_summary)
 ```
 
 These demonstration plots illustrate the types of visualizations that the enhanced `zzlongplot` package would provide through its unified formula-based syntax, while maintaining the statistical rigor and regulatory compliance required for clinical trial reporting.
