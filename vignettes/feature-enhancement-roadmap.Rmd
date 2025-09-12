@@ -592,8 +592,7 @@ p_advanced <- ggplot(swimmer_long, aes(y = patient_order)) +
              shape = 18, size = 2, color = "orange", 
              na.rm = TRUE) +
   
-  # Facet by treatment arm
-  facet_wrap(~treatment_arm, scales = "free_y", ncol = 2) +
+  # Removed faceting to fit on page
   
   # Styling
   scale_color_manual(values = c("CR" = "#2E8B57", "PR" = "#4169E1", 
@@ -615,7 +614,7 @@ p_advanced <- ggplot(swimmer_long, aes(y = patient_order)) +
     y = "Patient ID (sorted by treatment duration)",
     title = "Patient Treatment Timelines and Outcomes",
     subtitle = "Progression (▲), Death (✕), Dose Interruption (♦)",
-    caption = "Patients sorted by treatment duration within each arm"
+    caption = "All patients shown together (Arms A & B combined)"
   )
 
 print(p_advanced)
@@ -1691,7 +1690,7 @@ This section provides actual working examples of the types of plots that would b
 
 ## Demonstration: Waterfall Plot for Tumor Response
 
-```{r demo_waterfall, eval=TRUE, fig.height=4, fig.width=7}
+```{r demo_waterfall, eval=TRUE, fig.height=4, fig.width=4.5}
 # Create realistic tumor response data
 set.seed(123)
 tumor_data <- data.frame(
@@ -1716,34 +1715,34 @@ tumor_data <- data.frame(
     )
   )
 
-# Create waterfall plot
+# Create waterfall plot (removed faceting to fix width)
 ggplot(tumor_data, aes(x = patient_order, y = percent_change)) +
   geom_col(aes(fill = best_response), width = 0.8, alpha = 0.8) +
   geom_hline(yintercept = c(-30, 20), linetype = "dashed", 
              color = "red", size = 0.5) +
   scale_fill_manual(
     values = c("PR" = "#2E8B57", "SD" = "#DAA520", "PD" = "#DC143C"),
-    name = "Best Response"
+    name = "Response"
   ) +
-  facet_wrap(~ treatment_arm, scales = "free_x") +
   theme_minimal() +
   theme(
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    panel.grid.minor = element_blank()
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm")
   ) +
   labs(
     x = "Patients (sorted by response)",
-    y = "Best % Change from Baseline",
+    y = "% Change from Baseline",
     title = "Tumor Response Waterfall Plot",
-    subtitle = "Dashed lines indicate RECIST response thresholds (-30%, +20%)",
-    caption = "PR = Partial Response, SD = Stable Disease, PD = Progressive Disease"
+    subtitle = "RECIST thresholds: -30% (PR), +20% (PD)"
   )
 ```
 
 ## Demonstration: Patient Swimmer Plot
 
-```{r demo_swimmer, eval=TRUE, fig.height=5, fig.width=7}
+```{r demo_swimmer, eval=TRUE, fig.height=5, fig.width=4.5}
 # Create swimmer plot data
 swimmer_data <- data.frame(
   patient_id = paste0("P", sprintf("%02d", 1:20)),
@@ -1785,7 +1784,6 @@ ggplot(swimmer_data, aes(y = patient_order)) +
               "SD" = "#DAA520", "PD" = "#DC143C"),
     name = "Best Response"
   ) +
-  facet_wrap(~ treatment_arm, scales = "free_y") +
   theme_minimal() +
   theme(
     axis.text.y = element_text(size = 6),
