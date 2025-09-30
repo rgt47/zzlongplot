@@ -6,8 +6,8 @@
 .quarto
 /doc/
 /Meta/
-/docs/
 archive/
+rendered_vignettes/
 *.html
 *.pdf
 *.log

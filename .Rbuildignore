@@ -4,3 +4,5 @@
 ^doc$
 ^Meta$
 ^R/zzlongplot\.R\.bak$
+^docs$
+^rendered_vignettes$
