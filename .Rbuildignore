@@ -6,3 +6,5 @@
 ^R/zzlongplot\.R\.bak$
 ^docs$
 ^rendered_vignettes$
+^tests/manual-tests$
+vignettes/.*\.R$
