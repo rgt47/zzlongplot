@@ -16,3 +16,4 @@ rendered_vignettes/
 *.knit.md
 *.bak
 *~
+.Rprofile.local
