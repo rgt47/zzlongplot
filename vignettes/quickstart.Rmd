@@ -1,0 +1,172 @@
+---
+title: "Quickstart Guide: zzlongplot"
+author: "Ronald (Ryy) G. Thomas"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quickstart Guide: zzlongplot}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5,
+  eval = FALSE
+)
+```
+
+## Overview
+
+**zzlongplot** provides a flexible framework for longitudinal data
+visualization in R. The package uses a formula-based interface for creating
+publication-quality plots of repeated measurements over time, with specialized
+support for clinical trials and CDISC compliance.
+
+## Installation
+
+```{r install}
+# Install from GitHub
+devtools::install_github("rgt47/zzlongplot")
+```
+
+```{r load, eval=TRUE, message=FALSE}
+library(zzlongplot)
+library(dplyr)
+library(ggplot2)
+```
+
+## Basic Usage
+
+The main function `lplot()` uses a formula interface similar to statistical
+modeling functions:
+
+```{r basic}
+# Formula: outcome ~ time | group
+lplot(data, y ~ time | treatment)
+```
+
+### Example with Simulated Data
+
+```{r example-data, eval=TRUE}
+# Create example longitudinal data
+set.seed(42)
+n_subjects <- 30
+n_timepoints <- 5
+
+example_data <- expand.grid(
+  subject = 1:n_subjects,
+  visit = 0:4
+) |>
+  mutate(
+    treatment = rep(c("Drug", "Placebo"), each = n_subjects/2 * n_timepoints),
+    baseline = rnorm(n(), 50, 10)[subject],
+    response = baseline + visit * ifelse(treatment == "Drug", -3, -1) +
+               rnorm(n(), 0, 5)
+  )
+
+head(example_data)
+```
+
+### Observed Values Plot
+
+```{r observed-plot}
+# Plot observed values over time by treatment group
+lplot(example_data,
+      response ~ visit | treatment,
+      error_type = "ribbon")
+```
+
+### Change from Baseline Plot
+
+```{r change-plot}
+# Plot change from baseline
+lplot_change(example_data,
+             response ~ visit | treatment,
+             baseline_visit = 0)
+```
+
+### Combined Plot
+
+```{r combined-plot}
+# Side-by-side observed + change plots
+lplot_combined(example_data,
+               response ~ visit | treatment,
+               baseline_visit = 0)
+```
+
+## Key Features
+
+### Error Representation
+
+Choose between error bars or confidence ribbons:
+
+```{r error-types}
+# Error bars (default)
+lplot(data, y ~ time | group, error_type = "bar")
+
+# Confidence ribbons
+lplot(data, y ~ time | group, error_type = "ribbon")
+```
+
+### Faceting
+
+Add faceting for additional variables:
+```{r faceting}
+lplot(data, y ~ time | group,
+      facet_var = "site",
+      facet_ncol = 2)
+```
+
+### Clinical Trial Themes
+
+Publication-ready themes for regulatory submissions:
+
+```{r themes}
+lplot(data, y ~ time | group) +
+  lplot_theme_nejm()
+
+lplot(data, y ~ time | group) +
+  lplot_theme_fda()
+```
+
+## Function Reference
+
+| Function | Purpose |
+|:---------|:--------|
+| `lplot()` | Observed values over time |
+| `lplot_change()` | Change from baseline |
+| `lplot_combined()` | Side-by-side observed + change |
+| `lplot_theme_nejm()` | NEJM publication theme |
+| `lplot_theme_fda()` | FDA submission theme |
+
+## Quick Reference
+
+### Formula Syntax
+
+```
+outcome ~ time | group
+```
+
+- `outcome`: Response variable (y-axis)
+- `time`: Time variable (x-axis)
+- `group`: Grouping variable (colors/lines)
+
+### Key Parameters
+
+| Parameter | Description | Default |
+|:----------|:------------|:--------|
+| `error_type` | "bar" or "ribbon" | "bar" |
+| `baseline_visit` | Value for baseline | NULL |
+| `facet_var` | Faceting variable | NULL |
+| `ci_level` | Confidence level | 0.95 |
+
+## Next Steps
+
+- `vignette("zzlongplot_introduction")` - Detailed introduction
+- `vignette("clinical-trials")` - Clinical trial applications
+- `vignette("cdisc-compliance")` - CDISC-compliant plots
+- `vignette("publication-themes")` - Publication-ready themes
