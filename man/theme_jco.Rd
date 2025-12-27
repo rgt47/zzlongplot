@@ -28,8 +28,9 @@ JCO journal specifications:
 }
 }
 \examples{
-ggplot(mtcars, aes(wt, mpg)) + 
-  geom_point() + 
+library(ggplot2)
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() +
   theme_jco()
-  
+
 }

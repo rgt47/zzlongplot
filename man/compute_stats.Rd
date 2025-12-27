@@ -14,7 +14,8 @@ compute_stats(
   confidence_interval = NULL,
   summary_statistic = "mean",
   show_sample_sizes = FALSE,
-  statistical_tests = FALSE
+  statistical_tests = FALSE,
+  facet_vars = NULL
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ If specified, calculates confidence intervals instead of standard error.}
 \item{show_sample_sizes}{Logical. If TRUE, includes sample sizes in output.}
 
 \item{statistical_tests}{Logical. If TRUE, performs statistical comparisons.}
+
+\item{facet_vars}{Character vector. Names of variables to use for faceting (optional).}
 }
 \value{
 A data frame containing the computed statistics with columns:
