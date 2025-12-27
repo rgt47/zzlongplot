@@ -128,10 +128,11 @@ theme_nature <- function(base_size = 7, base_family = "sans",
 #' - Grid lines acceptable but subtle
 #'
 #' @examples
-#' ggplot(mtcars, aes(wt, mpg)) + 
-#'   geom_point() + 
+#' library(ggplot2)
+#' ggplot(mtcars, aes(wt, mpg)) +
+#'   geom_point() +
 #'   theme_science()
-#'   
+#'
 #' @export
 theme_science <- function(base_size = 7, base_family = "sans", grid = TRUE) {
   
@@ -195,10 +196,11 @@ theme_science <- function(base_size = 7, base_family = "sans", grid = TRUE) {
 #' - Conservative, trustworthy design
 #'
 #' @examples
-#' ggplot(mtcars, aes(wt, mpg)) + 
-#'   geom_point() + 
+#' library(ggplot2)
+#' ggplot(mtcars, aes(wt, mpg)) +
+#'   geom_point() +
 #'   theme_nejm()
-#'   
+#'
 #' @export
 theme_nejm <- function(base_size = 8, base_family = "sans", clinical = TRUE) {
   
@@ -263,10 +265,11 @@ theme_nejm <- function(base_size = 8, base_family = "sans", clinical = TRUE) {
 #' - Suitable for CSR (Clinical Study Report) inclusion
 #'
 #' @examples
-#' ggplot(mtcars, aes(wt, mpg)) + 
-#'   geom_point() + 
+#' library(ggplot2)
+#' ggplot(mtcars, aes(wt, mpg)) +
+#'   geom_point() +
 #'   theme_fda()
-#'   
+#'
 #' @export
 theme_fda <- function(base_size = 10, base_family = "sans", high_contrast = TRUE) {
   
@@ -357,10 +360,11 @@ theme_fda <- function(base_size = 10, base_family = "sans", high_contrast = TRUE
 #' - Conservative color scheme
 #'
 #' @examples
-#' ggplot(mtcars, aes(wt, mpg)) + 
-#'   geom_point() + 
+#' library(ggplot2)
+#' ggplot(mtcars, aes(wt, mpg)) +
+#'   geom_point() +
 #'   theme_lancet()
-#'   
+#'
 #' @export
 theme_lancet <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
@@ -421,10 +425,11 @@ theme_lancet <- function(base_size = 8, base_family = "sans", grid = FALSE) {
 #' - Clean, readable design
 #'
 #' @examples
-#' ggplot(mtcars, aes(wt, mpg)) + 
-#'   geom_point() + 
+#' library(ggplot2)
+#' ggplot(mtcars, aes(wt, mpg)) +
+#'   geom_point() +
 #'   theme_jama()
-#'   
+#'
 #' @export
 theme_jama <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
@@ -485,10 +490,11 @@ theme_jama <- function(base_size = 8, base_family = "sans", grid = FALSE) {
 #' - Clean, medical design
 #'
 #' @examples
-#' ggplot(mtcars, aes(wt, mpg)) + 
-#'   geom_point() + 
+#' library(ggplot2)
+#' ggplot(mtcars, aes(wt, mpg)) +
+#'   geom_point() +
 #'   theme_jco()
-#'   
+#'
 #' @export
 theme_jco <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
