@@ -25,6 +25,11 @@ Checks a clinical dataset for compliance with CDISC standards and
 provides recommendations for improvement.
 }
 \examples{
+clinical_data <- data.frame(
+  USUBJID = paste0("001-", 1:20),
+  AVISITN = rep(c(0, 1, 2, 3), 5),
+  AVAL = rnorm(20)
+)
 validation <- validate_cdisc_data(clinical_data)
 print(validation$compliance_score)
 

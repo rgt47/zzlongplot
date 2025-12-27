@@ -289,6 +289,11 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
 #' @return A list containing compliance score and recommendations.
 #'
 #' @examples
+#' clinical_data <- data.frame(
+#'   USUBJID = paste0("001-", 1:20),
+#'   AVISITN = rep(c(0, 1, 2, 3), 5),
+#'   AVAL = rnorm(20)
+#' )
 #' validation <- validate_cdisc_data(clinical_data)
 #' print(validation$compliance_score)
 #' 
