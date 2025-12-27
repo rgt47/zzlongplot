@@ -10,60 +10,61 @@
 
 # CDISC Variable Lookup Tables
 .cdisc_lookup <- list(
-  
+
+
   # Subject identifiers
-  subject_id = c(
-    primary = c("USUBJID", "USUBJID"),
+  subject_id = list(
+    primary = c("USUBJID"),
     secondary = c("SUBJID", "SUBJ", "PTNO", "PATIENT")
   ),
-  
+
   # Visit variables
-  visit = c(
+  visit = list(
     numeric = c("AVISITN", "VISITNUM", "VISIT_N", "VISITN"),
     character = c("AVISIT", "VISIT", "VISITC", "AVISITC")
   ),
-  
+
   # Analysis values
-  analysis_value = c(
+  analysis_value = list(
     primary = c("AVAL", "AVALC"),
     secondary = c("VALUE", "RESULT", "SCORE", "MEASURE")
   ),
-  
+
   # Change from baseline
-  change = c(
+  change = list(
     primary = c("CHG", "CHANGE"),
     percent = c("PCHG", "PCHANGE", "CHGPCT"),
     secondary = c("DIFF", "DELTA")
   ),
-  
-  # Treatment variables  
-  treatment = c(
+
+  # Treatment variables
+  treatment = list(
     planned = c("TRT01P", "TRTPN", "ARM", "ARMCD"),
     actual = c("TRT01A", "TRTAN", "ACTTRT", "ACTARM"),
     reference = c("TRT01PN", "TRT01AN")
   ),
-  
+
   # Population flags
-  population = c(
+  population = list(
     safety = c("SAFFL", "SAF", "SAFETY"),
     efficacy = c("FASFL", "FAS", "ITT", "ITTFL", "EFFICACY"),
     per_protocol = c("PPSFL", "PP", "PERPROTFL")
   ),
-  
+
   # Parameter information
-  parameter = c(
+  parameter = list(
     name = c("PARAM", "PARAMETER", "TEST"),
     code = c("PARAMCD", "PARAMCODE", "TESTCD")
   ),
-  
+
   # Baseline values
-  baseline = c(
+  baseline = list(
     value = c("BASE", "BASELINE", "BL", "BLVAL"),
     flag = c("BASEFL", "BLFL", "BASELINE_FL")
   ),
-  
+
   # Study information
-  study = c(
+  study = list(
     id = c("STUDYID", "STUDY", "PROTOCOL"),
     site = c("SITEID", "SITE", "CENTER", "INVESTIGATOR")
   )
@@ -117,10 +118,10 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
   
   detected$subject_id <- unlist(subject_matches)
   primary_subject <- subject_matches$primary[1]
-  
-  if (is.na(primary_subject)) {
+
+  if (length(primary_subject) == 0 || is.na(primary_subject)) {
     primary_subject <- subject_matches$secondary[1]
-    if (!is.na(primary_subject)) {
+    if (length(primary_subject) > 0 && !is.na(primary_subject)) {
       warnings <- c(warnings, sprintf("Using non-standard subject ID '%s'. Consider USUBJID.", primary_subject))
     }
   }
@@ -132,8 +133,8 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
   
   detected$visit <- unlist(visit_matches)
   primary_visit <- visit_matches$numeric[1]
-  
-  if (is.na(primary_visit)) {
+
+  if (length(primary_visit) == 0 || is.na(primary_visit)) {
     primary_visit <- visit_matches$character[1]
   }
   
@@ -144,10 +145,10 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
   
   detected$analysis_value <- unlist(aval_matches)
   primary_aval <- aval_matches$primary[1]
-  
-  if (is.na(primary_aval)) {
+
+  if (length(primary_aval) == 0 || is.na(primary_aval)) {
     primary_aval <- aval_matches$secondary[1]
-    if (!is.na(primary_aval)) {
+    if (length(primary_aval) > 0 && !is.na(primary_aval)) {
       warnings <- c(warnings, sprintf("Using non-standard analysis variable '%s'. Consider AVAL.", primary_aval))
     }
   }
@@ -159,10 +160,10 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
   
   detected$treatment <- unlist(trt_matches)
   primary_trt <- trt_matches$planned[1]
-  
-  if (is.na(primary_trt)) {
+
+  if (length(primary_trt) == 0 || is.na(primary_trt)) {
     primary_trt <- trt_matches$actual[1]
-    if (!is.na(primary_trt)) {
+    if (length(primary_trt) > 0 && !is.na(primary_trt)) {
       warnings <- c(warnings, "Using actual treatment instead of planned. Consider TRT01P for ITT analysis.")
     }
   }
@@ -176,7 +177,7 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
   
   # Detect baseline value
   baseline_value <- NULL
-  if (!is.na(primary_visit) && primary_visit %in% data_names) {
+  if (length(primary_visit) > 0 && !is.na(primary_visit) && primary_visit %in% data_names) {
     visit_values <- unique(data[[primary_visit]])
     
     # Common baseline patterns
@@ -192,8 +193,12 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
   
   # Construct suggested formula
   suggested_formula <- NULL
-  if (!is.na(primary_aval) && !is.na(primary_visit)) {
-    if (!is.na(primary_trt)) {
+  has_aval <- length(primary_aval) > 0 && !is.na(primary_aval)
+  has_visit <- length(primary_visit) > 0 && !is.na(primary_visit)
+  has_trt <- length(primary_trt) > 0 && !is.na(primary_trt)
+
+  if (has_aval && has_visit) {
+    if (has_trt) {
       suggested_formula <- sprintf("%s ~ %s | %s", primary_aval, primary_visit, primary_trt)
     } else {
       suggested_formula <- sprintf("%s ~ %s", primary_aval, primary_visit)
@@ -201,7 +206,8 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
   }
   
   # Additional quality checks
-  if (!is.na(primary_subject) && primary_subject %in% data_names) {
+  has_subject <- length(primary_subject) > 0 && !is.na(primary_subject)
+  if (has_subject && primary_subject %in% data_names) {
     n_subjects <- length(unique(data[[primary_subject]]))
     n_rows <- nrow(data)
     avg_obs_per_subject <- n_rows / n_subjects
@@ -242,7 +248,7 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
       cat("Could not construct formula. Missing required variables.\n")
     }
     
-    if (!is.na(primary_subject)) {
+    if (has_subject) {
       cat("Cluster Variable:", primary_subject, "\n")
     }
     
