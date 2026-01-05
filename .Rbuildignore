@@ -8,3 +8,14 @@
 ^rendered_vignettes$
 ^tests/manual-tests$
 vignettes/.*\.R$
+^\.Rprofile\.local$
+^CLAUDE\.md$
+^Dockerfile$
+^Makefile$
+^analysis$
+^renv\.lock$
+^test\.R$
+^.*\.Rproj$
+^\.Rproj\.user$
+^renv$
+^\.cache$
