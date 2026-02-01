@@ -1,4 +1,4 @@
-# zzlongplot 0.0.0.1000
+# zzlongplot 0.1.0
 
 ## New Features - Clinical Trials Support 🏥
 
@@ -50,7 +50,7 @@
 
 ---
 
-# zzlongplot 0.0.0.999
+# zzlongplot 0.0.1
 
 ## Initial Release
 
