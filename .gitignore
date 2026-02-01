@@ -17,3 +17,4 @@ rendered_vignettes/
 *.bak
 *~
 .Rprofile.local
+CLAUDE.md
