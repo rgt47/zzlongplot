@@ -311,21 +311,22 @@ lplot <- function(
     statistical_annotations = statistical_annotations,
     use_boxplot = (summary_statistic == "boxplot"),
     ribbon_alpha = ribbon_alpha,
-    ribbon_fill = ribbon_fill
+    ribbon_fill = ribbon_fill,
+    bw_print = identical(theme, "bw")
   )
-  
+
   fig_change <- generate_plot(
-    stats = stats_change, 
-    x_var = parsed_form$x, 
-    y_var = "change_mean", 
+    stats = stats_change,
+    x_var = parsed_form$x,
+    y_var = "change_mean",
     group_var = "group",
-    error_type = error_type, 
+    error_type = error_type,
     jitter_width = jitter_width,
-    xlab = xlab, 
-    ylab = ylab2, 
-    title = title2, 
-    subtitle = subtitle2, 
-    caption = caption2, 
+    xlab = xlab,
+    ylab = ylab2,
+    title = title2,
+    subtitle = subtitle2,
+    caption = caption2,
     facet = facet_spec,
     color_palette = color_palette,
     reference_lines = reference_lines,
@@ -333,7 +334,8 @@ lplot <- function(
     statistical_annotations = statistical_annotations,
     use_boxplot = (summary_statistic == "boxplot"),
     ribbon_alpha = ribbon_alpha,
-    ribbon_fill = ribbon_fill
+    ribbon_fill = ribbon_fill,
+    bw_print = identical(theme, "bw")
   )
   
   # Apply publication theme and colors if specified
@@ -343,20 +345,33 @@ lplot <- function(
     fig_obs <- fig_obs + pub_theme
     fig_change <- fig_change + pub_theme
     
-    # Apply matching journal colors if available and no color_palette specified
-    journal_themes <- c("nejm", "nature", "lancet", "jama", "science", "jco")
-    if (theme %in% journal_themes && is.null(color_palette)) {
-      # Get journal-specific colors
-      journal_colors <- clinical_colors(theme)
-      
-      # Apply colors to both plots
-      fig_obs <- fig_obs + 
-        ggplot2::scale_color_manual(values = journal_colors) +
-        ggplot2::scale_fill_manual(values = journal_colors)
-      
-      fig_change <- fig_change + 
-        ggplot2::scale_color_manual(values = journal_colors) +
-        ggplot2::scale_fill_manual(values = journal_colors)
+    if (theme == "bw" && is.null(color_palette)) {
+      n_groups <- length(unique(stats$group))
+      grey_vals <- grDevices::grey.colors(n_groups, start = 0, end = 0.6)
+
+      bw_scales <- list(
+        ggplot2::scale_color_manual(values = grey_vals),
+        ggplot2::scale_fill_manual(values = grey_vals)
+      )
+
+      fig_obs <- fig_obs + bw_scales
+      fig_change <- fig_change + bw_scales
+    } else {
+      # Apply matching journal colors if available
+      journal_themes <- c(
+        "nejm", "nature", "lancet", "jama", "science", "jco"
+      )
+      if (theme %in% journal_themes && is.null(color_palette)) {
+        journal_colors <- clinical_colors(theme)
+
+        fig_obs <- fig_obs +
+          ggplot2::scale_color_manual(values = journal_colors) +
+          ggplot2::scale_fill_manual(values = journal_colors)
+
+        fig_change <- fig_change +
+          ggplot2::scale_color_manual(values = journal_colors) +
+          ggplot2::scale_fill_manual(values = journal_colors)
+      }
     }
   }
   

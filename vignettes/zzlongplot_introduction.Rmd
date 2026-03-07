@@ -503,6 +503,77 @@ The `zzlongplot` package uses a formula-based interface that follows these patte
 
 This formula syntax is designed to be intuitive for R users familiar with model formulas, while providing the flexibility needed for complex visualization scenarios.
 
+# Sample Size Annotations
+
+In clinical and research settings it is often important to display the
+number of observations contributing to each plotted summary. Setting
+`show_sample_sizes = TRUE` places the sample size to the right of
+each point, aligned with dodge positioning when groups are present.
+
+```{r sample_sizes_obs}
+lplot(continuous_data,
+      form = outcome ~ visit_time | group,
+      cluster_var = "subject_id",
+      baseline_value = 0,
+      show_sample_sizes = TRUE,
+      title = "Observed Values with Sample Sizes",
+      xlab = "Weeks",
+      ylab = "Outcome Measure")
+```
+
+Sample size annotations also work with change-from-baseline plots and
+the combined layout:
+
+```{r sample_sizes_both}
+lplot(categorical_data,
+      form = score ~ visit | treatment,
+      cluster_var = "subject_id",
+      baseline_value = "Baseline",
+      show_sample_sizes = TRUE,
+      plot_type = "both",
+      title = "Observed Scores",
+      title2 = "Change from Baseline",
+      xlab = "Visit",
+      ylab = "Score",
+      ylab2 = "Score Change")
+```
+
+# Black-and-White Print Theme
+
+Figures destined for monochrome printing or photocopying benefit from
+visual cues beyond color. The `theme = "bw"` option applies a
+high-contrast black-and-white theme and automatically maps linetype
+and point shape to the grouping variable so that groups remain
+distinguishable without color.
+
+```{r bw_theme}
+lplot(continuous_data,
+      form = outcome ~ visit_time | group,
+      cluster_var = "subject_id",
+      baseline_value = 0,
+      theme = "bw",
+      title = "Treatment Effect (BW Print)",
+      xlab = "Weeks",
+      ylab = "Outcome Measure")
+```
+
+The BW theme pairs naturally with sample size annotations:
+
+```{r bw_with_sample_sizes}
+lplot(categorical_data,
+      form = score ~ visit | treatment,
+      cluster_var = "subject_id",
+      baseline_value = "Baseline",
+      theme = "bw",
+      show_sample_sizes = TRUE,
+      plot_type = "both",
+      title = "Observed Scores (BW)",
+      title2 = "Change from Baseline (BW)",
+      xlab = "Visit",
+      ylab = "Score",
+      ylab2 = "Score Change")
+```
+
 # Best Practices for Longitudinal Visualization
 
 When using `zzlongplot` for your research, consider these best practices:

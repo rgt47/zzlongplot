@@ -32,6 +32,8 @@
 #' @param ribbon_alpha Numeric. Transparency level for ribbon/band error representations.
 #'   Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.
 #' @param ribbon_fill Character. Custom fill color for ribbons. If NULL, uses group colors.
+#' @param bw_print Logical. If TRUE, maps linetype and shape to group variable
+#'   for black-and-white print compatibility. Default is FALSE.
 #'
 #' @return A `ggplot` object representing the visualization.
 #' 
@@ -94,7 +96,8 @@ generate_plot <- function(
   statistical_annotations = FALSE,
   use_boxplot = FALSE,
   ribbon_alpha = 0.2,
-  ribbon_fill = NULL
+  ribbon_fill = NULL,
+  bw_print = FALSE
 ) {
   # Set x-axis scale based on whether x is continuous
   x_scale <- if (stats$is_continuous[1]) {
@@ -105,17 +108,20 @@ generate_plot <- function(
   
   # Conditionally create the plot based on whether grouping is used
   if (!is.null(group_var) && group_var %in% names(stats)) {
-    # Plot with grouping
-    plot <- ggplot2::ggplot(
-      stats, 
-      ggplot2::aes(
-        x = .data[[x_var]],
-        y = .data[[y_var]],
-        group = .data[[group_var]],
-        color = .data[[group_var]],
-        fill = .data[[group_var]]
-      )
+    base_aes <- ggplot2::aes(
+      x = .data[[x_var]],
+      y = .data[[y_var]],
+      group = .data[[group_var]],
+      color = .data[[group_var]],
+      fill = .data[[group_var]]
     )
+    if (bw_print) {
+      base_aes <- utils::modifyList(base_aes, ggplot2::aes(
+        linetype = .data[[group_var]],
+        shape = .data[[group_var]]
+      ))
+    }
+    plot <- ggplot2::ggplot(stats, base_aes)
   } else {
     # Plot without grouping
     plot <- ggplot2::ggplot(
@@ -352,20 +358,28 @@ generate_plot <- function(
       0.15
     }
 
+    stats_label <- stats
+    stats_label[[".x_nudged"]] <- as.numeric(stats_label[[x_var]]) + nudge
+
     if (has_groups && jitter_width > 0) {
       plot <- plot + ggplot2::geom_text(
-        ggplot2::aes(label = .data[["sample_size"]]),
+        data = stats_label,
+        ggplot2::aes(
+          x = .data[[".x_nudged"]],
+          label = .data[["sample_size"]]
+        ),
         hjust = 0, size = 2.8, show.legend = FALSE,
         color = "grey40",
-        position = ggplot2::position_nudge_dodge(
-          x = nudge, dodge.width = jitter_width
-        )
+        position = ggplot2::position_dodge(width = jitter_width)
       )
     } else {
       plot <- plot + ggplot2::geom_text(
-        ggplot2::aes(label = .data[["sample_size"]]),
-        hjust = 0, nudge_x = nudge,
-        size = 2.8, show.legend = FALSE,
+        data = stats_label,
+        ggplot2::aes(
+          x = .data[[".x_nudged"]],
+          label = .data[["sample_size"]]
+        ),
+        hjust = 0, size = 2.8, show.legend = FALSE,
         color = "grey40"
       )
     }

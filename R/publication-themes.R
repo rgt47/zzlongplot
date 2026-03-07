@@ -537,6 +537,115 @@ theme_jco <- function(base_size = 8, base_family = "sans", grid = FALSE) {
     )
 }
 
+#' Black-and-White Print Theme
+#'
+#' @description
+#' Creates a theme optimized for monochrome (black-and-white) printing.
+#' Groups are distinguished by linetype and point shape rather than color.
+#'
+#' @param base_size Base font size in points. Default is 10pt for print
+#'   readability.
+#' @param base_family Font family. Default is "sans" (Helvetica equivalent).
+#' @param grid Logical. Whether to show major grid lines. Default is TRUE
+#'   for readability without color cues.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @details
+#' Designed for figures that will be printed in greyscale or photocopied.
+#' Uses high-contrast black-on-white styling with no color dependency.
+#' Pair with greyscale color scales and mapped linetype/shape aesthetics
+#' for full black-and-white compatibility.
+#'
+#' @examples
+#' library(ggplot2)
+#' ggplot(mtcars, aes(wt, mpg)) +
+#'   geom_point() +
+#'   theme_bw_print()
+#'
+#' @export
+theme_bw_print <- function(base_size = 10, base_family = "sans",
+                           grid = TRUE) {
+
+  ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
+    ggplot2::theme(
+      panel.background = ggplot2::element_rect(
+        fill = "white", colour = NA
+      ),
+      plot.background = ggplot2::element_rect(
+        fill = "white", colour = NA
+      ),
+
+      panel.grid.major = if (grid) {
+        ggplot2::element_line(
+          colour = "grey85", size = 0.3, linetype = "dotted"
+        )
+      } else {
+        ggplot2::element_blank()
+      },
+      panel.grid.minor = ggplot2::element_blank(),
+
+      panel.border = ggplot2::element_rect(
+        colour = "black", fill = NA, size = 0.7
+      ),
+
+      axis.ticks = ggplot2::element_line(
+        colour = "black", size = 0.4
+      ),
+      axis.ticks.length = ggplot2::unit(0.2, "cm"),
+      axis.text = ggplot2::element_text(
+        colour = "black", size = ggplot2::rel(1.0)
+      ),
+      axis.title = ggplot2::element_text(
+        colour = "black", size = ggplot2::rel(1.1), face = "bold"
+      ),
+      axis.title.x = ggplot2::element_text(
+        margin = ggplot2::margin(t = 8)
+      ),
+      axis.title.y = ggplot2::element_text(
+        margin = ggplot2::margin(r = 8), angle = 90
+      ),
+
+      plot.title = ggplot2::element_text(
+        size = ggplot2::rel(1.2), hjust = 0, face = "bold",
+        margin = ggplot2::margin(b = 10)
+      ),
+      plot.subtitle = ggplot2::element_text(
+        size = ggplot2::rel(1.0), hjust = 0,
+        margin = ggplot2::margin(b = 5)
+      ),
+      plot.caption = ggplot2::element_text(
+        size = ggplot2::rel(0.8), hjust = 0,
+        margin = ggplot2::margin(t = 8)
+      ),
+
+      legend.position = "bottom",
+      legend.key = ggplot2::element_rect(
+        fill = "white", colour = NA
+      ),
+      legend.background = ggplot2::element_rect(
+        fill = "white", colour = NA
+      ),
+      legend.text = ggplot2::element_text(
+        size = ggplot2::rel(0.9)
+      ),
+      legend.title = ggplot2::element_text(
+        size = ggplot2::rel(1.0)
+      ),
+
+      strip.background = ggplot2::element_rect(
+        fill = "grey90", colour = "black", size = 0.5
+      ),
+      strip.text = ggplot2::element_text(
+        colour = "black", face = "bold",
+        size = ggplot2::rel(1.0),
+        margin = ggplot2::margin(4, 4, 4, 4)
+      ),
+
+      plot.margin = ggplot2::margin(10, 10, 10, 10)
+    )
+}
+
 #' Get Publication Theme by Name
 #'
 #' @description
@@ -555,7 +664,7 @@ theme_jco <- function(base_size = 8, base_family = "sans", grid = FALSE) {
 #' @export
 get_publication_theme <- function(theme_name = "nature", ...) {
   
-  available_themes <- c("nature", "science", "nejm", "lancet", "jama", "jco", "fda", "default")
+  available_themes <- c("nature", "science", "nejm", "lancet", "jama", "jco", "fda", "bw", "default")
   
   if (!theme_name %in% available_themes) {
     stop(sprintf("Unknown theme '%s'. Available themes: %s",
@@ -570,6 +679,7 @@ get_publication_theme <- function(theme_name = "nature", ...) {
          "jama" = theme_jama(...),
          "jco" = theme_jco(...),
          "fda" = theme_fda(...),
+         "bw" = theme_bw_print(...),
          "default" = ggplot2::theme_bw(...)
   )
 }
