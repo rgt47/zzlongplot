@@ -27,7 +27,7 @@ Suggests:
 Config/testthat/edition: 3
 Imports: 
     dplyr,
-    ggplot2 (>= 3.5.0),
+    ggplot2,
     patchwork,
     RColorBrewer
 VignetteBuilder: knitr
