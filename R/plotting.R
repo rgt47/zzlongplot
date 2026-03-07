@@ -346,11 +346,29 @@ generate_plot <- function(
   
   # Add sample size annotations if requested
   if (show_sample_sizes && "sample_size" %in% names(stats)) {
-    plot <- plot + ggplot2::geom_text(
-      ggplot2::aes(label = paste("n =", .data[["sample_size"]])),
-      vjust = -0.5, size = 3, show.legend = FALSE,
-      color = "black", alpha = 0.7
-    )
+    nudge <- if (stats$is_continuous[1]) {
+      diff(range(as.numeric(stats[[x_var]]), na.rm = TRUE)) * 0.03
+    } else {
+      0.15
+    }
+
+    if (has_groups && jitter_width > 0) {
+      plot <- plot + ggplot2::geom_text(
+        ggplot2::aes(label = .data[["sample_size"]]),
+        hjust = 0, size = 2.8, show.legend = FALSE,
+        color = "grey40",
+        position = ggplot2::position_nudge_dodge(
+          x = nudge, dodge.width = jitter_width
+        )
+      )
+    } else {
+      plot <- plot + ggplot2::geom_text(
+        ggplot2::aes(label = .data[["sample_size"]]),
+        hjust = 0, nudge_x = nudge,
+        size = 2.8, show.legend = FALSE,
+        color = "grey40"
+      )
+    }
   }
   
   # Add statistical annotations if requested
