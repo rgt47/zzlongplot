@@ -78,6 +78,10 @@ utils::globalVariables(c(
 #'   Options: "mean" (mean ± CI/SE), "mean_se" (mean ± SE), "median" (median + IQR), 
 #'   or "boxplot" (boxplot summary with quartiles). Default is "mean".
 #' @param show_sample_sizes Logical. If TRUE, shows sample sizes at each timepoint.
+#' @param sample_size_opts List. Options for sample size label appearance.
+#'   Elements (all optional): size (font size, default 2.8), color (default
+#'   "grey40"), alpha (0-1, default 1), nudge_x (horizontal offset),
+#'   nudge_y (vertical offset). See [generate_plot()] for details.
 #' @param visit_windows List. Named list defining visit windows for grouping 
 #'   (e.g., list("Week 4" = c(22, 35))).
 #' @param theme Character. Predefined publication theme with matching colors.
@@ -169,7 +173,9 @@ lplot <- function(
   subtitle = "", subtitle2 = "", caption = "", caption2 = "",
   plot_type = "obs", error_type = "bar", jitter_width = 0.15, color_palette = NULL,
   clinical_mode = FALSE, treatment_colors = NULL, confidence_interval = NULL,
-  summary_statistic = "mean", show_sample_sizes = FALSE, visit_windows = NULL, theme = NULL,
+  summary_statistic = "mean", show_sample_sizes = FALSE,
+  sample_size_opts = list(),
+  visit_windows = NULL, theme = NULL,
   publication_ready = FALSE, statistical_annotations = FALSE,
   reference_lines = NULL, ribbon_alpha = 0.2, ribbon_fill = NULL
 ) {
@@ -312,7 +318,8 @@ lplot <- function(
     use_boxplot = (summary_statistic == "boxplot"),
     ribbon_alpha = ribbon_alpha,
     ribbon_fill = ribbon_fill,
-    bw_print = identical(theme, "bw")
+    bw_print = identical(theme, "bw"),
+    sample_size_opts = sample_size_opts
   )
 
   fig_change <- generate_plot(
@@ -335,7 +342,8 @@ lplot <- function(
     use_boxplot = (summary_statistic == "boxplot"),
     ribbon_alpha = ribbon_alpha,
     ribbon_fill = ribbon_fill,
-    bw_print = identical(theme, "bw")
+    bw_print = identical(theme, "bw"),
+    sample_size_opts = sample_size_opts
   )
   
   # Apply publication theme and colors if specified
@@ -381,6 +389,10 @@ lplot <- function(
   } else if (plot_type == "change") {
     return(fig_change)
   } else if (plot_type == "both") {
-    return(fig_obs + fig_change + patchwork::plot_layout(ncol = 2))
+    return(
+      fig_obs + fig_change +
+        patchwork::plot_layout(ncol = 2, guides = "collect") &
+        ggplot2::theme(legend.position = "bottom")
+    )
   }
 }

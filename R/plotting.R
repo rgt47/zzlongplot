@@ -34,6 +34,18 @@
 #' @param ribbon_fill Character. Custom fill color for ribbons. If NULL, uses group colors.
 #' @param bw_print Logical. If TRUE, maps linetype and shape to group variable
 #'   for black-and-white print compatibility. Default is FALSE.
+#' @param sample_size_opts List. Options controlling the appearance and
+#'   placement of sample size labels. Elements (all optional):
+#'   \describe{
+#'     \item{size}{Font size in mm. Default 2.8.}
+#'     \item{color}{Label color. Default "grey40".}
+#'     \item{alpha}{Transparency, 0-1. Default 1.}
+#'     \item{nudge_x}{Horizontal offset from the point (in data
+#'       units for continuous x, or fraction of category spacing
+#'       for categorical x). Default is auto-calculated.}
+#'     \item{nudge_y}{Vertical offset from the point in data
+#'       units. Default 0 (no vertical shift).}
+#'   }
 #'
 #' @return A `ggplot` object representing the visualization.
 #' 
@@ -97,7 +109,8 @@ generate_plot <- function(
   use_boxplot = FALSE,
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
-  bw_print = FALSE
+  bw_print = FALSE,
+  sample_size_opts = list()
 ) {
   # Set x-axis scale based on whether x is continuous
   x_scale <- if (stats$is_continuous[1]) {
@@ -352,24 +365,36 @@ generate_plot <- function(
   
   # Add sample size annotations if requested
   if (show_sample_sizes && "sample_size" %in% names(stats)) {
-    nudge <- if (stats$is_continuous[1]) {
+    ss <- sample_size_opts
+    ss_size  <- ss$size  %||% 2.8
+    ss_color <- ss$color %||% "grey40"
+    ss_alpha <- ss$alpha %||% 1
+    ss_ny    <- ss$nudge_y %||% 0
+
+    ss_nx <- if (!is.null(ss$nudge_x)) {
+      ss$nudge_x
+    } else if (stats$is_continuous[1]) {
       diff(range(as.numeric(stats[[x_var]]), na.rm = TRUE)) * 0.03
     } else {
       0.15
     }
 
     stats_label <- stats
-    stats_label[[".x_nudged"]] <- as.numeric(stats_label[[x_var]]) + nudge
+    stats_label[[".x_nudged"]] <- as.numeric(
+      stats_label[[x_var]]
+    ) + ss_nx
+    stats_label[[".y_nudged"]] <- stats_label[[y_var]] + ss_ny
 
     if (has_groups && jitter_width > 0) {
       plot <- plot + ggplot2::geom_text(
         data = stats_label,
         ggplot2::aes(
           x = .data[[".x_nudged"]],
+          y = .data[[".y_nudged"]],
           label = .data[["sample_size"]]
         ),
-        hjust = 0, size = 2.8, show.legend = FALSE,
-        color = "grey40",
+        hjust = 0, size = ss_size, show.legend = FALSE,
+        color = ss_color, alpha = ss_alpha,
         position = ggplot2::position_dodge(width = jitter_width)
       )
     } else {
@@ -377,10 +402,11 @@ generate_plot <- function(
         data = stats_label,
         ggplot2::aes(
           x = .data[[".x_nudged"]],
+          y = .data[[".y_nudged"]],
           label = .data[["sample_size"]]
         ),
-        hjust = 0, size = 2.8, show.legend = FALSE,
-        color = "grey40"
+        hjust = 0, size = ss_size, show.legend = FALSE,
+        color = ss_color, alpha = ss_alpha
       )
     }
   }
