@@ -28,6 +28,7 @@ lplot(
   confidence_interval = NULL,
   summary_statistic = "mean",
   show_sample_sizes = FALSE,
+  sample_size_opts = list(),
   visit_windows = NULL,
   theme = NULL,
   publication_ready = FALSE,
@@ -99,6 +100,11 @@ Options: "mean" (mean ± CI/SE), "mean_se" (mean ± SE), "median" (median + IQR)
 or "boxplot" (boxplot summary with quartiles). Default is "mean".}
 
 \item{show_sample_sizes}{Logical. If TRUE, shows sample sizes at each timepoint.}
+
+\item{sample_size_opts}{List. Options for sample size label appearance.
+Elements (all optional): size (font size, default 2.8), color (default
+"grey40"), alpha (0-1, default 1), nudge_x (horizontal offset),
+nudge_y (vertical offset). See \code{\link[=generate_plot]{generate_plot()}} for details.}
 
 \item{visit_windows}{List. Named list defining visit windows for grouping
 (e.g., list("Week 4" = c(22, 35))).}

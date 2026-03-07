@@ -15,6 +15,8 @@ repeated measurements over time.
 - Observed value plots and change-from-baseline visualizations
 - Support for continuous and categorical time variables
 - Uncertainty representation via error bars or confidence ribbons
+- Sample size annotations with customizable placement and appearance
+- Black-and-white print theme (`theme = "bw"`) with linetype/shape differentiation
 - Clinical trial themes and CDISC compliance
 - Faceting support for exploring interactions
 
@@ -27,9 +29,12 @@ zzlongplot/
 ├── tests/testthat/       # Unit tests
 ├── vignettes/            # Package vignettes
 │   ├── zzlongplot_introduction.Rmd
+│   ├── sample-size-annotations.Rmd
 │   ├── clinical-trials.Rmd
 │   ├── cdisc-compliance.Rmd
-│   └── publication-themes.Rmd
+│   ├── publication-themes.Rmd
+│   ├── quickstart.Rmd
+│   └── feature-enhancement-roadmap.Rmd
 ├── analysis/             # Research compendium (zzcollab)
 │   ├── data/
 │   ├── scripts/
@@ -45,10 +50,15 @@ zzlongplot/
 
 | Function | Purpose |
 |:---------|:--------|
-| `lplot()` | Main function for longitudinal plots |
-| `lplot_change()` | Change-from-baseline plots |
-| `lplot_combined()` | Side-by-side observed + change plots |
-| `lplot_theme_*()` | Clinical trial publication themes |
+| `lplot()` | Main function (plot_type: "obs", "change", "both") |
+| `compute_stats()` | Summary statistics for longitudinal data |
+| `generate_plot()` | Low-level ggplot2 plot builder |
+| `parse_formula()` | Parse `y ~ x | group` formulas |
+| `theme_bw_print()` | Black-and-white print theme |
+| `theme_nature()` | Nature journal theme |
+| `theme_nejm()` | NEJM journal theme |
+| `theme_fda()` | FDA regulatory theme |
+| `get_publication_theme()` | Theme dispatcher by name |
 
 ## Development Commands
 

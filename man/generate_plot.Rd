@@ -23,7 +23,9 @@ generate_plot(
   statistical_annotations = FALSE,
   use_boxplot = FALSE,
   ribbon_alpha = 0.2,
-  ribbon_fill = NULL
+  ribbon_fill = NULL,
+  bw_print = FALSE,
+  sample_size_opts = list()
 )
 }
 \arguments{
@@ -72,6 +74,22 @@ be a list with components: value, axis ("x" or "y"), color, linetype, size.}
 Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.}
 
 \item{ribbon_fill}{Character. Custom fill color for ribbons. If NULL, uses group colors.}
+
+\item{bw_print}{Logical. If TRUE, maps linetype and shape to group variable
+for black-and-white print compatibility. Default is FALSE.}
+
+\item{sample_size_opts}{List. Options controlling the appearance and
+placement of sample size labels. Elements (all optional):
+\describe{
+\item{size}{Font size in mm. Default 2.8.}
+\item{color}{Label color. Default "grey40".}
+\item{alpha}{Transparency, 0-1. Default 1.}
+\item{nudge_x}{Horizontal offset from the point (in data
+units for continuous x, or fraction of category spacing
+for categorical x). Default is auto-calculated.}
+\item{nudge_y}{Vertical offset from the point in data
+units. Default 0 (no vertical shift).}
+}}
 }
 \value{
 A \code{ggplot} object representing the visualization.
