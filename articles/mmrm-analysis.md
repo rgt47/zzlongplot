@@ -1,0 +1,243 @@
+# MMRM Analysis with zzlongplot
+
+## Introduction
+
+Mixed models for repeated measures (MMRM) are the standard primary
+analysis method for continuous longitudinal endpoints in clinical
+trials. Regulatory agencies (FDA, EMA) routinely expect MMRM as the
+primary or sensitivity analysis in confirmatory studies. The
+`zzlongplot` package integrates MMRM model fitting (via the `mmrm`
+package) with `emmeans` pairwise contrasts, embedding the results
+directly into longitudinal plots as significance annotations.
+
+This vignette demonstrates the `test_method = "mmrm"` option and its
+interaction with covariance structure selection, p-value adjustment, and
+visualization.
+
+## Simulated clinical trial data
+
+We simulate a two-arm parallel-group trial with four post-baseline
+visits. The active arm shows a treatment effect emerging at visit 2.
+
+``` r
+
+set.seed(42)
+n_subj <- 80
+
+df <- data.frame(
+  subject_id = rep(1:n_subj, each = 5),
+  visit = rep(c(0, 4, 8, 12, 16), times = n_subj),
+  group = rep(
+    c("Placebo", "Active"), each = 5,
+    length.out = n_subj * 5
+  )
+)
+
+df$measure <- rnorm(nrow(df), mean = 50, sd = 10)
+df$measure[df$group == "Active" & df$visit >= 8] <-
+  df$measure[df$group == "Active" & df$visit >= 8] - 7
+```
+
+## Basic MMRM plot
+
+Setting `test_method = "mmrm"` fits a mixed model for repeated measures
+with an interaction between treatment group and visit, then extracts
+pairwise contrasts at each timepoint via `emmeans`. Significance stars
+appear above points where the adjusted p-value crosses the standard
+thresholds.
+
+``` r
+
+lplot(df, measure ~ visit | group,
+  baseline_value = 0,
+  cluster_var = "subject_id",
+  statistical_annotations = TRUE,
+  test_method = "mmrm",
+  title = "MMRM: Unstructured Covariance (default)")
+```
+
+By default (`cov_struct = "auto"`), the package selects unstructured
+covariance for studies with 10 or fewer timepoints and compound symmetry
+otherwise. If the chosen structure fails to converge, it falls back
+through progressively simpler structures (heterogeneous Toeplitz,
+heterogeneous AR(1), compound symmetry) before giving up.
+
+## Covariance structure selection
+
+The covariance structure models the within-subject correlation pattern
+across visits. The choice can affect both model fit and inference.
+Common options:
+
+- **`"us"`** (unstructured): estimates a separate variance for each
+  visit and a separate correlation for each visit pair. The most
+  flexible option and the regulatory default. Requires the most
+  parameters: t(t+1)/2 for t timepoints.
+
+- **`"cs"`** (compound symmetry): assumes equal variance across visits
+  and equal correlation between all visit pairs. Only 2 parameters.
+  Appropriate when all timepoints are exchangeable.
+
+- **`"ar1"`** (first-order autoregressive): assumes equal variance and
+  exponentially decaying correlation with increasing time lag. Only 2
+  parameters. Appropriate for equally spaced visits where nearby
+  measurements are more correlated.
+
+- **`"ar1h"`** (heterogeneous AR(1)): AR(1) correlation structure but
+  allows each visit to have its own variance. Good when variability
+  changes over time (common in dose-titration studies).
+
+- **`"toep"`** / **`"toeph"`** (Toeplitz / heterogeneous Toeplitz):
+  correlation depends only on the lag between visits, not which specific
+  visits are compared. A middle ground between AR(1) and unstructured.
+
+- **`"sp_exp"`** (spatial exponential): similar to AR(1) but
+  accommodates unequally spaced visits naturally.
+
+``` r
+
+lplot(df, measure ~ visit | group,
+  baseline_value = 0,
+  cluster_var = "subject_id",
+  statistical_annotations = TRUE,
+  test_method = "mmrm",
+  cov_struct = "ar1",
+  title = "MMRM: AR(1) Covariance")
+```
+
+``` r
+
+lplot(df, measure ~ visit | group,
+  baseline_value = 0,
+  cluster_var = "subject_id",
+  statistical_annotations = TRUE,
+  test_method = "mmrm",
+  cov_struct = "cs",
+  title = "MMRM: Compound Symmetry")
+```
+
+## P-value adjustment
+
+The `p_adjust_method` parameter controls multiple comparison correction.
+For MMRM, this is passed to
+[`emmeans::contrast()`](https://rvlenth.github.io/emmeans/reference/contrast.html)
+as the `adjust` argument.
+
+``` r
+
+lplot(df, measure ~ visit | group,
+  baseline_value = 0,
+  cluster_var = "subject_id",
+  statistical_annotations = TRUE,
+  test_method = "mmrm",
+  p_adjust_method = "none",
+  title = "MMRM: No p-value Adjustment")
+```
+
+``` r
+
+lplot(df, measure ~ visit | group,
+  baseline_value = 0,
+  cluster_var = "subject_id",
+  statistical_annotations = TRUE,
+  test_method = "mmrm",
+  p_adjust_method = "bonferroni",
+  title = "MMRM: Bonferroni Adjustment")
+```
+
+## Three-arm trial
+
+MMRM with `emmeans` handles multi-arm trials naturally. For three or
+more groups, the omnibus test (via
+[`emmeans::joint_tests()`](https://rvlenth.github.io/emmeans/reference/joint_tests.html))
+is reported at each timepoint, and pairwise contrasts are drawn as
+bracket annotations below the omnibus p-value. Only significant pairs
+(after any multiplicity adjustment) are displayed, keeping the figure
+uncluttered when many comparisons are non-significant.
+
+``` r
+
+set.seed(123)
+n3 <- 90
+df3 <- data.frame(
+  subject_id = rep(1:n3, each = 5),
+  visit = rep(c(0, 4, 8, 12, 16), times = n3),
+  group = rep(
+    c("Placebo", "Low Dose", "High Dose"), each = 5,
+    length.out = n3 * 5
+  )
+)
+df3$measure <- rnorm(nrow(df3), mean = 50, sd = 10)
+df3$measure[df3$group == "Low Dose" & df3$visit >= 8] <-
+  df3$measure[df3$group == "Low Dose" & df3$visit >= 8] - 4
+df3$measure[df3$group == "High Dose" & df3$visit >= 8] <-
+  df3$measure[df3$group == "High Dose" & df3$visit >= 8] - 9
+```
+
+``` r
+
+lplot(df3, measure ~ visit | group,
+  baseline_value = 0,
+  cluster_var = "subject_id",
+  statistical_annotations = TRUE,
+  test_method = "mmrm",
+  title = "Three-Arm MMRM: Dose Response")
+```
+
+## Combined with sample size table
+
+The MMRM annotations pair naturally with the below-axis sample size
+table for a publication-ready figure.
+
+``` r
+
+lplot(df, measure ~ visit | group,
+  baseline_value = 0,
+  cluster_var = "subject_id",
+  statistical_annotations = TRUE,
+  test_method = "mmrm",
+  show_sample_sizes = TRUE,
+  sample_size_opts = list(position = "table"),
+  theme = "nejm",
+  title = "Efficacy Endpoint: MMRM Analysis")
+```
+
+## Comparison with pointwise tests
+
+The table below summarizes the three `test_method` options and their
+appropriate use cases.
+
+| Method | Model | Two groups | Three+ groups | Use case |
+|:---|:---|:---|:---|:---|
+| `"parametric"` | Independent tests per visit | Welch t-test | ANOVA (omnibus) + pairwise t-tests | Exploratory, descriptive |
+| `"nonparametric"` | Independent tests per visit | Wilcoxon rank-sum | Kruskal-Wallis (omnibus) + pairwise Wilcoxon | Non-normal data, ordinal endpoints |
+| `"mmrm"` | Joint model across visits | Pairwise emmeans | Joint test (omnibus) + pairwise emmeans | Primary efficacy analysis, regulatory submissions |
+
+Key advantages of MMRM over pointwise tests:
+
+- Borrows information across timepoints through the covariance model,
+  yielding more precise estimates.
+- Handles missing data under the missing-at-random (MAR) assumption
+  without imputation.
+- Produces valid inference when the dropout pattern depends on observed
+  (but not unobserved) outcomes.
+- Aligns with ICH E9(R1) guidance on estimands in clinical trials.
+
+## Requirements
+
+The MMRM option requires two additional packages (listed in Suggests,
+not Imports):
+
+- `mmrm`: model fitting (Satterthwaite degrees of freedom by default)
+- `emmeans`: estimated marginal means and pairwise contrasts
+
+Install with:
+
+``` r
+
+pak::pak(c("mmrm", "emmeans"))
+```
+
+------------------------------------------------------------------------
+
+*Rendered on 2026-03-17 at 11:58 PDT.* *Source:
+~/prj/sfw/01-zzlongplot/zzlongplot/vignettes/mmrm-analysis.Rmd*
