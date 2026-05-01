@@ -190,7 +190,10 @@ print(p5)
 
 Real clinical trials have visit timing variations. Handle this with visit windows:
 
-```{r visit-windows}
+```{r visit-windows, eval=FALSE}
+# NOTE: visit_windows is a planned feature; the example below is
+# illustrative.
+
 # Add some visit timing variation
 clinical_data_windows <- clinical_data |>
   mutate(
