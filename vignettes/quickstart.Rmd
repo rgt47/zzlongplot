@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
   warning = FALSE,
   eval = TRUE
 )
-devtools::load_all()
+library(zzlongplot)
 library(dplyr)
 library(ggplot2)
 ```
