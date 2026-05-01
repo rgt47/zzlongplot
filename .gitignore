@@ -1,0 +1,46 @@
+.Rproj.user
+.Rhistory
+.Rdata
+.RData
+.httr-oauth
+.DS_Store
+.quarto
+/doc/
+/Meta/
+archive/
+rendered_vignettes/
+*.html
+*.pdf
+*.log
+*.aux
+*.tex
+*.knit.md
+*.bak
+*~
+.Rprofile
+.Rprofile.local
+CLAUDE.md
+test.R
+docs/
+analysis/
+tests/manual-tests/
+renv/library/
+renv/staging/
+renv/python/
+renv/sandbox/
+
+# pkgdown output (generated)
+docs/
+
+# knitr cache and rendered files
+vignettes/*_files/
+vignettes/*_cache/
+
+# Built package artifacts
+*.tar.gz
+*.tgz
+*.Rcheck/
+
+# Plot device default output
+Rplots.pdf
+**/Rplots.pdf

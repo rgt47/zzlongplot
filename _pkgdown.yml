@@ -1,0 +1,49 @@
+url: https://rgt47.github.io/zzlongplot/
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: '#0054AD'
+
+home:
+  title: zzlongplot
+  description: >
+    Configurable longitudinal-data visualization with first-class
+    support for clinical trials, CDISC variables, and MMRM analyses.
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+  components:
+    intro:
+      text: Get started
+      href: articles/quickstart.html
+    articles:
+      text: Articles
+      menu:
+        - text: Quick start
+          href: articles/quickstart.html
+        - text: Introduction
+          href: articles/zzlongplot_introduction.html
+        - text: Formula interface
+          href: articles/formula-interface.html
+        - text: Clinical trials
+          href: articles/clinical-trials.html
+        - text: CDISC compliance
+          href: articles/cdisc-compliance.html
+        - text: Publication themes
+          href: articles/publication-themes.html
+        - text: MMRM analysis
+          href: articles/mmrm-analysis.html
+        - text: Sample-size annotations
+          href: articles/sample-size-annotations.html
+        - text: Combining plots
+          href: articles/customizing-combined-plots.html
+
+authors:
+  Ronald (Ryy) G. Thomas:
+    href: https://profiles.ucsd.edu/ronald.thomas
+
+development:
+  mode: auto

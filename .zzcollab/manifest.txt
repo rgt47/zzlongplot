@@ -1,0 +1,23 @@
+# zzcollab manifest - 2026-03-28T11:40:16-07:00
+directory:R
+directory:man
+directory:tests
+directory:inst/tinytest
+directory:vignettes
+directory:analysis
+directory:analysis/data
+directory:analysis/data/raw_data
+directory:analysis/data/derived_data
+directory:analysis/report
+directory:analysis/figures
+directory:analysis/tables
+directory:analysis/scripts
+directory:docs
+directory:.github
+directory:.github/workflows
+template:DESCRIPTION:DESCRIPTION
+file:inst/tinytest/test_basic.R
+template:data_README.md:analysis/data/README.md
+template:Makefile:Makefile
+template:workflows/r-package.yml:.github/workflows/r-package.yml
+template:ZZCOLLAB_USER_GUIDE.md:docs/ZZCOLLAB_USER_GUIDE.md
