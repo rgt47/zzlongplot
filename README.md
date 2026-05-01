@@ -1,5 +1,5 @@
 
-# zzlongplot
+# zzlongplot <a href="https://rgt47.github.io/zzlongplot/"><img src="man/figures/logo.png" align="right" height="138" alt="zzlongplot hex sticker" /></a>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/zzlongplot)](https://CRAN.R-project.org/package=zzlongplot)
