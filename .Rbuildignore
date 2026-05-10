@@ -21,3 +21,7 @@ vignettes/.*\.pdf$
 ^renv$
 ^\.cache$
 ^NEWS\.md$
+^\.zzcollab$
+^.*/\.zzcollab$
+^\.zzcollab_manifest\.json$
+^\.zz[0-9]+\.R$

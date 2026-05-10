@@ -25,7 +25,9 @@ generate_plot(
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
   bw_print = FALSE,
-  sample_size_opts = list()
+  sample_size_opts = list(),
+  contrast_display = NULL,
+  contrast_data = NULL
 )
 }
 \arguments{
@@ -102,6 +104,13 @@ table row (only for position = "table"). Default 0.10.}
 (only for position = "table"). Default 0.08 for
 continuous x, 0.35 for categorical.}
 }}
+
+\item{contrast_display}{Optional character string controlling
+whether and how pairwise contrast annotations are added to
+the plot. NULL (default) suppresses contrast display.}
+
+\item{contrast_data}{Optional data frame of contrast results
+to annotate. When NULL (default) no contrasts are drawn.}
 }
 \value{
 A \code{ggplot} object representing the visualization.

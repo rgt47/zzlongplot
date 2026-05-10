@@ -29,13 +29,16 @@ lplot(
   summary_statistic = "mean",
   show_sample_sizes = FALSE,
   sample_size_opts = list(),
-  visit_windows = NULL,
-  theme = NULL,
+  theme = "bw",
   publication_ready = FALSE,
   statistical_annotations = FALSE,
+  test_method = "parametric",
+  p_adjust_method = "BH",
+  cov_struct = "auto",
   reference_lines = NULL,
   ribbon_alpha = 0.2,
-  ribbon_fill = NULL
+  ribbon_fill = NULL,
+  contrast_display = NULL
 )
 }
 \arguments{
@@ -109,18 +112,35 @@ Key option: position = "point" (default, labels next to points) or
 "table" (color-coded table below x-axis). See \code{\link[=generate_plot]{generate_plot()}}
 for all available options.}
 
-\item{visit_windows}{List. Named list defining visit windows for grouping
-(e.g., list("Week 4" = c(22, 35))).}
-
 \item{theme}{Character. Predefined publication theme with matching colors.
-Options: "nejm", "nature", "lancet", "jama", "science", "jco", "fda", or NULL.
-Applies both typography/layout AND journal-specific color palette automatically.}
+Options: "bw", "nejm", "nature", "lancet", "jama", "science", "jco", "fda",
+or NULL. Defaults to "bw". Applies both typography/layout AND journal-specific
+color palette automatically.}
 
 \item{publication_ready}{Logical. If TRUE, applies publication-ready defaults
 (professional theme, proper typography, clean styling).}
 
 \item{statistical_annotations}{Logical. If TRUE, adds p-values and significance
 indicators to the plots.}
+
+\item{test_method}{Character. Testing approach for group comparisons:
+"parametric" (t-test / ANOVA, the default), "nonparametric"
+(Wilcoxon rank-sum / Kruskal-Wallis), or "mmrm" (mixed model
+for repeated measures with emmeans contrasts; requires the
+mmrm and emmeans packages).}
+
+\item{p_adjust_method}{Character. Multiple comparison correction passed
+to \code{\link[stats:p.adjust]{stats::p.adjust()}}. Default is "BH" (Benjamini-Hochberg). Use
+"none" to disable adjustment.}
+
+\item{cov_struct}{Character. Covariance structure for MMRM (only used
+when test_method = "mmrm"). Options: "auto" (unstructured for
+<= 10 timepoints, compound symmetry otherwise, with automatic
+fallback on convergence failure), "us" (unstructured), "cs"
+(compound symmetry), "ar1", "ar1h" (heterogeneous AR(1)),
+"toep" (Toeplitz), "toeph" (heterogeneous Toeplitz), "ad"
+(ante-dependence), "sp_exp" (spatial exponential). Default
+is "auto".}
 
 \item{reference_lines}{List of reference line specifications. Each should be a
 list with 'value', 'axis' ("x"/"y"), 'color', 'linetype', etc.}
@@ -129,6 +149,10 @@ list with 'value', 'axis' ("x"/"y"), 'color', 'linetype', etc.}
 Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.}
 
 \item{ribbon_fill}{Character. Custom fill color for ribbons. If NULL, uses group colors.}
+
+\item{contrast_display}{Optional character string controlling
+whether and how pairwise contrast annotations are added to
+the plot. NULL (default) suppresses contrast display.}
 }
 \value{
 A ggplot2 object or a combination of objects representing the requested

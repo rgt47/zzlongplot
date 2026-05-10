@@ -58,6 +58,11 @@
 #'       (only for position = "table"). Default 0.08 for
 #'       continuous x, 0.35 for categorical.}
 #'   }
+#' @param contrast_display Optional character string controlling
+#'   whether and how pairwise contrast annotations are added to
+#'   the plot. NULL (default) suppresses contrast display.
+#' @param contrast_data Optional data frame of contrast results
+#'   to annotate. When NULL (default) no contrasts are drawn.
 #'
 #' @return A `ggplot` object representing the visualization.
 #' 

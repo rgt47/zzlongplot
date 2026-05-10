@@ -13,9 +13,11 @@ compute_stats(
   baseline_value,
   confidence_interval = NULL,
   summary_statistic = "mean",
-  show_sample_sizes = FALSE,
   statistical_tests = FALSE,
-  facet_vars = NULL
+  facet_vars = NULL,
+  test_method = "parametric",
+  p_adjust_method = "BH",
+  cov_struct = "auto"
 )
 }
 \arguments{
@@ -37,11 +39,22 @@ If specified, calculates confidence intervals instead of standard error.}
 \item{summary_statistic}{Character. Type of summary statistic: "mean" (mean ± CI/SE),
 "mean_se" (mean ± SE), "median" (median + IQR), or "boxplot" (quartiles + whiskers).}
 
-\item{show_sample_sizes}{Logical. If TRUE, includes sample sizes in output.}
-
 \item{statistical_tests}{Logical. If TRUE, performs statistical comparisons.}
 
 \item{facet_vars}{Character vector. Names of variables to use for faceting (optional).}
+
+\item{test_method}{Character. Testing approach for group comparisons:
+"parametric" (t-test / ANOVA, the default), "nonparametric"
+(Wilcoxon rank-sum / Kruskal-Wallis), or "mmrm" (mixed model
+for repeated measures with emmeans contrasts; requires the
+mmrm and emmeans packages).}
+
+\item{p_adjust_method}{Character. Multiple comparison correction passed
+to \code{\link[stats:p.adjust]{stats::p.adjust()}}. Default is "BH" (Benjamini-Hochberg). Use
+"none" to disable adjustment.}
+
+\item{cov_struct}{Character. Covariance structure for MMRM. See
+\code{\link[=lplot]{lplot()}} for available options. Default is "auto".}
 }
 \value{
 A data frame containing the computed statistics with columns:

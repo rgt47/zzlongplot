@@ -10,7 +10,10 @@ add_statistical_tests(
   x_var,
   y_var,
   group_var,
-  cluster_var
+  cluster_var,
+  test_method = "parametric",
+  p_adjust_method = "BH",
+  cov_struct = "auto"
 )
 }
 \arguments{
@@ -25,11 +28,26 @@ add_statistical_tests(
 \item{group_var}{Group variable name.}
 
 \item{cluster_var}{Cluster variable name.}
+
+\item{test_method}{Character. Testing approach: "parametric"
+(t-test / ANOVA), "nonparametric" (Wilcoxon rank-sum /
+Kruskal-Wallis), or "mmrm" (mixed model for repeated measures
+with emmeans contrasts). Default is "parametric".}
+
+\item{p_adjust_method}{Character. Method for multiple comparison
+correction. For pointwise tests, passed to \code{\link[stats:p.adjust]{stats::p.adjust()}}.
+For MMRM, passed to emmeans as the \code{adjust} argument. Default
+is "BH". Use "none" to disable adjustment.}
+
+\item{cov_struct}{Character. Covariance structure for MMRM.
+Default is "auto". See \code{\link[=lplot]{lplot()}} for options.}
 }
 \value{
 Enhanced statistics data frame with p-values.
 }
 \description{
-Internal function to add statistical comparisons between groups.
+Internal function to add statistical comparisons between groups
+at each timepoint. Dispatches to pointwise tests (parametric or
+non-parametric) or a joint MMRM model with emmeans contrasts.
 }
 \keyword{internal}

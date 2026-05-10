@@ -114,8 +114,11 @@ utils::globalVariables(c(
 #' @param ribbon_alpha Numeric. Transparency level for ribbon/band error representations.
 #'   Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.
 #' @param ribbon_fill Character. Custom fill color for ribbons. If NULL, uses group colors.
+#' @param contrast_display Optional character string controlling
+#'   whether and how pairwise contrast annotations are added to
+#'   the plot. NULL (default) suppresses contrast display.
 #'
-#' @return A ggplot2 object or a combination of objects representing the requested 
+#' @return A ggplot2 object or a combination of objects representing the requested
 #'   plots.
 #'
 #' @examples
