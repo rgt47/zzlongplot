@@ -31,13 +31,16 @@ lplot(
   summary_statistic = "mean",
   show_sample_sizes = FALSE,
   sample_size_opts = list(),
-  visit_windows = NULL,
-  theme = NULL,
+  theme = "bw",
   publication_ready = FALSE,
   statistical_annotations = FALSE,
+  test_method = "parametric",
+  p_adjust_method = "BH",
+  cov_struct = "auto",
   reference_lines = NULL,
   ribbon_alpha = 0.2,
-  ribbon_fill = NULL
+  ribbon_fill = NULL,
+  contrast_display = NULL
 )
 ```
 
@@ -162,17 +165,12 @@ lplot(
   [`generate_plot()`](https://rgt47.github.io/zzlongplot/reference/generate_plot.md)
   for all available options.
 
-- visit_windows:
-
-  List. Named list defining visit windows for grouping (e.g., list("Week
-  4" = c(22, 35))).
-
 - theme:
 
   Character. Predefined publication theme with matching colors. Options:
-  "nejm", "nature", "lancet", "jama", "science", "jco", "fda", or NULL.
-  Applies both typography/layout AND journal-specific color palette
-  automatically.
+  "bw", "nejm", "nature", "lancet", "jama", "science", "jco", "fda", or
+  NULL. Defaults to "bw". Applies both typography/layout AND
+  journal-specific color palette automatically.
 
 - publication_ready:
 
@@ -183,6 +181,29 @@ lplot(
 
   Logical. If TRUE, adds p-values and significance indicators to the
   plots.
+
+- test_method:
+
+  Character. Testing approach for group comparisons: "parametric"
+  (t-test / ANOVA, the default), "nonparametric" (Wilcoxon rank-sum /
+  Kruskal-Wallis), or "mmrm" (mixed model for repeated measures with
+  emmeans contrasts; requires the mmrm and emmeans packages).
+
+- p_adjust_method:
+
+  Character. Multiple comparison correction passed to
+  [`stats::p.adjust()`](https://rdrr.io/r/stats/p.adjust.html). Default
+  is "BH" (Benjamini-Hochberg). Use "none" to disable adjustment.
+
+- cov_struct:
+
+  Character. Covariance structure for MMRM (only used when test_method =
+  "mmrm"). Options: "auto" (unstructured for \<= 10 timepoints, compound
+  symmetry otherwise, with automatic fallback on convergence failure),
+  "us" (unstructured), "cs" (compound symmetry), "ar1", "ar1h"
+  (heterogeneous AR(1)), "toep" (Toeplitz), "toeph" (heterogeneous
+  Toeplitz), "ad" (ante-dependence), "sp_exp" (spatial exponential).
+  Default is "auto".
 
 - reference_lines:
 
@@ -197,6 +218,12 @@ lplot(
 - ribbon_fill:
 
   Character. Custom fill color for ribbons. If NULL, uses group colors.
+
+- contrast_display:
+
+  Optional character string controlling whether and how pairwise
+  contrast annotations are added to the plot. NULL (default) suppresses
+  contrast display.
 
 ## Value
 

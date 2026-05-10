@@ -79,13 +79,16 @@ observed values, change from baseline, or both. Supports grouping and faceting.<
 <span>  summary_statistic <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>  show_sample_sizes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sample_size_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  visit_windows <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  theme <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  theme <span class="op">=</span> <span class="st">"bw"</span>,</span>
 <span>  publication_ready <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  statistical_annotations <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  test_method <span class="op">=</span> <span class="st">"parametric"</span>,</span>
+<span>  p_adjust_method <span class="op">=</span> <span class="st">"BH"</span>,</span>
+<span>  cov_struct <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  reference_lines <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ribbon_alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>  ribbon_fill <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  ribbon_fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  contrast_display <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -211,15 +214,11 @@ Key option: position = "point" (default, labels next to points) or
 for all available options.</p></dd>
 
 
-<dt id="arg-visit-windows">visit_windows<a class="anchor" aria-label="anchor" href="#arg-visit-windows"></a></dt>
-<dd><p>List. Named list defining visit windows for grouping
-(e.g., list("Week 4" = c(22, 35))).</p></dd>
-
-
 <dt id="arg-theme">theme<a class="anchor" aria-label="anchor" href="#arg-theme"></a></dt>
 <dd><p>Character. Predefined publication theme with matching colors.
-Options: "nejm", "nature", "lancet", "jama", "science", "jco", "fda", or NULL.
-Applies both typography/layout AND journal-specific color palette automatically.</p></dd>
+Options: "bw", "nejm", "nature", "lancet", "jama", "science", "jco", "fda",
+or NULL. Defaults to "bw". Applies both typography/layout AND journal-specific
+color palette automatically.</p></dd>
 
 
 <dt id="arg-publication-ready">publication_ready<a class="anchor" aria-label="anchor" href="#arg-publication-ready"></a></dt>
@@ -230,6 +229,31 @@ Applies both typography/layout AND journal-specific color palette automatically.
 <dt id="arg-statistical-annotations">statistical_annotations<a class="anchor" aria-label="anchor" href="#arg-statistical-annotations"></a></dt>
 <dd><p>Logical. If TRUE, adds p-values and significance
 indicators to the plots.</p></dd>
+
+
+<dt id="arg-test-method">test_method<a class="anchor" aria-label="anchor" href="#arg-test-method"></a></dt>
+<dd><p>Character. Testing approach for group comparisons:
+"parametric" (t-test / ANOVA, the default), "nonparametric"
+(Wilcoxon rank-sum / Kruskal-Wallis), or "mmrm" (mixed model
+for repeated measures with emmeans contrasts; requires the
+mmrm and emmeans packages).</p></dd>
+
+
+<dt id="arg-p-adjust-method">p_adjust_method<a class="anchor" aria-label="anchor" href="#arg-p-adjust-method"></a></dt>
+<dd><p>Character. Multiple comparison correction passed
+to <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust()</a></code>. Default is "BH" (Benjamini-Hochberg). Use
+"none" to disable adjustment.</p></dd>
+
+
+<dt id="arg-cov-struct">cov_struct<a class="anchor" aria-label="anchor" href="#arg-cov-struct"></a></dt>
+<dd><p>Character. Covariance structure for MMRM (only used
+when test_method = "mmrm"). Options: "auto" (unstructured for
+&lt;= 10 timepoints, compound symmetry otherwise, with automatic
+fallback on convergence failure), "us" (unstructured), "cs"
+(compound symmetry), "ar1", "ar1h" (heterogeneous AR(1)),
+"toep" (Toeplitz), "toeph" (heterogeneous Toeplitz), "ad"
+(ante-dependence), "sp_exp" (spatial exponential). Default
+is "auto".</p></dd>
 
 
 <dt id="arg-reference-lines">reference_lines<a class="anchor" aria-label="anchor" href="#arg-reference-lines"></a></dt>
@@ -244,6 +268,12 @@ Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.</p></dd>
 
 <dt id="arg-ribbon-fill">ribbon_fill<a class="anchor" aria-label="anchor" href="#arg-ribbon-fill"></a></dt>
 <dd><p>Character. Custom fill color for ribbons. If NULL, uses group colors.</p></dd>
+
+
+<dt id="arg-contrast-display">contrast_display<a class="anchor" aria-label="anchor" href="#arg-contrast-display"></a></dt>
+<dd><p>Optional character string controlling
+whether and how pairwise contrast annotations are added to
+the plot. NULL (default) suppresses contrast display.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -16,9 +16,11 @@ compute_stats(
   baseline_value,
   confidence_interval = NULL,
   summary_statistic = "mean",
-  show_sample_sizes = FALSE,
   statistical_tests = FALSE,
-  facet_vars = NULL
+  facet_vars = NULL,
+  test_method = "parametric",
+  p_adjust_method = "BH",
+  cov_struct = "auto"
 )
 ```
 
@@ -59,10 +61,6 @@ compute_stats(
   (mean ± SE), "median" (median + IQR), or "boxplot" (quartiles +
   whiskers).
 
-- show_sample_sizes:
-
-  Logical. If TRUE, includes sample sizes in output.
-
 - statistical_tests:
 
   Logical. If TRUE, performs statistical comparisons.
@@ -70,6 +68,25 @@ compute_stats(
 - facet_vars:
 
   Character vector. Names of variables to use for faceting (optional).
+
+- test_method:
+
+  Character. Testing approach for group comparisons: "parametric"
+  (t-test / ANOVA, the default), "nonparametric" (Wilcoxon rank-sum /
+  Kruskal-Wallis), or "mmrm" (mixed model for repeated measures with
+  emmeans contrasts; requires the mmrm and emmeans packages).
+
+- p_adjust_method:
+
+  Character. Multiple comparison correction passed to
+  [`stats::p.adjust()`](https://rdrr.io/r/stats/p.adjust.html). Default
+  is "BH" (Benjamini-Hochberg). Use "none" to disable adjustment.
+
+- cov_struct:
+
+  Character. Covariance structure for MMRM. See
+  [`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md) for
+  available options. Default is "auto".
 
 ## Value
 
