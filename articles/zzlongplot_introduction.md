@@ -725,7 +725,7 @@ patterns, trends, and group differences in your longitudinal data.
 sessionInfo()
 ```
 
-    #> R version 4.6.0 (2026-04-24)
+    #> R version 4.6.1 (2026-06-24)
     #> Platform: x86_64-pc-linux-gnu
     #> Running under: Ubuntu 24.04.4 LTS
     #> 
@@ -749,17 +749,17 @@ sessionInfo()
     #> [1] patchwork_1.3.2  ggplot2_4.0.3    dplyr_1.2.1      zzlongplot_0.2.0
     #> 
     #> loaded via a namespace (and not attached):
-    #>  [1] gtable_0.3.6       jsonlite_2.0.0     compiler_4.6.0     tidyselect_1.2.1  
+    #>  [1] gtable_0.3.6       jsonlite_2.0.0     compiler_4.6.1     tidyselect_1.2.1  
     #>  [5] jquerylib_0.1.4    systemfonts_1.3.2  scales_1.4.0       textshaping_1.0.5 
     #>  [9] yaml_2.3.12        fastmap_1.2.0      R6_2.6.1           labeling_0.4.3    
     #> [13] generics_0.1.4     knitr_1.51         conflicted_1.2.0   tibble_3.3.1      
     #> [17] desc_1.4.3         bslib_0.11.0       pillar_1.11.1      RColorBrewer_1.1-3
-    #> [21] rlang_1.2.0        cachem_1.1.0       xfun_0.58          fs_2.1.0          
+    #> [21] rlang_1.2.0        cachem_1.1.0       xfun_0.59          fs_2.1.0          
     #> [25] sass_0.4.10        S7_0.2.2           otel_0.2.0         memoise_2.0.1     
-    #> [29] cli_3.6.6          withr_3.0.2        pkgdown_2.2.0      magrittr_2.0.5    
-    #> [33] digest_0.6.39      grid_4.6.0         lifecycle_1.0.5    vctrs_0.7.3       
+    #> [29] cli_3.6.6          withr_3.0.3        pkgdown_2.2.0      magrittr_2.0.5    
+    #> [33] digest_0.6.39      grid_4.6.1         lifecycle_1.0.5    vctrs_0.7.3       
     #> [37] evaluate_1.0.5     glue_1.8.1         farver_2.1.2       ragg_1.5.2        
-    #> [41] rmarkdown_2.31     tools_4.6.0        pkgconfig_2.0.3    htmltools_0.5.9
+    #> [41] rmarkdown_2.31     tools_4.6.1        pkgconfig_2.0.3    htmltools_0.5.9
 
 ------------------------------------------------------------------------
 

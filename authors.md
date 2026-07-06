@@ -2,7 +2,7 @@
 
 ## Authors
 
-- **Ronald (Ryy) G Thomas**. Author, maintainer.
+- **Ronald G. Thomas**. Author, maintainer.
   [](https://orcid.org/0000-0003-1686-4965)
 
 ## Citation
@@ -16,7 +16,7 @@ Support*. R package version 0.2.0,
 
     @Manual{,
       title = {zzlongplot: Longitudinal Plotting with Clinical Trials Support},
-      author = {Ronald (Ryy) G Thomas},
+      author = {Ronald G. Thomas},
       year = {2026},
       note = {R package version 0.2.0},
       url = {https://github.com/rgt47/zzlongplot},

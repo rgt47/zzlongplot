@@ -70,7 +70,7 @@ Trial Visualization Extensions</h3>
                         <h4 data-toc-skip class="author">zzlongplot
 Development Team</h4>
             
-            <h4 data-toc-skip class="date">2026-06-11</h4>
+            <h4 data-toc-skip class="date">2026-07-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/rgt47/zzlongplot/blob/main/vignettes/feature-enhancement-roadmap.Rmd" class="external-link"><code>vignettes/feature-enhancement-roadmap.Rmd</code></a></small>
       <div class="d-none name"><code>feature-enhancement-roadmap.Rmd</code></div>
@@ -1705,7 +1705,7 @@ tracking</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Performance benchmarks</span></span>
-<span><span class="va">survival_benchmark</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span></span>
+<span><span class="va">survival_benchmark</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="op">(</span></span>
 <span>  survminer_basic <span class="op">=</span> <span class="op">{</span></span>
 <span>    <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/survfit.html" class="external-link">survfit</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">treatment</span>, data <span class="op">=</span> <span class="va">large_survival_data</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/survminer/man/ggsurvplot.html" class="external-link">ggsurvplot</a></span><span class="op">(</span><span class="va">fit</span>, data <span class="op">=</span> <span class="va">large_survival_data</span><span class="op">)</span></span>
@@ -1755,7 +1755,7 @@ tracking</li>
 <span>  region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"North America"</span>, <span class="st">"Europe"</span>, <span class="st">"Asia"</span><span class="op">)</span>, <span class="fl">50</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">forest_benchmark</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span></span>
+<span><span class="va">forest_benchmark</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="op">(</span></span>
 <span>  forestplot_traditional <span class="op">=</span> <span class="op">{</span></span>
 <span>    <span class="co"># Calculate effect sizes</span></span>
 <span>    <span class="va">meta_data</span><span class="op">$</span><span class="va">or</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">meta_data</span><span class="op">$</span><span class="va">treatment_events</span> <span class="op">*</span> <span class="op">(</span><span class="va">meta_data</span><span class="op">$</span><span class="va">control_n</span> <span class="op">-</span> <span class="va">meta_data</span><span class="op">$</span><span class="va">control_events</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span></span>
@@ -2467,7 +2467,7 @@ Principles for Clinical Trials E9(R1). 2019.</li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Ronald (Ryy) G Thomas.</p>
+  <p>Developed by Ronald G. Thomas.</p>
 </div>
 
 <div class="pkgdown-footer-right">
