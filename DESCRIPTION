@@ -30,5 +30,5 @@ Imports:
     dplyr,
     ggplot2,
     patchwork,
-    RColorBrewer,
+    RColorBrewer
 VignetteBuilder: knitr
