@@ -1,3 +1,5 @@
 # Project-specific zzcollab configuration
 docker:
-  default_profile: "analysis"
+  default_profile: "publishing"
+defaults:
+  profile_name: publishing
