@@ -20,7 +20,7 @@ and assigns appropriate colors following clinical conventions.
 }
 \details{
 This function uses pattern matching to identify placebo groups and
-assigns neutral grey color, while active treatments get distinct colors.
+assigns neutral gray color, while active treatments get distinct colors.
 
 Placebo detection patterns include: "placebo", "control", "sham",
 case-insensitive matching.
@@ -30,3 +30,10 @@ treatments <- c("Placebo", "Drug A 10mg", "Drug A 20mg")
 colors <- assign_treatment_colors(treatments)
 
 }
+\seealso{
+Other color helpers:
+\code{\link[=apply_clinical_colors]{apply_clinical_colors()}},
+\code{\link[=clinical_colors]{clinical_colors()}},
+\code{\link[=get_colorblind_palette]{get_colorblind_palette()}}
+}
+\concept{color helpers}

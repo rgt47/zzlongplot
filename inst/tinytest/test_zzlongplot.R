@@ -85,21 +85,38 @@ expect_error(
 
 stats <- compute_stats(df_cont, "visit", "measure", "group", "subject_id", 0)
 
-plot <- generate_plot(stats, "visit", "mean_value", "group", "bar", "Visit",
-  "Measure", "Title", "Subtitle", "Caption", NULL)
+# Named arguments throughout: the 6th formal is jitter_width, so the
+# positional forms these replaced were silently shifting every label by
+# one position and asserting nothing that would catch it.
+plot <- generate_plot(stats, x_var = "visit", y_var = "mean_value",
+  group_var = "group", error_type = "bar", xlab = "Visit",
+  ylab = "Measure", title = "Title", subtitle = "Subtitle",
+  caption = "Caption", facet = NULL)
 expect_inherits(plot, "ggplot", info = "generate_plot creates ggplot for observed")
+expect_equal(plot$labels$x, "Visit", info = "observed plot x label")
+expect_equal(plot$labels$y, "Measure", info = "observed plot y label")
+expect_equal(plot$labels$title, "Title", info = "observed plot title")
+expect_equal(plot$labels$subtitle, "Subtitle", info = "observed plot subtitle")
+expect_equal(plot$labels$caption, "Caption", info = "observed plot caption")
 
-plot <- generate_plot(stats, "visit", "change_mean", "group", "bar", "Visit",
-  "Change", "Title", "Subtitle", "Caption", NULL)
+plot <- generate_plot(stats, x_var = "visit", y_var = "change_mean",
+  group_var = "group", error_type = "bar", xlab = "Visit",
+  ylab = "Change", title = "Title", subtitle = "Subtitle",
+  caption = "Caption", facet = NULL)
 expect_inherits(plot, "ggplot", info = "generate_plot creates ggplot for change")
+expect_equal(plot$labels$y, "Change", info = "change plot y label")
 
 facet <- list(facet_y = "group", facet_x = NULL)
-plot <- generate_plot(stats, "visit", "mean_value", "group", "bar", "Visit",
-  "Measure", "Title", "Subtitle", "Caption", facet)
+plot <- generate_plot(stats, x_var = "visit", y_var = "mean_value",
+  group_var = "group", error_type = "bar", xlab = "Visit",
+  ylab = "Measure", title = "Title", subtitle = "Subtitle",
+  caption = "Caption", facet = facet)
 expect_inherits(plot, "ggplot", info = "generate_plot handles faceting")
 
-plot <- generate_plot(stats, "visit", "mean_value", "group", "band", "Visit",
-  "Measure", "Title", "Subtitle", "Caption", NULL)
+plot <- generate_plot(stats, x_var = "visit", y_var = "mean_value",
+  group_var = "group", error_type = "band", xlab = "Visit",
+  ylab = "Measure", title = "Title", subtitle = "Subtitle",
+  caption = "Caption", facet = NULL)
 expect_inherits(plot, "ggplot", info = "generate_plot handles band error type")
 
 plot <- generate_plot(stats, "visit", "mean_value", "group", "bar", 0.1,
@@ -504,3 +521,243 @@ expect_error(
     cluster_var = 'nonexistent'),
   "Cluster variable 'nonexistent' not found")
 
+
+# ---------------------------------------------------------------
+# Regression tests for defects found in the 2026-08-14 package
+# review. Each block names the defect it guards against.
+# ---------------------------------------------------------------
+
+# --- ci_level must not claim a level the bounds do not have ---
+
+d_ci <- data.frame(
+  subject_id = rep(1:20, each = 3),
+  visit = rep(c(0, 1, 2), times = 20),
+  measure = rnorm(60, 50, 10),
+  group = rep(c('A', 'B'), each = 3, length.out = 60)
+)
+
+s_se <- compute_stats(d_ci, x_var = 'visit', y_var = 'measure',
+  group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+  summary_statistic = 'mean_se', confidence_interval = 0.95)
+expect_true(all(is.na(s_se$ci_level)),
+  info = "mean_se must not report a ci_level: its bars are +/-1 SE")
+expect_equal(s_se$bound_upper - s_se$mean_value, s_se$standard_error,
+  info = "mean_se bounds are exactly +/-1 standard error")
+
+s_mean <- compute_stats(d_ci, x_var = 'visit', y_var = 'measure',
+  group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+  summary_statistic = 'mean', confidence_interval = 0.95)
+expect_equal(unique(s_mean$ci_level), 0.95,
+  info = "mean with a level reports that level")
+expect_true(all(s_mean$bound_upper - s_mean$mean_value >
+                s_se$bound_upper - s_se$mean_value),
+  info = "a 95% CI is strictly wider than +/-1 SE")
+
+s_box <- compute_stats(d_ci, x_var = 'visit', y_var = 'measure',
+  group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+  summary_statistic = 'boxplot', confidence_interval = 0.95)
+expect_true(all(is.na(s_box$ci_level)),
+  info = "boxplot whiskers must not report a ci_level")
+
+# --- median interval must respond to confidence_interval ---
+
+m95 <- compute_stats(d_ci, x_var = 'visit', y_var = 'measure',
+  group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+  summary_statistic = 'median', confidence_interval = 0.95)
+m99 <- compute_stats(d_ci, x_var = 'visit', y_var = 'measure',
+  group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+  summary_statistic = 'median', confidence_interval = 0.99)
+expect_true(all(m99$bound_upper > m95$bound_upper),
+  info = "a 99% median interval is wider than a 95% one")
+
+# --- p-value adjustment counts each test once, not once per group ---
+
+set.seed(7)
+n_sub <- 40
+d_p <- data.frame(
+  subject_id = rep(seq_len(n_sub), each = 3),
+  visit = rep(c(0, 1, 2), times = n_sub),
+  group = rep(c('A', 'B'), each = 3, length.out = 3 * n_sub)
+)
+d_p$measure <- rnorm(3 * n_sub, 50, 5) + ifelse(d_p$group == 'B', 8, 0)
+
+s_bonf <- compute_stats(d_p, x_var = 'visit', y_var = 'measure',
+  group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+  statistical_tests = TRUE, test_method = 'parametric',
+  p_adjust_method = 'bonferroni')
+n_tests <- length(unique(s_bonf$visit))
+expect_equal(s_bonf$p_adj, pmin(1, s_bonf$p_value * n_tests),
+  info = "Bonferroni multiplier is the number of timepoints, not timepoints x groups")
+
+# --- compute_stats validates its own arguments (it is exported) ---
+
+expect_error(
+  compute_stats(d_ci, x_var = 'visit', y_var = 'measure',
+    group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+    statistical_tests = TRUE, test_method = 'bogus'),
+  "Invalid test_method")
+expect_error(
+  compute_stats(d_ci, x_var = 'visit', y_var = 'measure',
+    group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+    summary_statistic = 'mode'),
+  "Invalid summary_statistic")
+expect_error(
+  compute_stats(d_ci, x_var = 'visit', y_var = 'measure',
+    group_var = 'group', cluster_var = 'subject_id', baseline_value = 0,
+    confidence_interval = 95),
+  "Invalid confidence_interval")
+expect_error(
+  compute_stats('not a data frame', x_var = 'visit', y_var = 'measure',
+    group_var = 'group', cluster_var = 'subject_id', baseline_value = 0),
+  "must be a data frame")
+
+# --- lplot validates confidence_interval ---
+
+expect_error(
+  lplot(d_ci, measure ~ visit | group, cluster_var = 'subject_id',
+    baseline_value = 0, confidence_interval = 95),
+  "Invalid confidence_interval")
+
+# --- mode defaults do not override explicit user choices ---
+
+p_mode <- lplot(d_ci, measure ~ visit | group, cluster_var = 'subject_id',
+  baseline_value = 0, clinical_mode = TRUE,
+  statistical_annotations = FALSE, show_sample_sizes = FALSE)
+expect_inherits(p_mode, "ggplot",
+  info = "clinical_mode honors an explicit statistical_annotations = FALSE")
+
+p_default <- lplot(d_ci, measure ~ visit | group, cluster_var = 'subject_id',
+  baseline_value = 0)
+p_pub <- lplot(d_ci, measure ~ visit | group, cluster_var = 'subject_id',
+  baseline_value = 0, publication_ready = TRUE)
+p_clin <- lplot(d_ci, measure ~ visit | group, cluster_var = 'subject_id',
+  baseline_value = 0, clinical_mode = TRUE)
+expect_false(identical(p_default$theme, p_pub$theme),
+  info = "publication_ready actually changes the theme")
+expect_false(identical(p_default$theme, p_clin$theme),
+  info = "clinical_mode actually changes the theme")
+p_explicit <- lplot(d_ci, measure ~ visit | group, cluster_var = 'subject_id',
+  baseline_value = 0, clinical_mode = TRUE, theme = 'bw')
+expect_equal(p_explicit$theme, p_default$theme,
+  info = "an explicit theme overrides the mode default")
+
+# --- assign_treatment_colors with a single group ---
+
+single <- assign_treatment_colors('Placebo')
+expect_equal(length(single), 1L,
+  info = "one treatment yields exactly one color")
+expect_equal(names(single), 'Placebo',
+  info = "the single color is named for its treatment")
+expect_false(any(is.na(single)), info = "no NA colors")
+expect_false(any(is.na(names(single))), info = "no NA names")
+
+two <- assign_treatment_colors(c('Placebo', 'Drug A'))
+expect_equal(length(two), 2L, info = "two treatments yield two colors")
+expect_equal(sort(names(two)), sort(c('Placebo', 'Drug A')),
+  info = "both treatments are named")
+
+# --- palette functions validate n and type ---
+
+expect_error(get_colorblind_palette(0), "positive whole number")
+expect_error(get_colorblind_palette(-1), "positive whole number")
+expect_error(get_colorblind_palette(3, type = 'banana'), "Invalid type")
+expect_equal(length(get_colorblind_palette(2)), 2L,
+  info = "n = 2 returns exactly 2 colors, not the brewer floor of 3")
+expect_equal(length(get_colorblind_palette(5)), 5L,
+  info = "n = 5 returns exactly 5 colors")
+expect_error(clinical_colors('treatment', n = 0), "positive whole number")
+
+# --- publication_panels validates its inputs ---
+
+p1 <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+p2 <- ggplot2::ggplot(mtcars, ggplot2::aes(hp, mpg)) + ggplot2::geom_point()
+expect_inherits(publication_panels(list(p1, p2), labels = c('A', 'B')),
+  "patchwork", info = "publication_panels combines two ggplots")
+expect_error(publication_panels(list(1, 2)), "must be ggplot objects")
+expect_error(publication_panels(list()), "non-empty list")
+expect_error(publication_panels(list(p1, p2), spacing = -1),
+  "non-negative")
+
+# --- journal specification helpers ---
+
+specs <- get_journal_specs('nature')
+expect_true(all(c('name', 'single_column_mm', 'double_column_mm',
+  'max_height_mm', 'min_dpi', 'preferred_dpi', 'font_size',
+  'font_family', 'formats', 'color_mode', 'notes') %in% names(specs)),
+  info = "get_journal_specs returns all 11 documented elements")
+expect_error(get_journal_specs('banana'), "Unknown journal")
+
+jl <- list_journals()
+expect_inherits(jl, "data.frame", info = "list_journals returns a data frame")
+expect_true(all(c('journal', 'name', 'single_column_mm', 'double_column_mm',
+  'preferred_dpi', 'font_size') %in% names(jl)),
+  info = "list_journals has the documented columns")
+expect_true(all(c('max_height_mm', 'formats', 'notes') %in%
+  names(list_journals(detailed = TRUE))),
+  info = "detailed = TRUE adds the documented extra columns")
+
+# --- save_publication round trip ---
+
+out_file <- file.path(tempdir(), 'zzlp_test_figure.pdf')
+invisible(save_publication(p1, out_file, journal = 'nature'))
+expect_true(file.exists(out_file), info = "save_publication writes the file")
+expect_true(file.size(out_file) > 0, info = "the written file is non-empty")
+unlink(out_file)
+expect_error(save_publication(p1, out_file, journal = 'banana'),
+  "Unknown journal")
+
+# --- CDISC helpers ---
+
+cdisc_df <- data.frame(
+  USUBJID = rep(paste0('001-', 1:10), each = 4),
+  AVISITN = rep(c(0, 1, 2, 3), times = 10),
+  AVAL = rnorm(40, 50, 10),
+  TRT01P = rep(c('Placebo', 'Active'), length.out = 40)
+)
+
+val <- validate_cdisc_data(cdisc_df)
+expect_true(all(c('compliance_score', 'score_breakdown', 'issues',
+  'recommendations', 'max_possible_score', 'actual_score') %in% names(val)),
+  info = "validate_cdisc_data returns all 6 documented elements")
+expect_true(val$compliance_score > validate_cdisc_data(df_cont)$compliance_score,
+  info = "a CDISC-shaped data frame scores above a non-CDISC one")
+
+sug <- suggest_clinical_vars(cdisc_df, verbose = FALSE)
+expect_true(all(c('suggested_formula', 'detected_vars', 'cluster_var',
+  'baseline_value', 'warnings') %in% names(sug)),
+  info = "suggest_clinical_vars returns all 5 documented elements")
+expect_equal(sug$cluster_var, 'USUBJID',
+  info = "USUBJID is detected as the cluster variable")
+expect_equal(sug$suggested_formula, 'AVAL ~ AVISITN | TRT01P',
+  info = "the suggested formula matches the detected variables")
+
+expect_inherits(get_cdisc_template('efficacy'), "character",
+  info = "get_cdisc_template returns a character vector")
+expect_error(get_cdisc_template('banana'), "Unknown scenario")
+
+# --- themes and styling exports are exercised directly ---
+
+for (th in c('nature', 'science', 'nejm', 'fda', 'lancet', 'jama',
+             'jco', 'bw_print')) {
+  expect_inherits(get(paste0('theme_', th))(), "theme",
+    info = paste0('theme_', th, '() returns a theme object'))
+}
+expect_inherits(get_publication_theme('nature'), "theme",
+  info = "get_publication_theme returns a theme")
+expect_error(get_publication_theme('banana'), "Unknown theme")
+
+expect_inherits(apply_publication_style(p1, 'nature'), "ggplot",
+  info = "apply_publication_style returns a ggplot")
+
+clin_df <- data.frame(
+  visit = rep(1:4, each = 10),
+  efficacy = rnorm(40, 50, 10),
+  treatment = rep(c('Placebo', 'Drug A'), length.out = 40)
+)
+pc <- ggplot2::ggplot(clin_df,
+  ggplot2::aes(x = visit, y = efficacy, color = treatment)) +
+  ggplot2::geom_line()
+expect_inherits(apply_clinical_colors(pc, 'treatment'), "ggplot",
+  info = "apply_clinical_colors returns a ggplot")
+expect_warning(apply_clinical_colors(pc, 'no_such_column'),
+  info = "a missing treatment column warns rather than failing silently")

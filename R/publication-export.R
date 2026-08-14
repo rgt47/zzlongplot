@@ -1,13 +1,9 @@
-#' Publication-Ready Plot Export Functions
-#'
-#' @description
-#' Functions for exporting plots in publication-ready formats with journal-specific
-#' specifications for dimensions, resolution, and formatting.
-#'
-#' @details
-#' These functions automatically apply the correct specifications for major
-#' scientific journals and regulatory agencies, ensuring plots meet submission
-#' requirements without manual formatting.
+# Publication-Ready Plot Export Functions
+#
+# Functions for exporting plots in publication-ready formats with
+# journal-specific specifications for dimensions, resolution, and
+# formatting. They apply the correct specifications for major scientific
+# journals and regulatory agencies without manual formatting.
 
 # Journal specifications database
 .journal_specs <- list(
@@ -132,13 +128,17 @@
 #'   geom_point() + 
 #'   theme_nature()
 #' 
-#' # Save for Nature journal
-#' save_publication(p, "figure1.pdf", journal = "nature")
-#' 
+#' # Save for Nature journal (written to a temporary directory here so
+#' # the example does not create files in the working directory)
+#' save_publication(p, file.path(tempdir(), "figure1.pdf"),
+#'                  journal = "nature")
+#'
 #' # Save with panel label for multi-panel figure
-#' save_publication(p, "figure1a.pdf", journal = "nature", 
+#' save_publication(p, file.path(tempdir(), "figure1a.pdf"),
+#'                  journal = "nature",
 #'                  panel_label = "A", column_type = "single")
-#' 
+#'
+#' @family publication export
 #' @export
 save_publication <- function(plot, filename, journal = "nature",
                              width_mm = NULL, height_mm = NULL, dpi = NULL,
@@ -257,49 +257,62 @@ save_publication <- function(plot, filename, journal = "nature",
 #' @param legend_position Character string specifying shared legend position.
 #' @param label_size Numeric. Size of panel labels.
 #' @param label_face Character string. Font face for panel labels ("bold", "italic", etc.).
-#' @param spacing Numeric. Spacing between panels.
+#' @param spacing Numeric. Margin added around each panel, in `npc`
+#'   units (fraction of the panel region). Default `0.02`.
 #'
-#' @return A combined plot object (patchwork or equivalent).
+#' @return A `patchwork` object combining `plots`, with class
+#'   `c("patchwork", "gg", "ggplot")`. It prints like a ggplot and can
+#'   be passed to [save_publication()] or [ggplot2::ggsave()].
+#'
+#' @seealso [save_publication()] to write the result to a
+#'   journal-specified file; [get_publication_theme()] and the
+#'   `theme_*()` family for styling the individual panels.
 #'
 #' @examples
-#' \dontrun{
 #' library(ggplot2)
-#' 
+#'
 #' # Create individual plots
 #' p1 <- ggplot(mtcars, aes(wt, mpg)) + geom_point() + theme_nature()
 #' p2 <- ggplot(mtcars, aes(hp, mpg)) + geom_point() + theme_nature()
-#' 
+#'
 #' # Combine into publication figure
 #' fig <- publication_panels(
-#'   plots = list(p1, p2), 
+#'   plots = list(p1, p2),
 #'   labels = c("A", "B"),
 #'   layout = "horizontal"
 #' )
-#' 
-#' # Save the combined figure
-#' save_publication(fig, "figure1.pdf", journal = "nature", column_type = "double")
-#' }
-#' 
+#'
+#' # Save the combined figure to a temporary location
+#' out <- file.path(tempdir(), "figure1.pdf")
+#' save_publication(fig, out, journal = "nature", column_type = "double")
+#'
+#' @family publication export
 #' @export
 publication_panels <- function(plots, labels = NULL, layout = "horizontal",
                                ncol = NULL, nrow = NULL, shared_legend = FALSE,
                                legend_position = "bottom", label_size = 12,
                                label_face = "bold", spacing = 0.02) {
-  
-  if (!requireNamespace("patchwork", quietly = TRUE)) {
-    stop("patchwork package required for multi-panel figures. Install with: install.packages('patchwork')")
+
+  if (!is.list(plots) || length(plots) == 0) {
+    stop("'plots' must be a non-empty list of ggplot objects.")
   }
-  
-  # Validate inputs
-  if (!is.list(plots)) {
-    stop("plots must be a list of ggplot objects")
+  not_ggplot <- which(!vapply(plots, inherits, logical(1), "ggplot"))
+  if (length(not_ggplot) > 0) {
+    stop(sprintf(
+      "All elements of 'plots' must be ggplot objects; element(s) %s are not.",
+      paste(not_ggplot, collapse = ", ")
+    ))
   }
-  
+  if (!is.numeric(spacing) || length(spacing) != 1 || is.na(spacing) ||
+      spacing < 0) {
+    stop("'spacing' must be a single non-negative number.")
+  }
+
   n_plots <- length(plots)
-  
+
   # Generate labels if not provided
   if (is.null(labels)) {
-    labels <- LETTERS[1:n_plots]
+    labels <- LETTERS[seq_len(n_plots)]
   } else if (length(labels) != n_plots) {
     stop("Number of labels must match number of plots")
   }
@@ -340,13 +353,18 @@ publication_panels <- function(plots, labels = NULL, layout = "horizontal",
       ggplot2::theme(legend.position = legend_position)
   }
   
-  # Apply spacing
+  # Apply equal panel sizing and the requested inter-panel spacing.
   if (layout %in% c("horizontal", "vertical")) {
     combined <- combined + patchwork::plot_layout(
       heights = if (layout == "vertical") rep(1, n_plots) else NULL,
       widths = if (layout == "horizontal") rep(1, n_plots) else NULL
     )
   }
+
+  combined <- combined &
+    ggplot2::theme(
+      plot.margin = ggplot2::unit(rep(spacing, 4), "npc")
+    )
   
   return(combined)
 }
@@ -358,12 +376,21 @@ publication_panels <- function(plots, labels = NULL, layout = "horizontal",
 #'
 #' @param journal Character string specifying journal name.
 #'
-#' @return List containing journal specifications.
+#' @return A list of 11 elements describing the journal's figure
+#'   requirements: `name` (display name), `single_column_mm` and
+#'   `double_column_mm` (figure widths), `max_height_mm`, `min_dpi` and
+#'   `preferred_dpi`, `font_size` (points), `font_family`, `formats`
+#'   (character vector of accepted file extensions), `color_mode`
+#'   (e.g. `"RGB"` or `"CMYK"`), and `notes` (free text).
+#'
+#' @seealso [list_journals()] for all journals at once, and
+#'   [save_publication()] which applies these specifications.
 #'
 #' @examples
 #' nature_specs <- get_journal_specs("nature")
 #' print(nature_specs$preferred_dpi)
 #' 
+#' @family publication export
 #' @export
 get_journal_specs <- function(journal) {
   
@@ -382,12 +409,21 @@ get_journal_specs <- function(journal) {
 #'
 #' @param detailed Logical. If TRUE, shows detailed specifications.
 #'
-#' @return Data frame of journal specifications.
+#' @return A data frame with one row per supported journal, with row
+#'   names set to the journal keys. Columns are `journal` (the key to
+#'   pass to [save_publication()]), `name`, `single_column_mm`,
+#'   `double_column_mm`, `preferred_dpi`, and `font_size`. When
+#'   `detailed = TRUE`, the columns `max_height_mm`, `formats`, and
+#'   `notes` are appended.
+#'
+#' @seealso [get_journal_specs()] for the full specification of one
+#'   journal, and [save_publication()] to apply it.
 #'
 #' @examples
 #' list_journals()
 #' list_journals(detailed = TRUE)
 #' 
+#' @family publication export
 #' @export
 list_journals <- function(detailed = FALSE) {
   

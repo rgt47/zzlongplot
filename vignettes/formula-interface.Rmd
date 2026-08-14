@@ -72,7 +72,7 @@ trial$score <- 50 +
 ## Simple formula: `y ~ x`
 
 The minimal formula specifies only an outcome and a time variable.
-This produces a single line with error bars summarising all
+This produces a single line with error bars summarizing all
 subjects together, with no group differentiation.
 
 ```{r simple}
@@ -117,7 +117,10 @@ lplot(trial, score ~ visit | arm, baseline_value = 0,
 
 For two-dimensional faceting, use a two-sided formula:
 
-```{r facet-grid, eval=FALSE}
+```{r facet-grid}
+# facet_form draws on columns of the data, so `site` must exist.
+trial$site <- rep(c("Site 1", "Site 2"), length.out = nrow(trial))
+
 lplot(trial, score ~ visit | arm, baseline_value = 0,
       facet_form = sex ~ site,
       plot_type = "obs")
@@ -139,7 +142,7 @@ selected.
 lplot(trial, score ~ visit | arm, plot_type = "obs")
 ```
 
-If the visit variable uses a recognised character code, the
+If the visit variable uses a recognized character code, the
 detection works the same way:
 
 ```{r auto-detect-char}

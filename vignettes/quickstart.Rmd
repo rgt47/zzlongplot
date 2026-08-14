@@ -27,6 +27,11 @@ knitr::opts_chunk$set(
 library(zzlongplot)
 library(dplyr)
 library(ggplot2)
+
+# The MMRM contrast chunks below are skipped when the suggested mmrm
+# and emmeans packages are unavailable.
+has_mmrm <- requireNamespace("mmrm", quietly = TRUE) &&
+  requireNamespace("emmeans", quietly = TRUE)
 ```
 
 ## Overview
@@ -201,7 +206,7 @@ footnote or a table below the plot.
 
 ### Footnote Mode
 
-```{r contrast-fn, eval=FALSE, fig.height=6, fig.cap="Figure 9: MMRM with contrast footnote."}
+```{r contrast-fn, eval=has_mmrm, fig.height=6, fig.cap="Figure 9: MMRM with contrast footnote."}
 # Figure 9
 lplot(two_arm,
   response ~ visit | treatment,
@@ -215,7 +220,7 @@ lplot(two_arm,
 
 ### Table Mode
 
-```{r contrast-tbl, eval=FALSE, fig.height=7, fig.cap="Figure 10: MMRM with contrast table."}
+```{r contrast-tbl, eval=has_mmrm, fig.height=7, fig.cap="Figure 10: MMRM with contrast table."}
 # Figure 10
 lplot(two_arm,
   response ~ visit | treatment,
@@ -264,12 +269,21 @@ names rather than numeric week numbers), R defaults to
 alphabetical order. Convert to a factor with explicit levels
 before calling `lplot()`:
 
-```{r visit-ordering, eval=FALSE}
-df$visit <- factor(df$visit,
-  levels = c("Screening", "Baseline", "Week 4",
-             "Week 8", "Week 12"))
+```{r visit-ordering}
+visit_labels <- c("Screening", "Baseline", "Week 4", "Week 8", "Week 12")
 
-lplot(df, response ~ visit | treatment,
+labelled <- data.frame(
+  subject_id = rep(seq_len(20), each = 5),
+  visit = rep(visit_labels, times = 20),
+  treatment = rep(c("Drug", "Placebo"), each = 5, length.out = 100),
+  response = rnorm(100, mean = 50, sd = 8)
+)
+
+# Without this step the x-axis would run Baseline, Screening, Week 12,
+# Week 4, Week 8 -- alphabetical rather than chronological.
+labelled$visit <- factor(labelled$visit, levels = visit_labels)
+
+lplot(labelled, response ~ visit | treatment,
   cluster_var = "subject_id",
   baseline_value = "Baseline")
 ```

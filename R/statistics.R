@@ -11,20 +11,51 @@
 #' @param cluster_var Cluster variable for within-subject grouping (subject ID).
 #' @param baseline_value Baseline value for calculating changes.
 #' 
-#' @return A data frame containing the computed statistics with columns:
-#'   * Original x and group variables
-#'   * mean_value: Mean/median of y values (depending on summary_statistic)
-#'   * change_mean: Mean/median of change from baseline
-#'   * sample_size: Number of observations
-#'   * standard_deviation: SD of y values (for mean) or IQR (for median)
-#'   * change_sd: SD of change values (for mean) or IQR (for median)
-#'   * standard_error: Standard error of mean/median
-#'   * change_se: Standard error of change mean/median
-#'   * bound_lower/bound_upper: Lower/upper bounds (CI/SE for mean, Q1/Q3 for median)
-#'   * bound_lower_change/bound_upper_change: Bounds for change values
-#'   * group: Factor combining all grouping variables
-#'   * is_continuous: Boolean indicating if x is continuous
-#' 
+#' @return A tibble (`tbl_df`) of one row per x value per group, with
+#'   one observation dropped for any group-timepoint whose summary is
+#'   `NA`. Columns, in addition to the original x, grouping, and
+#'   faceting variables:
+#'   * `mean_value`: mean of y, or median when `summary_statistic` is
+#'     `"median"` or `"boxplot"`.
+#'   * `change_mean`: the same summary applied to change from baseline.
+#'   * `sample_size`: count of non-missing y values, after
+#'     missing-value removal.
+#'   * `standard_deviation`, `change_sd`: SD for `"mean"`/`"mean_se"`;
+#'     IQR for `"median"`/`"boxplot"`.
+#'   * `standard_error`, `change_se`: the above divided by
+#'     `sqrt(sample_size)`.
+#'   * `bound_lower`, `bound_upper`, `bound_lower_change`,
+#'     `bound_upper_change`: the plotted interval. A *t*-based
+#'     confidence interval for `"mean"` with `confidence_interval` set;
+#'     a normal-approximation median interval for `"median"` with
+#'     `confidence_interval` set; +/-1 standard error for `"mean_se"`;
+#'     quartiles for `"median"` without a level; and 1.5-IQR whiskers
+#'     for `"boxplot"`.
+#'   * `ci_level`: the confidence level the bounds represent, or `NA`
+#'     when they are not a confidence interval (`"mean_se"`,
+#'     `"boxplot"`, or no `confidence_interval`).
+#'   * `group`: an `interaction()` factor of the grouping variables, or
+#'     the character scalar `"all"` when `group_var` is `NULL`.
+#'   * `is_continuous`: `TRUE` when the x variable is numeric.
+#'
+#'   When `statistical_tests = TRUE`, three further columns are present:
+#'   * `p_value`: the omnibus p-value for that x value, repeated across
+#'     that value's group rows.
+#'   * `p_adj`: `p_value` adjusted by `p_adjust_method` across the
+#'     distinct tests (one per x value, not one per row).
+#'   * `significance`: a star code derived from `p_adj`.
+#'
+#'   Additionally, when pairwise comparisons were computed, the result
+#'   carries a `"pairwise"` attribute (retrieve with
+#'   `attr(x, "pairwise")`): a data frame with columns `x_val`,
+#'   `group1`, `group2`, `estimate`, `lower_cl`, `upper_cl`, `p_value`,
+#'   `p_adj`, and `significance`. This attribute is absent when no
+#'   pairwise comparison was performed.
+#'
+#' @seealso [lplot()] for the end-to-end workflow, [generate_plot()]
+#'   which consumes this result, and [parse_formula()] which produces
+#'   the variable names it expects.
+#'
 #' @examples
 #' df <- data.frame(
 #'   subject_id = rep(1:10, each = 3),
@@ -39,8 +70,8 @@
 #' 
 #' @param confidence_interval Numeric. Confidence level (e.g., 0.95 for 95% CI).
 #'   If specified, calculates confidence intervals instead of standard error.
-#' @param summary_statistic Character. Type of summary statistic: "mean" (mean ± CI/SE),
-#'   "mean_se" (mean ± SE), "median" (median + IQR), or "boxplot" (quartiles + whiskers).
+#' @param summary_statistic Character. Type of summary statistic: "mean" (mean +/- CI/SE),
+#'   "mean_se" (mean +/- SE), "median" (median + IQR), or "boxplot" (quartiles + whiskers).
 #' @param statistical_tests Logical. If TRUE, performs statistical comparisons.
 #' @param facet_vars Character vector. Names of variables to use for faceting (optional).
 #' @param test_method Character. Testing approach for group comparisons:
@@ -61,9 +92,64 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
                          statistical_tests = FALSE,
                          facet_vars = NULL, test_method = "parametric",
                          p_adjust_method = "BH", cov_struct = "auto") {
+  # compute_stats() is exported and therefore reachable without going
+  # through lplot(), so it must validate its own arguments rather than
+  # relying on lplot()'s guards.
+  if (!is.data.frame(df)) {
+    stop("Input 'df' must be a data frame, not ", class(df)[1], ".")
+  }
+
+  valid_summary <- c("mean", "mean_se", "median", "boxplot")
+  if (!is.character(summary_statistic) || length(summary_statistic) != 1 ||
+      !summary_statistic %in% valid_summary) {
+    stop(sprintf(
+      "Invalid summary_statistic '%s'. Must be one of: %s",
+      paste(summary_statistic, collapse = ", "),
+      paste(valid_summary, collapse = ", ")
+    ))
+  }
+
+  valid_tests <- c("parametric", "nonparametric", "mmrm")
+  if (!is.character(test_method) || length(test_method) != 1 ||
+      !test_method %in% valid_tests) {
+    stop(sprintf(
+      "Invalid test_method '%s'. Must be one of: %s",
+      paste(test_method, collapse = ", "),
+      paste(valid_tests, collapse = ", ")
+    ))
+  }
+
+  if (!p_adjust_method %in% stats::p.adjust.methods) {
+    stop(sprintf(
+      "Invalid p_adjust_method '%s'. Must be one of: %s",
+      paste(p_adjust_method, collapse = ", "),
+      paste(stats::p.adjust.methods, collapse = ", ")
+    ))
+  }
+
+  if (!is.null(confidence_interval)) {
+    if (!is.numeric(confidence_interval) ||
+        length(confidence_interval) != 1 ||
+        is.na(confidence_interval) ||
+        confidence_interval <= 0 || confidence_interval >= 1) {
+      stop(sprintf(
+        paste0("Invalid confidence_interval '%s'. Must be a single ",
+               "number strictly between 0 and 1 (e.g. 0.95, not 95)."),
+        paste(confidence_interval, collapse = ", ")
+      ))
+    }
+  }
+
+  if (length(baseline_value) != 1) {
+    stop(sprintf(
+      "'baseline_value' must be a single value, not %d values.",
+      length(baseline_value)
+    ))
+  }
+
   # Parse group into individual components
   groups <- if (!is.null(group_var)) strsplit(group_var, "\\s*\\+\\s*")[[1]] else NULL
-  
+
   # Validate that required columns are present in the data frame
   required_cols <- c(x_var, y_var, cluster_var, groups, facet_vars)
   required_cols <- required_cols[!is.null(required_cols)]
@@ -80,9 +166,21 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
                  baseline_value, x_var))
   }
   
+  # Every summary below uses na.rm = TRUE, so missing responses are
+  # dropped silently and sample_size reports the post-drop count. Say so
+  # once, rather than letting attrition disappear from the figure.
+  n_missing_y <- sum(is.na(df[[y_var]]))
+  if (n_missing_y > 0) {
+    warning(sprintf(
+      paste0("%d of %d values of '%s' are missing and were excluded. ",
+             "Reported sample sizes are counts of non-missing values."),
+      n_missing_y, nrow(df), y_var
+    ), call. = FALSE)
+  }
+
   # Check if the x variable is continuous
   is_continuous <- is.numeric(df[[x_var]])
-  
+
   # Convert x to a factor if it is categorical
   if (!is_continuous) {
     df <- df %>%
@@ -174,6 +272,24 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
       )
   }
   
+  # The plotted bounds are a confidence interval only for "mean" and
+  # "median", and only when a level was requested. "mean_se" draws
+  # +/-1 SE and "boxplot" draws quartiles/whiskers. Downstream captions
+  # are built from ci_level, so advertising a level here for a summary
+  # that does not produce one mislabels the figure.
+  bounds_are_ci <- !is.null(confidence_interval) &&
+    summary_statistic %in% c("mean", "median")
+
+  # Normal-approximation half-width multiplier for the median, scaled
+  # to the requested level. sigma is estimated from the IQR
+  # (sigma ~ IQR / 1.349) and the median's asymptotic standard error is
+  # 1.2533 * sigma / sqrt(n); standard_error already holds IQR/sqrt(n).
+  median_ci_mult <- if (bounds_are_ci) {
+    stats::qnorm((1 + confidence_interval) / 2) * 1.2533 / 1.349
+  } else {
+    NA_real_
+  }
+
   result <- result %>%
     dplyr::mutate(
       # Calculate bounds based on summary statistic type
@@ -185,7 +301,7 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
         }
       } else if (summary_statistic == "median") {
         if (!is.null(confidence_interval)) {
-          mean_value - 1.57 * standard_error  # Approximate CI for median
+          mean_value - median_ci_mult * standard_error
         } else {
           q25_value  # IQR
         }
@@ -202,7 +318,7 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
         }
       } else if (summary_statistic == "median") {
         if (!is.null(confidence_interval)) {
-          mean_value + 1.57 * standard_error  # Approximate CI for median
+          mean_value + median_ci_mult * standard_error
         } else {
           q75_value  # IQR
         }
@@ -219,7 +335,7 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
         }
       } else if (summary_statistic == "median") {
         if (!is.null(confidence_interval)) {
-          change_mean - 1.57 * change_se  # Approximate CI for median
+          change_mean - median_ci_mult * change_se
         } else {
           q25_change  # IQR
         }
@@ -236,7 +352,7 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
         }
       } else if (summary_statistic == "median") {
         if (!is.null(confidence_interval)) {
-          change_mean + 1.57 * change_se  # Approximate CI for median
+          change_mean + median_ci_mult * change_se
         } else {
           q75_change  # IQR
         }
@@ -246,8 +362,9 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
         change_mean + change_se
       },
       
-      # Add confidence level info
-      ci_level = if (!is.null(confidence_interval)) confidence_interval else NA,
+      # Add confidence level info. NA whenever the bounds are not a CI,
+      # so captions do not claim a level the interval does not have.
+      ci_level = if (bounds_are_ci) confidence_interval else NA_real_,
       
       group = if (!is.null(groups)) interaction(!!!syms(groups)) else "all",
       is_continuous = is_continuous
@@ -418,9 +535,20 @@ add_statistical_tests <- function(
     }
   }
 
-  stats_df$p_adj <- stats::p.adjust(
-    stats_df$p_value, method = p_adjust_method
-  )
+  # One omnibus test is run per x-axis value, but its p-value is
+  # broadcast to every group row at that value. Adjusting the broadcast
+  # column would count each test once per group and inflate the
+  # correction by the number of groups, so adjust over the distinct
+  # tests and map the adjusted values back onto the rows.
+  test_key <- as.character(stats_df[[x_var]])
+  first_of_test <- !duplicated(test_key) & !is.na(stats_df$p_value)
+  stats_df$p_adj <- NA_real_
+  if (any(first_of_test)) {
+    adjusted <- stats::p.adjust(
+      stats_df$p_value[first_of_test], method = p_adjust_method
+    )
+    stats_df$p_adj <- adjusted[match(test_key, test_key[first_of_test])]
+  }
   stats_df$significance <- .p_to_stars(stats_df$p_adj)
 
   if (length(pw_list) > 0) {

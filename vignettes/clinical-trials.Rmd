@@ -139,7 +139,7 @@ print(p3)
 Clinical mode automatically enables:
 - 95% confidence intervals instead of standard error
 - Sample size annotations at each timepoint  
-- Clinical color scheme (placebo in grey, treatments in distinct colors)
+- Clinical color scheme (placebo in gray, treatments in distinct colors)
 - Professional theme suitable for regulatory submissions
 
 ## Individual Clinical Features
@@ -186,14 +186,13 @@ p5 <- lplot(
 print(p5)
 ```
 
-## Visit Window Tolerance
+## Visit Timing Variation
 
-Real clinical trials have visit timing variations. Handle this with visit windows:
+Real clinical trials have visit timing variations. `zzlongplot` has no
+dedicated visit-window argument; plot against the actual study day by
+passing that column as the x variable.
 
-```{r visit-windows, eval=FALSE}
-# NOTE: visit_windows is a planned feature; the example below is
-# illustrative.
-
+```{r visit-timing}
 # Add some visit timing variation
 clinical_data_windows <- clinical_data |>
   mutate(
@@ -213,12 +212,6 @@ p6 <- lplot(
   cluster_var = "SUBJID",
   baseline_value = 0,
   clinical_mode = TRUE,
-  visit_windows = list(
-    "Month 1" = c(21, 35),
-    "Month 2" = c(49, 63),
-    "Month 3" = c(77, 91),
-    "Month 4" = c(105, 119)
-  ),
   xlab = "Study Day",
   title = "Efficacy Over Time (Study Days)"
 )
@@ -251,12 +244,16 @@ print(p7)
 
 ## Export for Regulatory Submission
 
-```{r regulatory-export, eval=FALSE}
-# Save in regulatory-friendly format
+FDA accepts PDF and TIFF at a minimum of 600 DPI; `save_publication()`
+warns if you ask for anything less, and fills in the journal's own
+defaults when `dpi` and `format` are left unset.
+
+```{r regulatory-export}
+out_file <- file.path(tempdir(), "Figure_1_1_Primary_Efficacy.pdf")
 save_publication(p7,
-  filename = "Figure_1_1_Primary_Efficacy.png",
+  filename = out_file,
   journal = "fda",
-  width_mm = 254, height_mm = 152, dpi = 300
+  width_mm = 254, height_mm = 152
 )
 ```
 
@@ -275,11 +272,10 @@ print(suggestions)
 
 Get standard clinical color palettes:
 
-```{r clinical-colors, eval=FALSE}
-# Get clinical color palette
+```{r clinical-colors}
+# Get clinical color palette: placebo grey, then active treatments
 colors <- clinical_colors(type = "treatment", n = 3)
 print(colors)
-#> [1] "#7F7F7F" "#1F77B4" "#D62728"  # Grey, Blue, Red
 
 # Use with custom styling
 p8 <- lplot(

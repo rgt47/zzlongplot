@@ -2,7 +2,7 @@
 # zzlongplot <a href="https://rgt47.github.io/zzlongplot/"><img src="man/figures/logo.png" align="right" height="138" alt="zzlongplot hex sticker" /></a>
 
 <!-- badges: start -->
-[![CRAN status](https://www.r-pkg.org/badges/version/zzlongplot)](https://CRAN.R-project.org/package=zzlongplot)
+<!-- CRAN badge omitted until the package is accepted; the link 404s otherwise. -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/rgt47/zzlongplot/actions/workflows/r-package.yml/badge.svg)](https://github.com/rgt47/zzlongplot/actions/workflows/r-package.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
@@ -28,7 +28,6 @@ This package is particularly useful for analyzing longitudinal clinical trial da
 - **CDISC Compliance**: Automatic recognition of standard CDISC variable names (AVAL, AVISITN, TRT01P, etc.)
 - **Clinical Themes**: FDA and regulatory-ready plot styling with professional themes
 - **Treatment Styling**: Predefined color schemes for placebo vs. active treatment visualization
-- **Visit Windows**: Handle visit timing variations common in clinical trials
 - **Clinical Statistics**: 95% confidence intervals, sample size annotations, missing data handling
 - **Regulatory Output**: Export plots in formats suitable for regulatory submissions
 
@@ -166,11 +165,20 @@ The main function for generating plots. Combines the functionality of helper fun
 - **`suggest_clinical_vars()`**:
   Auto-detect likely CDISC variables in a given dataset and suggest proper formula syntax.
 
-- **`get_clinical_theme()`**:
-  Returns regulatory-ready ggplot2 themes (FDA, EMA, ICH guidelines).
+- **`validate_cdisc_data()`**:
+  Score a dataset for CDISC compliance and report issues and recommendations.
+
+- **`get_publication_theme()`** and the `theme_*()` family:
+  Regulatory- and journal-ready ggplot2 themes (`theme_fda()`, `theme_nejm()`,
+  `theme_nature()`, `theme_lancet()`, `theme_jama()`, `theme_science()`,
+  `theme_jco()`, `theme_bw_print()`).
 
 - **`clinical_colors()`**:
   Predefined color palettes for treatment groups following clinical standards.
+
+- **`save_publication()`** and **`publication_panels()`**:
+  Assemble multi-panel figures and export them at journal-specified
+  dimensions and resolution. See `list_journals()` for supported targets.
 
 ---
 
@@ -190,16 +198,22 @@ Use the `"both"` option for `plot_type` to display observed and change plots sid
 ### **Clinical Trial Customization**
 
 #### Clinical Modes
+
+Note that `cluster_var` defaults to `"subject_id"`, so CDISC data must
+name its subject column explicitly.
+
 ```r
 # Enable all clinical defaults at once
-lplot(data, AVAL ~ AVISITN | TRT01P, clinical_mode = TRUE)
+lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+      cluster_var = "SUBJID", baseline_value = 0,
+      clinical_mode = TRUE)
 
 # Or customize individual clinical features
-lplot(data, AVAL ~ AVISITN | TRT01P, 
+lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+      cluster_var = "SUBJID", baseline_value = 0,
       treatment_colors = "standard",    # Placebo=grey, Active=blue/red
       confidence_interval = 0.95,       # 95% CI instead of SE
-      show_sample_sizes = TRUE,         # N at each timepoint
-      visit_windows = list("Week 4" = c(22, 35))  # Handle visit windows
+      show_sample_sizes = TRUE          # N at each timepoint
 )
 ```
 
@@ -207,30 +221,41 @@ lplot(data, AVAL ~ AVISITN | TRT01P,
 ```r
 # Automatically suggests CDISC-compliant formulas
 suggest_clinical_vars(clinical_data)
-#> Suggested formula: AVAL ~ AVISITN | TRT01P
-#> Cluster variable: SUBJID detected
-#> Baseline: Visit 1 (AVISITN = 1)
+#> CDISC Variable Detection Results:
+#> =================================
+#>
+#> Suggested Formula: AVAL ~ AVISITN | TRT01P
+#> Cluster Variable: SUBJID
+#> Baseline Value: 0
 ```
 
-#### Regulatory Themes
+#### Regulatory and Journal Themes
+
+Available `theme` values are `"bw"`, `"nejm"`, `"nature"`, `"lancet"`,
+`"jama"`, `"science"`, `"jco"`, `"fda"`, and `"default"`.
+
 ```r
 # FDA submission ready
-lplot(data, AVAL ~ AVISITN | TRT01P, theme = "fda")
-
-# EMA guidelines compliant  
-lplot(data, AVAL ~ AVISITN | TRT01P, theme = "ema")
+lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+      cluster_var = "SUBJID", baseline_value = 0, theme = "fda")
 ```
+
+EMA is supported as an *export* target rather than a theme; use
+`save_publication(p, "figure.pdf", journal = "ema")`.
 
 ---
 
 ## **Dependencies**
 
-The `zzlongplot` package depends on the following R packages:
+The `zzlongplot` package imports the following R packages:
 - **dplyr**: For data manipulation.
 - **ggplot2**: For visualization.
 - **patchwork**: For combining plots.
+- **RColorBrewer**: For colorblind-friendly palettes.
 
-Ensure these packages are installed before using `zzlongplot`.
+These are installed automatically. The optional MMRM analysis path
+(`test_method = "mmrm"`) additionally requires the suggested packages
+**mmrm** and **emmeans**.
 
 ---
 

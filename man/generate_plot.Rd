@@ -95,9 +95,9 @@ position = "point"). Default is auto-calculated.}
 \item{nudge_y}{Vertical offset from the point (only for
 position = "point"). Default 0.}
 \item{gap}{Fraction of y-range between plot area and first
-table row (only for position = "table"). Default 0.10.}
+table row (only for position = "table"). Default 0.18.}
 \item{row_height}{Fraction of y-range between table rows
-(only for position = "table"). Default 0.05.}
+(only for position = "table"). Default 0.06.}
 \item{label_size}{Font size for group labels in the table
 (only for position = "table"). Defaults to size.}
 \item{label_offset}{Horizontal offset for group labels

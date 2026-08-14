@@ -36,17 +36,19 @@ publication_panels(
 
 \item{label_face}{Character string. Font face for panel labels ("bold", "italic", etc.).}
 
-\item{spacing}{Numeric. Spacing between panels.}
+\item{spacing}{Numeric. Margin added around each panel, in \code{npc}
+units (fraction of the panel region). Default \code{0.02}.}
 }
 \value{
-A combined plot object (patchwork or equivalent).
+A \code{patchwork} object combining \code{plots}, with class
+\code{c("patchwork", "gg", "ggplot")}. It prints like a ggplot and can
+be passed to \code{\link[=save_publication]{save_publication()}} or \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.
 }
 \description{
 Combines multiple plots into a publication-ready multi-panel figure
 with automatic panel labeling and consistent formatting.
 }
 \examples{
-\dontrun{
 library(ggplot2)
 
 # Create individual plots
@@ -55,13 +57,24 @@ p2 <- ggplot(mtcars, aes(hp, mpg)) + geom_point() + theme_nature()
 
 # Combine into publication figure
 fig <- publication_panels(
-  plots = list(p1, p2), 
+  plots = list(p1, p2),
   labels = c("A", "B"),
   layout = "horizontal"
 )
 
-# Save the combined figure
-save_publication(fig, "figure1.pdf", journal = "nature", column_type = "double")
-}
+# Save the combined figure to a temporary location
+out <- file.path(tempdir(), "figure1.pdf")
+save_publication(fig, out, journal = "nature", column_type = "double")
 
 }
+\seealso{
+\code{\link[=save_publication]{save_publication()}} to write the result to a
+journal-specified file; \code{\link[=get_publication_theme]{get_publication_theme()}} and the
+\verb{theme_*()} family for styling the individual panels.
+
+Other publication export:
+\code{\link[=get_journal_specs]{get_journal_specs()}},
+\code{\link[=list_journals]{list_journals()}},
+\code{\link[=save_publication]{save_publication()}}
+}
+\concept{publication export}

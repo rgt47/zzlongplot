@@ -10,7 +10,12 @@ list_journals(detailed = FALSE)
 \item{detailed}{Logical. If TRUE, shows detailed specifications.}
 }
 \value{
-Data frame of journal specifications.
+A data frame with one row per supported journal, with row
+names set to the journal keys. Columns are \code{journal} (the key to
+pass to \code{\link[=save_publication]{save_publication()}}), \code{name}, \code{single_column_mm},
+\code{double_column_mm}, \code{preferred_dpi}, and \code{font_size}. When
+\code{detailed = TRUE}, the columns \code{max_height_mm}, \code{formats}, and
+\code{notes} are appended.
 }
 \description{
 Lists all available journal specifications with their key requirements.
@@ -20,3 +25,13 @@ list_journals()
 list_journals(detailed = TRUE)
 
 }
+\seealso{
+\code{\link[=get_journal_specs]{get_journal_specs()}} for the full specification of one
+journal, and \code{\link[=save_publication]{save_publication()}} to apply it.
+
+Other publication export:
+\code{\link[=get_journal_specs]{get_journal_specs()}},
+\code{\link[=publication_panels]{publication_panels()}},
+\code{\link[=save_publication]{save_publication()}}
+}
+\concept{publication export}

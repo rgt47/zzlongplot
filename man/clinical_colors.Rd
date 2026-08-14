@@ -28,9 +28,9 @@ following industry conventions for treatment group representation.
 \details{
 Clinical color palettes follow these conventions:
 \itemize{
-\item \strong{Treatment}: Placebo in neutral grey, active treatments in distinct colors
+\item \strong{Treatment}: Placebo in neutral gray, active treatments in distinct colors
 \item \strong{Severity}: Progression from mild (light) to severe (dark)
-\item \strong{Outcome}: Green for positive, red for negative, grey for neutral
+\item \strong{Outcome}: Green for positive, red for negative, gray for neutral
 \item \strong{FDA}: High contrast colors for regulatory submissions
 }
 
@@ -66,3 +66,10 @@ df <- data.frame(
 )
 
 }
+\seealso{
+Other color helpers:
+\code{\link[=apply_clinical_colors]{apply_clinical_colors()}},
+\code{\link[=assign_treatment_colors]{assign_treatment_colors()}},
+\code{\link[=get_colorblind_palette]{get_colorblind_palette()}}
+}
+\concept{color helpers}

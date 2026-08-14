@@ -41,3 +41,10 @@ ggplot(df, aes(x, y, color = group)) +
   scale_color_manual(values = colors)
 
 }
+\seealso{
+Other color helpers:
+\code{\link[=apply_clinical_colors]{apply_clinical_colors()}},
+\code{\link[=assign_treatment_colors]{assign_treatment_colors()}},
+\code{\link[=clinical_colors]{clinical_colors()}}
+}
+\concept{color helpers}

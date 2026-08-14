@@ -17,9 +17,9 @@
 #'
 #' @details
 #' Clinical color palettes follow these conventions:
-#' - **Treatment**: Placebo in neutral grey, active treatments in distinct colors
+#' - **Treatment**: Placebo in neutral gray, active treatments in distinct colors
 #' - **Severity**: Progression from mild (light) to severe (dark)  
-#' - **Outcome**: Green for positive, red for negative, grey for neutral
+#' - **Outcome**: Green for positive, red for negative, gray for neutral
 #' - **FDA**: High contrast colors for regulatory submissions
 #' 
 #' Journal-specific palettes (based on ggsci package):
@@ -51,6 +51,7 @@
 #'   treatment = rep(c("Placebo", "Drug 10mg", "Drug 20mg"), each = 80)
 #' )
 #' 
+#' @family color helpers
 #' @export
 clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) {
   
@@ -59,7 +60,7 @@ clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) 
     
     # Standard treatment colors (colorblind-friendly)
     treatment = c(
-      "#7F7F7F",  # Placebo: neutral grey
+      "#7F7F7F",  # Placebo: neutral gray
       "#1F77B4",  # Active 1: blue (primary endpoint)
       "#D62728",  # Active 2: red (secondary)
       "#FF7F0E",  # Active 3: orange
@@ -81,7 +82,7 @@ clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) 
     # Outcome colors
     outcome = c(
       "#2CA02C",  # Positive: green
-      "#7F7F7F",  # Neutral: grey
+      "#7F7F7F",  # Neutral: gray
       "#D62728"   # Negative: red
     ),
     
@@ -133,19 +134,19 @@ clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) 
       "#925E9F",  # Purple
       "#FDAF91",  # Light orange
       "#AD002A",  # Dark red
-      "#ADB6B6",  # Light grey
-      "#1B1919"   # Dark grey
+      "#ADB6B6",  # Light gray
+      "#1B1919"   # Dark gray
     ),
     
     # JAMA (Journal of the American Medical Association)
     jama = c(
-      "#374E55",  # Dark blue-grey
+      "#374E55",  # Dark blue-gray
       "#DF8F44",  # Orange
       "#00A1D5",  # Cyan
       "#B24745",  # Red
       "#79AF97",  # Green
       "#6A6599",  # Purple
-      "#80796B"   # Brown-grey
+      "#80796B"   # Brown-gray
     ),
     
     # Science (AAAS)
@@ -158,22 +159,22 @@ clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) 
       "#BB0021",  # Dark red
       "#5F559B",  # Purple-blue
       "#A20056",  # Magenta
-      "#808180",  # Grey
-      "#1B1919"   # Dark grey
+      "#808180",  # Gray
+      "#1B1919"   # Dark gray
     ),
     
     # JCO (Journal of Clinical Oncology)
     jco = c(
       "#0073C2",  # Blue
       "#EFC000",  # Yellow
-      "#868686",  # Grey
+      "#868686",  # Gray
       "#CD534C",  # Red
       "#7AA6DC",  # Light blue
       "#003C67",  # Dark blue
       "#8F7700",  # Dark yellow
-      "#3B3B3B",  # Dark grey
+      "#3B3B3B",  # Dark gray
       "#A73030",  # Dark red
-      "#4A6990"   # Blue-grey
+      "#4A6990"   # Blue-gray
     )
   )
   
@@ -194,6 +195,13 @@ clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) 
   if (is.null(n)) {
     return(colors)
   } else {
+    if (!is.numeric(n) || length(n) != 1 || is.na(n) || n < 1 ||
+        n != as.integer(n)) {
+      stop(sprintf(
+        "'n' must be a single positive whole number, not '%s'.",
+        paste(n, collapse = ", ")
+      ))
+    }
     if (n > length(colors)) {
       warning(sprintf("Requested %d colors but palette '%s' only has %d colors. Recycling colors.", 
                       n, type, length(colors)))
@@ -216,7 +224,7 @@ clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) 
 #'
 #' @details
 #' This function uses pattern matching to identify placebo groups and
-#' assigns neutral grey color, while active treatments get distinct colors.
+#' assigns neutral gray color, while active treatments get distinct colors.
 #' 
 #' Placebo detection patterns include: "placebo", "control", "sham", 
 #' case-insensitive matching.
@@ -225,6 +233,7 @@ clinical_colors <- function(type = "treatment", n = NULL, placebo_first = TRUE) 
 #' treatments <- c("Placebo", "Drug A 10mg", "Drug A 20mg")
 #' colors <- assign_treatment_colors(treatments)
 #' 
+#' @family color helpers
 #' @export
 assign_treatment_colors <- function(treatment_var, palette_type = "treatment") {
   
@@ -242,19 +251,23 @@ assign_treatment_colors <- function(treatment_var, palette_type = "treatment") {
           unique_treatments, ignore.case = TRUE)
   )
   
-  # Assign colors with placebo first (grey)
+  # Assign colors with placebo first (gray)
   color_assignment <- colors
   names(color_assignment) <- unique_treatments
   
-  # Ensure placebo gets grey color if detected
+  # Ensure placebo gets gray color if detected
   if (length(placebo_idx) > 0 && palette_type == "treatment") {
-    # Move placebo to position 1 (grey) and shift others
+    # Move placebo to position 1 (gray) and shift others
     placebo_name <- unique_treatments[placebo_idx[1]]
     other_names <- unique_treatments[-placebo_idx[1]]
     
+    # seq_len(), not 2:n_treatments: with a single treatment the latter
+    # counts down (2:1) and emits a spurious second, NA-named element.
+    other_idx <- seq_len(n_treatments - 1L) + 1L
+
     color_assignment <- c(
-      setNames(colors[1], placebo_name),  # Grey for placebo
-      setNames(colors[2:n_treatments], other_names)
+      setNames(colors[1], placebo_name),  # Gray for placebo
+      setNames(colors[other_idx], other_names)
     )
   }
   
@@ -271,27 +284,35 @@ assign_treatment_colors <- function(treatment_var, palette_type = "treatment") {
 #' @param palette_type Character string specifying the clinical palette type.
 #' @param ... Additional arguments passed to scale_color_manual and scale_fill_manual.
 #'
-#' @return Modified ggplot object with clinical colors applied.
+#' @return The input `plot` with manual color and fill scales added,
+#'   assigning gray to any detected placebo or control level and
+#'   distinct colors to the active arms. If `treatment_var` is not a
+#'   column of the plot's data, the plot is returned **unchanged** and a
+#'   warning is issued.
+#'
+#' @seealso [assign_treatment_colors()] for the underlying name-to-color
+#'   mapping, [clinical_colors()] for the palettes, and
+#'   [apply_publication_style()] to apply a journal theme at the same
+#'   time.
 #'
 #' @examples
-#' \dontrun{
 #' library(ggplot2)
-#' 
+#'
 #' # Create sample data
 #' data <- data.frame(
 #'   visit = rep(1:4, each = 10),
 #'   efficacy = rnorm(40, mean = 50, sd = 10),
 #'   treatment = rep(c("Placebo", "Drug A"), length.out = 40)
 #' )
-#' 
+#'
 #' # Create base plot
 #' p <- ggplot(data, aes(x = visit, y = efficacy, color = treatment)) +
 #'   geom_line()
-#' 
+#'
 #' # Apply clinical colors
 #' p_clinical <- apply_clinical_colors(p, "treatment")
-#' }
-#' 
+#'
+#' @family color helpers
 #' @export
 apply_clinical_colors <- function(plot, treatment_var = NULL, 
                                   palette_type = "treatment", ...) {

@@ -63,11 +63,21 @@ p <- ggplot(mtcars, aes(wt, mpg, color = factor(cyl))) +
   geom_point() + 
   theme_nature()
 
-# Save for Nature journal
-save_publication(p, "figure1.pdf", journal = "nature")
+# Save for Nature journal (written to a temporary directory here so
+# the example does not create files in the working directory)
+save_publication(p, file.path(tempdir(), "figure1.pdf"),
+                 journal = "nature")
 
 # Save with panel label for multi-panel figure
-save_publication(p, "figure1a.pdf", journal = "nature", 
+save_publication(p, file.path(tempdir(), "figure1a.pdf"),
+                 journal = "nature",
                  panel_label = "A", column_type = "single")
 
 }
+\seealso{
+Other publication export:
+\code{\link[=get_journal_specs]{get_journal_specs()}},
+\code{\link[=list_journals]{list_journals()}},
+\code{\link[=publication_panels]{publication_panels()}}
+}
+\concept{publication export}

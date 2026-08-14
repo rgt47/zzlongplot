@@ -35,3 +35,14 @@ ggplot(mtcars, aes(wt, mpg)) +
   theme_nejm()
 
 }
+\seealso{
+Other publication themes:
+\code{\link[=theme_bw_print]{theme_bw_print()}},
+\code{\link[=theme_fda]{theme_fda()}},
+\code{\link[=theme_jama]{theme_jama()}},
+\code{\link[=theme_jco]{theme_jco()}},
+\code{\link[=theme_lancet]{theme_lancet()}},
+\code{\link[=theme_nature]{theme_nature()}},
+\code{\link[=theme_science]{theme_science()}}
+}
+\concept{publication themes}

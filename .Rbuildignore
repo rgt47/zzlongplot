@@ -20,8 +20,13 @@ vignettes/.*\.pdf$
 ^\.Rproj\.user$
 ^renv$
 ^\.cache$
-^NEWS\.md$
 ^\.zzcollab$
 ^.*/\.zzcollab$
+^\.zzcollab-state$
 ^\.zzcollab_manifest\.json$
 ^\.zz[0-9]+\.R$
+^CONTRIBUTING\.md$
+^_pkgdown\.yml$
+^tooling\.lock$
+^zzcollab\.yaml$
+^pkgdown$

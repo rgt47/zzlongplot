@@ -170,7 +170,7 @@ p_jama
 ```
 
 **JAMA Theme Features:**
-- Conservative color palette with dark blue-grey (#374E55) and orange (#DF8F44)
+- Conservative color palette with dark blue-gray (#374E55) and orange (#DF8F44)
 - Professional typography suitable for medical publications
 - Clear, readable design for clinical data
 

@@ -36,8 +36,8 @@ compute_stats(
 \item{confidence_interval}{Numeric. Confidence level (e.g., 0.95 for 95\% CI).
 If specified, calculates confidence intervals instead of standard error.}
 
-\item{summary_statistic}{Character. Type of summary statistic: "mean" (mean ± CI/SE),
-"mean_se" (mean ± SE), "median" (median + IQR), or "boxplot" (quartiles + whiskers).}
+\item{summary_statistic}{Character. Type of summary statistic: "mean" (mean +/- CI/SE),
+"mean_se" (mean +/- SE), "median" (median + IQR), or "boxplot" (quartiles + whiskers).}
 
 \item{statistical_tests}{Logical. If TRUE, performs statistical comparisons.}
 
@@ -57,21 +57,50 @@ to \code{\link[stats:p.adjust]{stats::p.adjust()}}. Default is "BH" (Benjamini-H
 \code{\link[=lplot]{lplot()}} for available options. Default is "auto".}
 }
 \value{
-A data frame containing the computed statistics with columns:
+A tibble (\code{tbl_df}) of one row per x value per group, with
+one observation dropped for any group-timepoint whose summary is
+\code{NA}. Columns, in addition to the original x, grouping, and
+faceting variables:
 \itemize{
-\item Original x and group variables
-\item mean_value: Mean/median of y values (depending on summary_statistic)
-\item change_mean: Mean/median of change from baseline
-\item sample_size: Number of observations
-\item standard_deviation: SD of y values (for mean) or IQR (for median)
-\item change_sd: SD of change values (for mean) or IQR (for median)
-\item standard_error: Standard error of mean/median
-\item change_se: Standard error of change mean/median
-\item bound_lower/bound_upper: Lower/upper bounds (CI/SE for mean, Q1/Q3 for median)
-\item bound_lower_change/bound_upper_change: Bounds for change values
-\item group: Factor combining all grouping variables
-\item is_continuous: Boolean indicating if x is continuous
+\item \code{mean_value}: mean of y, or median when \code{summary_statistic} is
+\code{"median"} or \code{"boxplot"}.
+\item \code{change_mean}: the same summary applied to change from baseline.
+\item \code{sample_size}: count of non-missing y values, after
+missing-value removal.
+\item \code{standard_deviation}, \code{change_sd}: SD for \code{"mean"}/\code{"mean_se"};
+IQR for \code{"median"}/\code{"boxplot"}.
+\item \code{standard_error}, \code{change_se}: the above divided by
+\code{sqrt(sample_size)}.
+\item \code{bound_lower}, \code{bound_upper}, \code{bound_lower_change},
+\code{bound_upper_change}: the plotted interval. A \emph{t}-based
+confidence interval for \code{"mean"} with \code{confidence_interval} set;
+a normal-approximation median interval for \code{"median"} with
+\code{confidence_interval} set; +/-1 standard error for \code{"mean_se"};
+quartiles for \code{"median"} without a level; and 1.5-IQR whiskers
+for \code{"boxplot"}.
+\item \code{ci_level}: the confidence level the bounds represent, or \code{NA}
+when they are not a confidence interval (\code{"mean_se"},
+\code{"boxplot"}, or no \code{confidence_interval}).
+\item \code{group}: an \code{interaction()} factor of the grouping variables, or
+the character scalar \code{"all"} when \code{group_var} is \code{NULL}.
+\item \code{is_continuous}: \code{TRUE} when the x variable is numeric.
 }
+
+When \code{statistical_tests = TRUE}, three further columns are present:
+\itemize{
+\item \code{p_value}: the omnibus p-value for that x value, repeated across
+that value's group rows.
+\item \code{p_adj}: \code{p_value} adjusted by \code{p_adjust_method} across the
+distinct tests (one per x value, not one per row).
+\item \code{significance}: a star code derived from \code{p_adj}.
+}
+
+Additionally, when pairwise comparisons were computed, the result
+carries a \code{"pairwise"} attribute (retrieve with
+\code{attr(x, "pairwise")}): a data frame with columns \code{x_val},
+\code{group1}, \code{group2}, \code{estimate}, \code{lower_cl}, \code{upper_cl}, \code{p_value},
+\code{p_adj}, and \code{significance}. This attribute is absent when no
+pairwise comparison was performed.
 }
 \description{
 Computes summary statistics for observed and change values in longitudinal data,
@@ -89,4 +118,9 @@ df <- data.frame(
 stats <- compute_stats(df, "visit", "measure", "group", "subject_id", 0)
 head(stats)
 
+}
+\seealso{
+\code{\link[=lplot]{lplot()}} for the end-to-end workflow, \code{\link[=generate_plot]{generate_plot()}}
+which consumes this result, and \code{\link[=parse_formula]{parse_formula()}} which produces
+the variable names it expects.
 }

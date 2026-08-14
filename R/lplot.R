@@ -1,39 +1,3 @@
-#' @title Flexible Plotting of Observed and Change Values with Grouping and Faceting
-#' @name zzlongplot-package
-#' 
-#' @description These functions provide a flexible framework for generating observed
-#' and change plots using a data frame, accommodating both continuous and 
-#' categorical variables for the x-axis. They handle baseline (`baseline_value`) 
-#' specification, grouping, and faceting. This version allows the user to return 
-#' either the observed plot, the change plot, or both combined side-by-side using 
-#' the **patchwork** package.
-#'
-#' @details
-#' - `compute_stats`: Computes summary statistics for observed and change values, 
-#'   adapting to continuous or categorical x-axis variables.
-#' - `generate_plot`: Dynamically generates ggplot objects based on whether the 
-#'   x-axis is continuous or categorical, supports error representation (bars or 
-#'   ribbons), and faceting.
-#' - `parse_formula`: Parses the formula to extract dependent, independent, 
-#'   grouping, and faceting variables.
-#' - `lplot`: Combines the functionality of the helper functions to produce 
-#'   the final plots or combined plots as specified.
-#'
-#' @import dplyr ggplot2 patchwork
-#' @importFrom stats complete.cases setNames
-NULL
-
-# Declare global variables to avoid R CMD check notes
-#' @noRd
-utils::globalVariables(c(
-  "change", "standard_deviation", "sample_size", "change_sd", 
-  "mean_value", "standard_error", "change_mean", "change_se", 
-  "bound_lower", "bound_upper", "bound_lower_change", "bound_upper_change",
-  "q25_value", "q75_value", "q25_change", "q75_change",
-  "iqr_value", "iqr_change", "whisker_lower", "whisker_upper", 
-  "whisker_lower_change", "whisker_upper_change"
-))
-
 #' @title Create Longitudinal Plots for Observed and Change Values
 #'
 #' @description Generates flexible plots for longitudinal data, showing either 
@@ -67,18 +31,18 @@ utils::globalVariables(c(
 #'   (vertical lines showing standard error) or `"band"` for error ribbons 
 #'   (shaded areas around the line).
 #' @param jitter_width Numeric. Width of horizontal jitter for error bars when 
-#'   multiple groups are present. Default is 0.1. Set to 0 to disable jittering.
+#'   multiple groups are present. Default is 0.15. Set to 0 to disable jittering.
 #'   Only applies when error_type = "bar".
 #' @param color_palette Optional vector of colors to use for groups. If NULL, 
 #'   default ggplot colors are used.
 #' @param clinical_mode Logical. If TRUE, enables clinical trial defaults 
 #'   (95% CI, sample sizes, clinical colors). Default is FALSE.
 #' @param treatment_colors Character. Predefined color scheme for treatments. 
-#'   Options: "standard" (placebo=grey, active=colors), or NULL.
+#'   Options: "standard" (placebo=gray, active=colors), or NULL.
 #' @param confidence_interval Numeric. Confidence level for error bounds 
 #'   (e.g., 0.95 for 95% CI). If NULL, uses standard error.
 #' @param summary_statistic Character. Type of summary statistic to calculate.
-#'   Options: "mean" (mean ± CI/SE), "mean_se" (mean ± SE), "median" (median + IQR), 
+#'   Options: "mean" (mean +/- CI/SE), "mean_se" (mean +/- SE), "median" (median + IQR), 
 #'   or "boxplot" (boxplot summary with quartiles). Default is "mean".
 #' @param show_sample_sizes Logical. If TRUE, shows sample sizes at each timepoint.
 #' @param sample_size_opts List. Options for sample size label appearance.
@@ -86,11 +50,16 @@ utils::globalVariables(c(
 #'   "table" (color-coded table below x-axis). See [generate_plot()]
 #'   for all available options.
 #' @param theme Character. Predefined publication theme with matching colors.
-#'   Options: "bw", "nejm", "nature", "lancet", "jama", "science", "jco", "fda",
-#'   or NULL. Defaults to "bw". Applies both typography/layout AND journal-specific
-#'   color palette automatically.
-#' @param publication_ready Logical. If TRUE, applies publication-ready defaults
-#'   (professional theme, proper typography, clean styling).
+#'   Options: "bw", "nejm", "nature", "lancet", "jama", "science", "jco",
+#'   "fda", or "default". Applies both typography/layout AND, where one
+#'   exists, the journal-specific color palette. Defaults to `NULL`,
+#'   which resolves to `"nejm"` under `clinical_mode`, `"nature"` under
+#'   `publication_ready`, and otherwise to `"bw"`. Pass an explicit value
+#'   to override the mode defaults.
+#' @param publication_ready Logical. If TRUE, applies publication-ready
+#'   defaults: the `"nature"` theme (unless `theme` is given
+#'   explicitly), a 95% confidence interval, and sample-size
+#'   annotations.
 #' @param statistical_annotations Logical. If TRUE, adds p-values and significance
 #'   indicators to the plots.
 #' @param test_method Character. Testing approach for group comparisons:
@@ -118,8 +87,24 @@ utils::globalVariables(c(
 #'   whether and how pairwise contrast annotations are added to
 #'   the plot. NULL (default) suppresses contrast display.
 #'
-#' @return A ggplot2 object or a combination of objects representing the requested
-#'   plots.
+#' @return A plot object whose class depends on how many panels were
+#'   assembled:
+#'   * a `ggplot` when `plot_type` is `"obs"` or `"change"`;
+#'   * a `patchwork` (which also inherits from `ggplot`) when
+#'     `plot_type = "both"`, or when `contrast_display = "table"` and
+#'     pairwise contrasts were produced, since the contrast table is
+#'     appended as an extra panel.
+#'
+#'   Because `contrast_display` can change the class independently of
+#'   `plot_type`, callers that manipulate the result programmatically
+#'   should test with `inherits(x, "patchwork")` rather than assume a
+#'   plain `ggplot`. Both classes print and both accept
+#'   [ggplot2::ggsave()].
+#'
+#' @seealso [compute_stats()] for the statistics underlying the plot,
+#'   [generate_plot()] for the lower-level renderer,
+#'   [parse_formula()] for the accepted formula syntax, and
+#'   [save_publication()] to export the result.
 #'
 #' @examples
 #' # Example with continuous x variable
@@ -141,7 +126,7 @@ utils::globalVariables(c(
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", summary_statistic = "median")
 #' 
-#' # Plot using mean ± SE (standard error)
+#' # Plot using mean +/- SE (standard error)
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id", summary_statistic = "mean_se")
 #'
@@ -196,7 +181,7 @@ lplot <- function(
   clinical_mode = FALSE, treatment_colors = NULL, confidence_interval = NULL,
   summary_statistic = "mean", show_sample_sizes = FALSE,
   sample_size_opts = list(),
-  theme = "bw",
+  theme = NULL,
   publication_ready = FALSE, statistical_annotations = FALSE,
   test_method = "parametric", p_adjust_method = "BH", cov_struct = "auto",
   reference_lines = NULL, ribbon_alpha = 0.2, ribbon_fill = NULL,
@@ -281,22 +266,45 @@ lplot <- function(
                  p_adjust_method, paste(valid_p_methods, collapse = ", ")))
   }
 
-  # Apply clinical mode defaults
+  # Validate confidence_interval. A value such as 95 (instead of 0.95)
+  # otherwise reaches stats::qt() and yields NaN bounds silently.
+  if (!is.null(confidence_interval)) {
+    if (!is.numeric(confidence_interval) ||
+        length(confidence_interval) != 1 ||
+        is.na(confidence_interval) ||
+        confidence_interval <= 0 || confidence_interval >= 1) {
+      stop(sprintf(
+        paste0("Invalid confidence_interval '%s'. Must be a single ",
+               "number strictly between 0 and 1 (e.g. 0.95, not 95)."),
+        paste(confidence_interval, collapse = ", ")
+      ))
+    }
+  }
+
+  # Mode defaults fill in only what the caller left unset. These use
+  # missing() rather than unconditional assignment so that an explicit
+  # show_sample_sizes = FALSE or statistical_annotations = FALSE is
+  # honored: enabling a styling mode must not silently switch on
+  # hypothesis testing.
   if (clinical_mode) {
     if (is.null(confidence_interval)) confidence_interval <- 0.95
-    if (is.null(treatment_colors)) treatment_colors <- "standard"  
-    show_sample_sizes <- TRUE
-    statistical_annotations <- TRUE
+    if (is.null(treatment_colors)) treatment_colors <- "standard"
+    if (missing(show_sample_sizes)) show_sample_sizes <- TRUE
+    if (missing(statistical_annotations)) statistical_annotations <- TRUE
     if (is.null(theme)) theme <- "nejm"
   }
-  
-  # Apply publication ready defaults  
+
+  # Apply publication ready defaults
   if (publication_ready) {
     if (is.null(theme)) theme <- "nature"
     if (is.null(confidence_interval)) confidence_interval <- 0.95
-    show_sample_sizes <- TRUE
+    if (missing(show_sample_sizes)) show_sample_sizes <- TRUE
   }
-  
+
+  # Fall back to the plain theme once the modes have had their say.
+  if (is.null(theme)) theme <- "bw"
+
+
   # Parse formulas
   parsed_form <- parse_formula(form)
   parsed_facet <- if (!is.null(facet_form)) parse_formula(facet_form) else NULL

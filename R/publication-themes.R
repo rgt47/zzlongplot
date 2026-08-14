@@ -34,6 +34,7 @@
 #'   geom_point() + 
 #'   theme_nature()
 #'   
+#' @family publication themes
 #' @export
 theme_nature <- function(base_size = 7, base_family = "sans", 
                          grid = FALSE, border = TRUE) {
@@ -50,7 +51,7 @@ theme_nature <- function(base_size = 7, base_family = "sans",
       
       # Grid lines (minimal or none)
       panel.grid.major = if (grid) {
-        ggplot2::element_line(colour = "#E5E5E5", size = 0.25, linetype = "solid")
+        ggplot2::element_line(colour = "#E5E5E5", linewidth = 0.25, linetype = "solid")
       } else {
         ggplot2::element_blank()
       },
@@ -58,18 +59,18 @@ theme_nature <- function(base_size = 7, base_family = "sans",
       
       # Panel border
       panel.border = if (border) {
-        ggplot2::element_rect(colour = "black", fill = NA, size = 0.5)
+        ggplot2::element_rect(colour = "black", fill = NA, linewidth = 0.5)
       } else {
         ggplot2::element_blank()
       },
       
       # Axes
       axis.line = if (!border) {
-        ggplot2::element_line(colour = "black", size = 0.5)
+        ggplot2::element_line(colour = "black", linewidth = 0.5)
       } else {
         ggplot2::element_blank()
       },
-      axis.ticks = ggplot2::element_line(colour = "black", size = 0.25),
+      axis.ticks = ggplot2::element_line(colour = "black", linewidth = 0.25),
       axis.ticks.length = ggplot2::unit(0.15, "cm"),
       axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
       axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1)),
@@ -100,7 +101,7 @@ theme_nature <- function(base_size = 7, base_family = "sans",
       legend.margin = ggplot2::margin(b = 10),
       
       # Strips (for faceting)
-      strip.background = ggplot2::element_rect(fill = "#F0F0F0", colour = "black", size = 0.5),
+      strip.background = ggplot2::element_rect(fill = "#F0F0F0", colour = "black", linewidth = 0.5),
       strip.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0), 
                                         margin = ggplot2::margin(4, 4, 4, 4)),
       
@@ -133,6 +134,7 @@ theme_nature <- function(base_size = 7, base_family = "sans",
 #'   geom_point() +
 #'   theme_science()
 #'
+#' @family publication themes
 #' @export
 theme_science <- function(base_size = 7, base_family = "sans", grid = TRUE) {
   
@@ -144,17 +146,17 @@ theme_science <- function(base_size = 7, base_family = "sans", grid = TRUE) {
       
       # Subtle grid lines
       panel.grid.major = if (grid) {
-        ggplot2::element_line(colour = "#F0F0F0", size = 0.25)
+        ggplot2::element_line(colour = "#F0F0F0", linewidth = 0.25)
       } else {
         ggplot2::element_blank()
       },
       panel.grid.minor = ggplot2::element_blank(),
       
       # Clean panel border
-      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 0.5),
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 0.5),
       
       # Axes
-      axis.ticks = ggplot2::element_line(colour = "black", size = 0.25),
+      axis.ticks = ggplot2::element_line(colour = "black", linewidth = 0.25),
       axis.ticks.length = ggplot2::unit(0.12, "cm"),
       axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
       axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1)),
@@ -201,6 +203,7 @@ theme_science <- function(base_size = 7, base_family = "sans", grid = TRUE) {
 #'   geom_point() +
 #'   theme_nejm()
 #'
+#' @family publication themes
 #' @export
 theme_nejm <- function(base_size = 8, base_family = "sans", clinical = TRUE) {
   
@@ -214,15 +217,15 @@ theme_nejm <- function(base_size = 8, base_family = "sans", clinical = TRUE) {
       panel.grid.major = if (clinical) {
         ggplot2::element_blank()
       } else {
-        ggplot2::element_line(colour = "#F5F5F5", size = 0.25)
+        ggplot2::element_line(colour = "#F5F5F5", linewidth = 0.25)
       },
       panel.grid.minor = ggplot2::element_blank(),
       
       # Strong panel border
-      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 0.75),
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 0.75),
       
       # Prominent axes for clinical data
-      axis.ticks = ggplot2::element_line(colour = "black", size = 0.5),
+      axis.ticks = ggplot2::element_line(colour = "black", linewidth = 0.5),
       axis.ticks.length = ggplot2::unit(0.2, "cm"),
       axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
       axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1), 
@@ -238,10 +241,10 @@ theme_nejm <- function(base_size = 8, base_family = "sans", clinical = TRUE) {
       legend.position = "bottom",
       legend.title = ggplot2::element_text(face = "bold"),
       legend.text = ggplot2::element_text(size = ggplot2::rel(0.9)),
-      legend.key = ggplot2::element_rect(fill = "white", colour = "black", size = 0.25),
+      legend.key = ggplot2::element_rect(fill = "white", colour = "black", linewidth = 0.25),
       
       # Clinical facet styling
-      strip.background = ggplot2::element_rect(fill = "#E8E8E8", colour = "black", size = 0.5),
+      strip.background = ggplot2::element_rect(fill = "#E8E8E8", colour = "black", linewidth = 0.5),
       strip.text = ggplot2::element_text(face = "bold", size = ggplot2::rel(1.0))
     )
 }
@@ -270,6 +273,7 @@ theme_nejm <- function(base_size = 8, base_family = "sans", clinical = TRUE) {
 #'   geom_point() +
 #'   theme_fda()
 #'
+#' @family publication themes
 #' @export
 theme_fda <- function(base_size = 10, base_family = "sans", high_contrast = TRUE) {
   
@@ -282,19 +286,19 @@ theme_fda <- function(base_size = 10, base_family = "sans", high_contrast = TRUE
       # Clear grid for data reading
       panel.grid.major = ggplot2::element_line(
         colour = if (high_contrast) "#D0D0D0" else "#F0F0F0", 
-        size = 0.25, linetype = "solid"
+        linewidth = 0.25, linetype = "solid"
       ),
       panel.grid.minor = ggplot2::element_line(
         colour = if (high_contrast) "#E8E8E8" else "#F8F8F8",
-        size = 0.125, linetype = "solid"
+        linewidth = 0.125, linetype = "solid"
       ),
       
       # Strong borders for regulatory clarity
-      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 1),
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1),
       
       # Regulatory-style axes
       axis.line = ggplot2::element_blank(),  # Use border instead
-      axis.ticks = ggplot2::element_line(colour = "black", size = 0.5),
+      axis.ticks = ggplot2::element_line(colour = "black", linewidth = 0.5),
       axis.ticks.length = ggplot2::unit(0.25, "cm"),
       axis.text = ggplot2::element_text(
         colour = "black", size = ggplot2::rel(0.9)
@@ -325,13 +329,13 @@ theme_fda <- function(base_size = 10, base_family = "sans", high_contrast = TRUE
       legend.text = ggplot2::element_text(size = ggplot2::rel(0.9)),
       legend.key = ggplot2::element_rect(
         fill = "white", colour = if (high_contrast) "black" else NA,
-        size = if (high_contrast) 0.25 else 0
+        linewidth = if (high_contrast) 0.25 else 0
       ),
       legend.key.size = ggplot2::unit(0.8, "cm"),
-      legend.background = ggplot2::element_rect(fill = "white", colour = "black", size = 0.25),
+      legend.background = ggplot2::element_rect(fill = "white", colour = "black", linewidth = 0.25),
       
       # Regulatory facet styling
-      strip.background = ggplot2::element_rect(fill = "#F0F0F0", colour = "black", size = 0.75),
+      strip.background = ggplot2::element_rect(fill = "#F0F0F0", colour = "black", linewidth = 0.75),
       strip.text = ggplot2::element_text(
         colour = "black", face = "bold", size = ggplot2::rel(1.0),
         margin = ggplot2::margin(6, 6, 6, 6)
@@ -365,6 +369,7 @@ theme_fda <- function(base_size = 10, base_family = "sans", high_contrast = TRUE
 #'   geom_point() +
 #'   theme_lancet()
 #'
+#' @family publication themes
 #' @export
 theme_lancet <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
@@ -376,17 +381,17 @@ theme_lancet <- function(base_size = 8, base_family = "sans", grid = FALSE) {
       
       # Grid lines
       panel.grid.major = if (grid) {
-        ggplot2::element_line(colour = "#F0F0F0", size = 0.25)
+        ggplot2::element_line(colour = "#F0F0F0", linewidth = 0.25)
       } else {
         ggplot2::element_blank()
       },
       panel.grid.minor = ggplot2::element_blank(),
       
       # Clean panel border
-      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 0.5),
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 0.5),
       
       # Axes
-      axis.ticks = ggplot2::element_line(colour = "black", size = 0.25),
+      axis.ticks = ggplot2::element_line(colour = "black", linewidth = 0.25),
       axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
       axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1)),
       
@@ -430,6 +435,7 @@ theme_lancet <- function(base_size = 8, base_family = "sans", grid = FALSE) {
 #'   geom_point() +
 #'   theme_jama()
 #'
+#' @family publication themes
 #' @export
 theme_jama <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
@@ -441,17 +447,17 @@ theme_jama <- function(base_size = 8, base_family = "sans", grid = FALSE) {
       
       # Grid lines
       panel.grid.major = if (grid) {
-        ggplot2::element_line(colour = "#F5F5F5", size = 0.25)
+        ggplot2::element_line(colour = "#F5F5F5", linewidth = 0.25)
       } else {
         ggplot2::element_blank()
       },
       panel.grid.minor = ggplot2::element_blank(),
       
       # Clean panel border
-      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 0.5),
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 0.5),
       
       # Axes
-      axis.ticks = ggplot2::element_line(colour = "black", size = 0.25),
+      axis.ticks = ggplot2::element_line(colour = "black", linewidth = 0.25),
       axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
       axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1)),
       
@@ -495,6 +501,7 @@ theme_jama <- function(base_size = 8, base_family = "sans", grid = FALSE) {
 #'   geom_point() +
 #'   theme_jco()
 #'
+#' @family publication themes
 #' @export
 theme_jco <- function(base_size = 8, base_family = "sans", grid = FALSE) {
   
@@ -506,17 +513,17 @@ theme_jco <- function(base_size = 8, base_family = "sans", grid = FALSE) {
       
       # Grid lines
       panel.grid.major = if (grid) {
-        ggplot2::element_line(colour = "#F0F0F0", size = 0.25)
+        ggplot2::element_line(colour = "#F0F0F0", linewidth = 0.25)
       } else {
         ggplot2::element_blank()
       },
       panel.grid.minor = ggplot2::element_blank(),
       
       # Clean panel border
-      panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 0.5),
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 0.5),
       
       # Axes
-      axis.ticks = ggplot2::element_line(colour = "black", size = 0.25),
+      axis.ticks = ggplot2::element_line(colour = "black", linewidth = 0.25),
       axis.text = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.0)),
       axis.title = ggplot2::element_text(colour = "black", size = ggplot2::rel(1.1)),
       
@@ -552,9 +559,9 @@ theme_jco <- function(base_size = 8, base_family = "sans", grid = FALSE) {
 #' @return A ggplot2 theme object.
 #'
 #' @details
-#' Designed for figures that will be printed in greyscale or photocopied.
+#' Designed for figures that will be printed in grayscale or photocopied.
 #' Uses high-contrast black-on-white styling with no color dependency.
-#' Pair with greyscale color scales and mapped linetype/shape aesthetics
+#' Pair with grayscale color scales and mapped linetype/shape aesthetics
 #' for full black-and-white compatibility.
 #'
 #' @examples
@@ -563,6 +570,7 @@ theme_jco <- function(base_size = 8, base_family = "sans", grid = FALSE) {
 #'   geom_point() +
 #'   theme_bw_print()
 #'
+#' @family publication themes
 #' @export
 theme_bw_print <- function(base_size = 10, base_family = "sans",
                            grid = TRUE) {
@@ -578,7 +586,7 @@ theme_bw_print <- function(base_size = 10, base_family = "sans",
 
       panel.grid.major = if (grid) {
         ggplot2::element_line(
-          colour = "grey85", size = 0.3, linetype = "dotted"
+          colour = "grey85", linewidth = 0.3, linetype = "dotted"
         )
       } else {
         ggplot2::element_blank()
@@ -586,11 +594,11 @@ theme_bw_print <- function(base_size = 10, base_family = "sans",
       panel.grid.minor = ggplot2::element_blank(),
 
       panel.border = ggplot2::element_rect(
-        colour = "black", fill = NA, size = 0.7
+        colour = "black", fill = NA, linewidth = 0.7
       ),
 
       axis.ticks = ggplot2::element_line(
-        colour = "black", size = 0.4
+        colour = "black", linewidth = 0.4
       ),
       axis.ticks.length = ggplot2::unit(0.2, "cm"),
       axis.text = ggplot2::element_text(
@@ -634,7 +642,7 @@ theme_bw_print <- function(base_size = 10, base_family = "sans",
       ),
 
       strip.background = ggplot2::element_rect(
-        fill = "grey90", colour = "black", size = 0.5
+        fill = "grey90", colour = "black", linewidth = 0.5
       ),
       strip.text = ggplot2::element_text(
         colour = "black", face = "bold",
@@ -651,16 +659,30 @@ theme_bw_print <- function(base_size = 10, base_family = "sans",
 #' @description
 #' Convenience function to get publication themes by name.
 #'
-#' @param theme_name Character string specifying theme name.
-#'   Options: "nature", "science", "nejm", "lancet", "jama", "jco", "fda", "default".
-#' @param ... Additional arguments passed to specific theme functions.
+#' @param theme_name Character string specifying theme name. Options:
+#'   `"nature"`, `"science"`, `"nejm"`, `"lancet"`, `"jama"`, `"jco"`,
+#'   `"fda"`, `"bw"`, `"default"`. `"bw"` is [theme_bw_print()] and is
+#'   the fallback used by [lplot()]; `"default"` is
+#'   [ggplot2::theme_bw()].
+#' @param ... Additional arguments passed to the selected theme
+#'   function. Note that the accepted arguments differ by theme: most
+#'   take `base_size`, `base_family`, and `grid`, whereas `"fda"` takes
+#'   `high_contrast`, `"nejm"` takes `clinical`, `"nature"` takes
+#'   `border`, and `"default"` accepts only [ggplot2::theme_bw()]'s
+#'   arguments.
 #'
-#' @return A ggplot2 theme object.
+#' @return A ggplot2 theme object (class `c("theme", "gg")`), suitable
+#'   for adding to a plot with `+`.
+#'
+#' @seealso The individual themes [theme_nature()], [theme_science()],
+#'   [theme_nejm()], [theme_lancet()], [theme_jama()], [theme_jco()],
+#'   [theme_fda()], [theme_bw_print()]; and
+#'   [apply_publication_style()] to apply a theme and palette together.
 #'
 #' @examples
 #' theme_pub <- get_publication_theme("nature")
 #' theme_reg <- get_publication_theme("fda", high_contrast = TRUE)
-#' 
+#'
 #' @export
 get_publication_theme <- function(theme_name = "nature", ...) {
   
@@ -696,20 +718,25 @@ get_publication_theme <- function(theme_name = "nature", ...) {
 #'   palettes: "nejm", "nature", "lancet", "jama", "science", "jco".
 #' @param ... Additional arguments passed to theme function.
 #'
-#' @return Modified ggplot object.
+#' @return The input `plot` with the named theme applied, and with a
+#'   manual color and fill scale added when `color_palette` names a
+#'   known palette. Returns a `ggplot` object; the input is not
+#'   modified in place.
 #'
-#' @examples  
-#' \dontrun{
+#' @seealso [get_publication_theme()] for the theme lookup this wraps,
+#'   [clinical_colors()] for the available palettes, and
+#'   [save_publication()] to export the styled result.
+#'
+#' @examples
 #' library(ggplot2)
 #' p <- ggplot(mtcars, aes(wt, mpg, color = factor(cyl))) + geom_point()
 #' p_pub <- apply_publication_style(p, "nature", "clinical")
-#' 
+#'
 #' # Apply journal-specific theme and colors together
 #' p_nejm <- apply_publication_style(p, "nejm", "nejm")
 #' p_nature <- apply_publication_style(p, "nature", "nature")
 #' p_lancet <- apply_publication_style(p, "lancet", "lancet")
-#' }
-#' 
+#'
 #' @export
 apply_publication_style <- function(plot, theme_name = "nature", 
                                    color_palette = NULL, ...) {

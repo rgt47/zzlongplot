@@ -21,3 +21,9 @@ efficacy_vars <- get_cdisc_template("efficacy")
 safety_vars <- get_cdisc_template("safety")
 
 }
+\seealso{
+Other CDISC utilities:
+\code{\link[=suggest_clinical_vars]{suggest_clinical_vars()}},
+\code{\link[=validate_cdisc_data]{validate_cdisc_data()}}
+}
+\concept{CDISC utilities}

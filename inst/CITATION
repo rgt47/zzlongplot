@@ -1,0 +1,12 @@
+citHeader("To cite zzlongplot in publications, please use:")
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "zzlongplot: Longitudinal Plotting with Clinical Trials Support",
+  author   = person("Ronald G.", "Thomas",
+                    email = "rgthomas@ucsd.edu",
+                    comment = c(ORCID = "0000-0003-1686-4965")),
+  year     = "2026",
+  note     = "R package version 0.2.0",
+  url      = "https://github.com/rgt47/zzlongplot"
+)

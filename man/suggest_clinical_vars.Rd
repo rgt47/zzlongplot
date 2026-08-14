@@ -12,13 +12,22 @@ suggest_clinical_vars(data, verbose = TRUE)
 \item{verbose}{Logical. If TRUE, provides detailed suggestions and warnings.}
 }
 \value{
-A list containing:
+Invisibly, a list of five elements. The function is normally
+called for its side effect: when \code{verbose = TRUE} (the default) it
+prints a formatted report to the console. Assign the result to
+inspect it.
 \itemize{
-\item suggested_formula: Recommended formula for lplot
-\item detected_vars: List of detected CDISC variables by category
-\item cluster_var: Recommended cluster variable (subject ID)
-\item baseline_value: Detected baseline visit value
-\item warnings: Any data quality or compliance issues
+\item \code{suggested_formula}: recommended formula for \code{\link[=lplot]{lplot()}}, as a
+character string, or \code{NA_character_} if required variables were
+not found.
+\item \code{detected_vars}: named list of detected CDISC variables by
+category (\code{subject_id}, \code{visit}, \code{analysis_value}, \code{treatment},
+\code{change}, \code{population}); entries are \code{character(0)} when nothing
+matched.
+\item \code{cluster_var}: recommended cluster variable (subject ID).
+\item \code{baseline_value}: detected baseline visit value.
+\item \code{warnings}: character vector of data-quality or compliance
+issues; \code{character(0)} when none.
 }
 }
 \description{
@@ -38,3 +47,12 @@ suggestions <- suggest_clinical_vars(clinical_data)
 print(suggestions$suggested_formula)
 
 }
+\seealso{
+\code{\link[=validate_cdisc_data]{validate_cdisc_data()}} for a compliance score, and
+\code{\link[=get_cdisc_template]{get_cdisc_template()}} for the expected variables of a scenario.
+
+Other CDISC utilities:
+\code{\link[=get_cdisc_template]{get_cdisc_template()}},
+\code{\link[=validate_cdisc_data]{validate_cdisc_data()}}
+}
+\concept{CDISC utilities}

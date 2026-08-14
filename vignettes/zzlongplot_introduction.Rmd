@@ -10,7 +10,7 @@ output:
     theme: united
     highlight: tango
 vignette: >
-  %\VignetteIndexEntry{Introduction to zzlongplot}
+  %\VignetteIndexEntry{zzlongplot: A Flexible Framework for Longitudinal Data Visualization}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

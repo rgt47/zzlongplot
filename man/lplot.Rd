@@ -29,7 +29,7 @@ lplot(
   summary_statistic = "mean",
   show_sample_sizes = FALSE,
   sample_size_opts = list(),
-  theme = "bw",
+  theme = NULL,
   publication_ready = FALSE,
   statistical_annotations = FALSE,
   test_method = "parametric",
@@ -86,7 +86,7 @@ numeric visit variables, uses the minimum value.}
 (shaded areas around the line).}
 
 \item{jitter_width}{Numeric. Width of horizontal jitter for error bars when
-multiple groups are present. Default is 0.1. Set to 0 to disable jittering.
+multiple groups are present. Default is 0.15. Set to 0 to disable jittering.
 Only applies when error_type = "bar".}
 
 \item{color_palette}{Optional vector of colors to use for groups. If NULL,
@@ -96,13 +96,13 @@ default ggplot colors are used.}
 (95\% CI, sample sizes, clinical colors). Default is FALSE.}
 
 \item{treatment_colors}{Character. Predefined color scheme for treatments.
-Options: "standard" (placebo=grey, active=colors), or NULL.}
+Options: "standard" (placebo=gray, active=colors), or NULL.}
 
 \item{confidence_interval}{Numeric. Confidence level for error bounds
 (e.g., 0.95 for 95\% CI). If NULL, uses standard error.}
 
 \item{summary_statistic}{Character. Type of summary statistic to calculate.
-Options: "mean" (mean ± CI/SE), "mean_se" (mean ± SE), "median" (median + IQR),
+Options: "mean" (mean +/- CI/SE), "mean_se" (mean +/- SE), "median" (median + IQR),
 or "boxplot" (boxplot summary with quartiles). Default is "mean".}
 
 \item{show_sample_sizes}{Logical. If TRUE, shows sample sizes at each timepoint.}
@@ -113,12 +113,17 @@ Key option: position = "point" (default, labels next to points) or
 for all available options.}
 
 \item{theme}{Character. Predefined publication theme with matching colors.
-Options: "bw", "nejm", "nature", "lancet", "jama", "science", "jco", "fda",
-or NULL. Defaults to "bw". Applies both typography/layout AND journal-specific
-color palette automatically.}
+Options: "bw", "nejm", "nature", "lancet", "jama", "science", "jco",
+"fda", or "default". Applies both typography/layout AND, where one
+exists, the journal-specific color palette. Defaults to \code{NULL},
+which resolves to \code{"nejm"} under \code{clinical_mode}, \code{"nature"} under
+\code{publication_ready}, and otherwise to \code{"bw"}. Pass an explicit value
+to override the mode defaults.}
 
-\item{publication_ready}{Logical. If TRUE, applies publication-ready defaults
-(professional theme, proper typography, clean styling).}
+\item{publication_ready}{Logical. If TRUE, applies publication-ready
+defaults: the \code{"nature"} theme (unless \code{theme} is given
+explicitly), a 95\% confidence interval, and sample-size
+annotations.}
 
 \item{statistical_annotations}{Logical. If TRUE, adds p-values and significance
 indicators to the plots.}
@@ -155,8 +160,21 @@ whether and how pairwise contrast annotations are added to
 the plot. NULL (default) suppresses contrast display.}
 }
 \value{
-A ggplot2 object or a combination of objects representing the requested
-plots.
+A plot object whose class depends on how many panels were
+assembled:
+\itemize{
+\item a \code{ggplot} when \code{plot_type} is \code{"obs"} or \code{"change"};
+\item a \code{patchwork} (which also inherits from \code{ggplot}) when
+\code{plot_type = "both"}, or when \code{contrast_display = "table"} and
+pairwise contrasts were produced, since the contrast table is
+appended as an extra panel.
+}
+
+Because \code{contrast_display} can change the class independently of
+\code{plot_type}, callers that manipulate the result programmatically
+should test with \code{inherits(x, "patchwork")} rather than assume a
+plain \code{ggplot}. Both classes print and both accept
+\code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.
 }
 \description{
 Generates flexible plots for longitudinal data, showing either
@@ -182,7 +200,7 @@ lplot(df, measure ~ visit | group, baseline_value = 0,
 lplot(df, measure ~ visit | group, baseline_value = 0,
       cluster_var = "subject_id", summary_statistic = "median")
 
-# Plot using mean ± SE (standard error)
+# Plot using mean +/- SE (standard error)
 lplot(df, measure ~ visit | group, baseline_value = 0,
       cluster_var = "subject_id", summary_statistic = "mean_se")
 
@@ -227,4 +245,10 @@ lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
       clinical_mode = TRUE, plot_type = "both",
       title = "Clinical Trial Results")
 
+}
+\seealso{
+\code{\link[=compute_stats]{compute_stats()}} for the statistics underlying the plot,
+\code{\link[=generate_plot]{generate_plot()}} for the lower-level renderer,
+\code{\link[=parse_formula]{parse_formula()}} for the accepted formula syntax, and
+\code{\link[=save_publication]{save_publication()}} to export the result.
 }

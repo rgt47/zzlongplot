@@ -21,13 +21,16 @@ apply_clinical_colors(
 \item{...}{Additional arguments passed to scale_color_manual and scale_fill_manual.}
 }
 \value{
-Modified ggplot object with clinical colors applied.
+The input \code{plot} with manual color and fill scales added,
+assigning gray to any detected placebo or control level and
+distinct colors to the active arms. If \code{treatment_var} is not a
+column of the plot's data, the plot is returned \strong{unchanged} and a
+warning is issued.
 }
 \description{
 Convenience function to apply clinical color schemes to ggplot objects.
 }
 \examples{
-\dontrun{
 library(ggplot2)
 
 # Create sample data
@@ -43,6 +46,17 @@ p <- ggplot(data, aes(x = visit, y = efficacy, color = treatment)) +
 
 # Apply clinical colors
 p_clinical <- apply_clinical_colors(p, "treatment")
-}
 
 }
+\seealso{
+\code{\link[=assign_treatment_colors]{assign_treatment_colors()}} for the underlying name-to-color
+mapping, \code{\link[=clinical_colors]{clinical_colors()}} for the palettes, and
+\code{\link[=apply_publication_style]{apply_publication_style()}} to apply a journal theme at the same
+time.
+
+Other color helpers:
+\code{\link[=assign_treatment_colors]{assign_treatment_colors()}},
+\code{\link[=clinical_colors]{clinical_colors()}},
+\code{\link[=get_colorblind_palette]{get_colorblind_palette()}}
+}
+\concept{color helpers}

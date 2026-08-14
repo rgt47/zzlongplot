@@ -31,35 +31,46 @@
 #'   geom_line() +
 #'   scale_color_manual(values = colors)
 #'
+#' @family color helpers
 #' @export
 get_colorblind_palette <- function(n = 8, type = "qualitative") {
-  # Check for RColorBrewer package
-  if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
-    warning("RColorBrewer package not available. Using default ggplot2 colors.")
-    return(NULL)
+  if (!is.numeric(n) || length(n) != 1 || is.na(n) || n < 1 ||
+      n != as.integer(n)) {
+    stop(sprintf(
+      "'n' must be a single positive whole number, not '%s'.",
+      paste(n, collapse = ", ")
+    ))
   }
-  
-  # Select palette type
+
+  valid_types <- c("qualitative", "sequential", "diverging")
+  if (!is.character(type) || length(type) != 1 || !type %in% valid_types) {
+    stop(sprintf(
+      "Invalid type '%s'. Must be one of: %s",
+      paste(type, collapse = ", "), paste(valid_types, collapse = ", ")
+    ))
+  }
+
   palette_name <- switch(
     type,
     qualitative = "Dark2",
     sequential = "Blues",
-    diverging = "RdBu",
-    "Dark2"  # Default to qualitative
+    diverging = "RdBu"
   )
-  
+
   # Get maximum colors for the palette
   max_colors <- RColorBrewer::brewer.pal.info[palette_name, "maxcolors"]
-  
-  # Generate colors
+
+  # Generate colors. brewer.pal() has a floor of 3 and warns below it,
+  # so request the floor and take the first n.
   if (n <= max_colors) {
-    colors <- RColorBrewer::brewer.pal(n, palette_name)
+    colors <- RColorBrewer::brewer.pal(max(3L, as.integer(n)),
+                                       palette_name)[seq_len(n)]
   } else {
     # If more colors needed than available, interpolate
     colors <- grDevices::colorRampPalette(
       RColorBrewer::brewer.pal(max_colors, palette_name)
     )(n)
   }
-  
-  return(colors)
+
+  colors
 }

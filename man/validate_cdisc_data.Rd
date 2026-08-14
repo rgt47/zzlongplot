@@ -18,7 +18,20 @@ validate_cdisc_data(
 \item{check_population_flags}{Logical. Whether to check for population flags.}
 }
 \value{
-A list containing compliance score and recommendations.
+A list of six elements, returned visibly:
+\itemize{
+\item \code{compliance_score}: overall score as a percentage of
+\code{max_possible_score}.
+\item \code{score_breakdown}: named list of the seven component scores
+(\code{required_vars}, \code{subject_id}, \code{visit_vars}, \code{analysis_values},
+\code{change_vars}, \code{treatment_vars}, \code{population_flags}).
+\item \code{issues}: character vector of detected compliance problems;
+\code{character(0)} when none.
+\item \code{recommendations}: character vector of suggested remedies;
+\code{character(0)} when none.
+\item \code{max_possible_score}: the denominator used, normally \code{100}.
+\item \code{actual_score}: the unnormalized points awarded.
+}
 }
 \description{
 Checks a clinical dataset for compliance with CDISC standards and
@@ -34,3 +47,13 @@ validation <- validate_cdisc_data(clinical_data)
 print(validation$compliance_score)
 
 }
+\seealso{
+\code{\link[=suggest_clinical_vars]{suggest_clinical_vars()}} to detect CDISC variables and
+build a formula, and \code{\link[=get_cdisc_template]{get_cdisc_template()}} for the expected
+variable set of a given analysis scenario.
+
+Other CDISC utilities:
+\code{\link[=get_cdisc_template]{get_cdisc_template()}},
+\code{\link[=suggest_clinical_vars]{suggest_clinical_vars()}}
+}
+\concept{CDISC utilities}

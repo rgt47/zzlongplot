@@ -4,15 +4,16 @@ Version: 0.2.0
 Authors@R: 
     person("Ronald G.", "Thomas", , "rgthomas@ucsd.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1686-4965"))
-Description: A package to flexibly define longitudinal plots with optional
-    grouping, change scores plot, and facetting. Includes specialized support
-    for clinical trials with CDISC compliance, regulatory themes, and 
-    publication-ready output. 
+Description: Provides a formula interface for defining longitudinal plots
+    with optional grouping, change-from-baseline panels, and faceting.
+    Includes specialized support for clinical trials with CDISC variable
+    detection, regulatory and journal themes, and publication-ready
+    export.
 License: GPL (>= 3)
 Encoding: UTF-8
+Language: en-US
 Depends: R (>= 4.1.0)
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 URL: https://github.com/rgt47/zzlongplot
 BugReports: https://github.com/rgt47/zzlongplot/issues
 Suggests:
@@ -20,15 +21,16 @@ Suggests:
     knitr,
     rmarkdown,
     conflicted,
-    survival,
-    survminer,
-    forestplot,
-    meta,
     mmrm,
     emmeans
 Imports:
     dplyr,
     ggplot2,
+    grDevices,
     patchwork,
-    RColorBrewer
+    RColorBrewer,
+    stats,
+    tools,
+    utils
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

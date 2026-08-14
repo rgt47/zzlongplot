@@ -10,7 +10,12 @@ get_journal_specs(journal)
 \item{journal}{Character string specifying journal name.}
 }
 \value{
-List containing journal specifications.
+A list of 11 elements describing the journal's figure
+requirements: \code{name} (display name), \code{single_column_mm} and
+\code{double_column_mm} (figure widths), \code{max_height_mm}, \code{min_dpi} and
+\code{preferred_dpi}, \code{font_size} (points), \code{font_family}, \code{formats}
+(character vector of accepted file extensions), \code{color_mode}
+(e.g. \code{"RGB"} or \code{"CMYK"}), and \code{notes} (free text).
 }
 \description{
 Returns formatting specifications for a specific journal.
@@ -20,3 +25,13 @@ nature_specs <- get_journal_specs("nature")
 print(nature_specs$preferred_dpi)
 
 }
+\seealso{
+\code{\link[=list_journals]{list_journals()}} for all journals at once, and
+\code{\link[=save_publication]{save_publication()}} which applies these specifications.
+
+Other publication export:
+\code{\link[=list_journals]{list_journals()}},
+\code{\link[=publication_panels]{publication_panels()}},
+\code{\link[=save_publication]{save_publication()}}
+}
+\concept{publication export}

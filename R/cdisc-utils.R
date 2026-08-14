@@ -1,12 +1,9 @@
-#' CDISC Variable Recognition and Utilities
-#'
-#' @description
-#' Functions to automatically detect and work with CDISC (Clinical Data Interchange
-#' Standards Consortium) variable naming conventions commonly used in clinical trials.
-#'
-#' @details
-#' These functions help identify standard CDISC variable names and provide
-#' suggestions for proper formula construction in longitudinal clinical trial analysis.
+# CDISC Variable Recognition and Utilities
+#
+# Functions to automatically detect and work with CDISC (Clinical Data
+# Interchange Standards Consortium) variable naming conventions commonly
+# used in clinical trials. They help identify standard CDISC variable
+# names and suggest formula construction for longitudinal analysis.
 
 # CDISC Variable Lookup Tables
 .cdisc_lookup <- list(
@@ -79,14 +76,26 @@
 #' @param data A data frame containing clinical trial data.
 #' @param verbose Logical. If TRUE, provides detailed suggestions and warnings.
 #'
-#' @return A list containing:
+#' @return Invisibly, a list of five elements. The function is normally
+#'   called for its side effect: when `verbose = TRUE` (the default) it
+#'   prints a formatted report to the console. Assign the result to
+#'   inspect it.
 #' \itemize{
-#'   \item suggested_formula: Recommended formula for lplot
-#'   \item detected_vars: List of detected CDISC variables by category
-#'   \item cluster_var: Recommended cluster variable (subject ID)
-#'   \item baseline_value: Detected baseline visit value
-#'   \item warnings: Any data quality or compliance issues
+#'   \item `suggested_formula`: recommended formula for [lplot()], as a
+#'     character string, or `NA_character_` if required variables were
+#'     not found.
+#'   \item `detected_vars`: named list of detected CDISC variables by
+#'     category (`subject_id`, `visit`, `analysis_value`, `treatment`,
+#'     `change`, `population`); entries are `character(0)` when nothing
+#'     matched.
+#'   \item `cluster_var`: recommended cluster variable (subject ID).
+#'   \item `baseline_value`: detected baseline visit value.
+#'   \item `warnings`: character vector of data-quality or compliance
+#'     issues; `character(0)` when none.
 #' }
+#'
+#' @seealso [validate_cdisc_data()] for a compliance score, and
+#'   [get_cdisc_template()] for the expected variables of a scenario.
 #'
 #' @examples
 #' # Clinical trial dataset
@@ -100,6 +109,7 @@
 #' suggestions <- suggest_clinical_vars(clinical_data)
 #' print(suggestions$suggested_formula)
 #' 
+#' @family CDISC utilities
 #' @export
 suggest_clinical_vars <- function(data, verbose = TRUE) {
   
@@ -286,7 +296,22 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
 #' @param required_vars Character vector of variables that must be present.
 #' @param check_population_flags Logical. Whether to check for population flags.
 #'
-#' @return A list containing compliance score and recommendations.
+#' @return A list of six elements, returned visibly:
+#'   * `compliance_score`: overall score as a percentage of
+#'     `max_possible_score`.
+#'   * `score_breakdown`: named list of the seven component scores
+#'     (`required_vars`, `subject_id`, `visit_vars`, `analysis_values`,
+#'     `change_vars`, `treatment_vars`, `population_flags`).
+#'   * `issues`: character vector of detected compliance problems;
+#'     `character(0)` when none.
+#'   * `recommendations`: character vector of suggested remedies;
+#'     `character(0)` when none.
+#'   * `max_possible_score`: the denominator used, normally `100`.
+#'   * `actual_score`: the unnormalized points awarded.
+#'
+#' @seealso [suggest_clinical_vars()] to detect CDISC variables and
+#'   build a formula, and [get_cdisc_template()] for the expected
+#'   variable set of a given analysis scenario.
 #'
 #' @examples
 #' clinical_data <- data.frame(
@@ -297,6 +322,7 @@ suggest_clinical_vars <- function(data, verbose = TRUE) {
 #' validation <- validate_cdisc_data(clinical_data)
 #' print(validation$compliance_score)
 #' 
+#' @family CDISC utilities
 #' @export
 validate_cdisc_data <- function(data, 
                                  required_vars = c("USUBJID", "AVISITN", "AVAL"),
@@ -413,6 +439,7 @@ validate_cdisc_data <- function(data,
 #' efficacy_vars <- get_cdisc_template("efficacy")
 #' safety_vars <- get_cdisc_template("safety")
 #' 
+#' @family CDISC utilities
 #' @export
 get_cdisc_template <- function(scenario = "efficacy") {
   

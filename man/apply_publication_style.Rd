@@ -18,14 +18,15 @@ palettes: "nejm", "nature", "lancet", "jama", "science", "jco".}
 \item{...}{Additional arguments passed to theme function.}
 }
 \value{
-Modified ggplot object.
+The input \code{plot} with the named theme applied, and with a
+manual color and fill scale added when \code{color_palette} names a
+known palette. Returns a \code{ggplot} object; the input is not
+modified in place.
 }
 \description{
 Convenience function that applies both publication theme and appropriate color palette.
 }
 \examples{
- 
-\dontrun{
 library(ggplot2)
 p <- ggplot(mtcars, aes(wt, mpg, color = factor(cyl))) + geom_point()
 p_pub <- apply_publication_style(p, "nature", "clinical")
@@ -34,6 +35,10 @@ p_pub <- apply_publication_style(p, "nature", "clinical")
 p_nejm <- apply_publication_style(p, "nejm", "nejm")
 p_nature <- apply_publication_style(p, "nature", "nature")
 p_lancet <- apply_publication_style(p, "lancet", "lancet")
-}
 
+}
+\seealso{
+\code{\link[=get_publication_theme]{get_publication_theme()}} for the theme lookup this wraps,
+\code{\link[=clinical_colors]{clinical_colors()}} for the available palettes, and
+\code{\link[=save_publication]{save_publication()}} to export the styled result.
 }

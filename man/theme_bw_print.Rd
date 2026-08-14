@@ -23,9 +23,9 @@ Creates a theme optimized for monochrome (black-and-white) printing.
 Groups are distinguished by linetype and point shape rather than color.
 }
 \details{
-Designed for figures that will be printed in greyscale or photocopied.
+Designed for figures that will be printed in grayscale or photocopied.
 Uses high-contrast black-on-white styling with no color dependency.
-Pair with greyscale color scales and mapped linetype/shape aesthetics
+Pair with grayscale color scales and mapped linetype/shape aesthetics
 for full black-and-white compatibility.
 }
 \examples{
@@ -35,3 +35,14 @@ ggplot(mtcars, aes(wt, mpg)) +
   theme_bw_print()
 
 }
+\seealso{
+Other publication themes:
+\code{\link[=theme_fda]{theme_fda()}},
+\code{\link[=theme_jama]{theme_jama()}},
+\code{\link[=theme_jco]{theme_jco()}},
+\code{\link[=theme_lancet]{theme_lancet()}},
+\code{\link[=theme_nature]{theme_nature()}},
+\code{\link[=theme_nejm]{theme_nejm()}},
+\code{\link[=theme_science]{theme_science()}}
+}
+\concept{publication themes}

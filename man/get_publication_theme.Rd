@@ -7,13 +7,22 @@
 get_publication_theme(theme_name = "nature", ...)
 }
 \arguments{
-\item{theme_name}{Character string specifying theme name.
-Options: "nature", "science", "nejm", "lancet", "jama", "jco", "fda", "default".}
+\item{theme_name}{Character string specifying theme name. Options:
+\code{"nature"}, \code{"science"}, \code{"nejm"}, \code{"lancet"}, \code{"jama"}, \code{"jco"},
+\code{"fda"}, \code{"bw"}, \code{"default"}. \code{"bw"} is \code{\link[=theme_bw_print]{theme_bw_print()}} and is
+the fallback used by \code{\link[=lplot]{lplot()}}; \code{"default"} is
+\code{\link[ggplot2:theme_bw]{ggplot2::theme_bw()}}.}
 
-\item{...}{Additional arguments passed to specific theme functions.}
+\item{...}{Additional arguments passed to the selected theme
+function. Note that the accepted arguments differ by theme: most
+take \code{base_size}, \code{base_family}, and \code{grid}, whereas \code{"fda"} takes
+\code{high_contrast}, \code{"nejm"} takes \code{clinical}, \code{"nature"} takes
+\code{border}, and \code{"default"} accepts only \code{\link[ggplot2:theme_bw]{ggplot2::theme_bw()}}'s
+arguments.}
 }
 \value{
-A ggplot2 theme object.
+A ggplot2 theme object (class \code{c("theme", "gg")}), suitable
+for adding to a plot with \code{+}.
 }
 \description{
 Convenience function to get publication themes by name.
@@ -22,4 +31,10 @@ Convenience function to get publication themes by name.
 theme_pub <- get_publication_theme("nature")
 theme_reg <- get_publication_theme("fda", high_contrast = TRUE)
 
+}
+\seealso{
+The individual themes \code{\link[=theme_nature]{theme_nature()}}, \code{\link[=theme_science]{theme_science()}},
+\code{\link[=theme_nejm]{theme_nejm()}}, \code{\link[=theme_lancet]{theme_lancet()}}, \code{\link[=theme_jama]{theme_jama()}}, \code{\link[=theme_jco]{theme_jco()}},
+\code{\link[=theme_fda]{theme_fda()}}, \code{\link[=theme_bw_print]{theme_bw_print()}}; and
+\code{\link[=apply_publication_style]{apply_publication_style()}} to apply a theme and palette together.
 }
