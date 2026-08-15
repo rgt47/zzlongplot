@@ -16,6 +16,15 @@ requirements: \code{name} (display name), \code{single_column_mm} and
 \code{preferred_dpi}, \code{font_size} (points), \code{font_family}, \code{formats}
 (character vector of accepted file extensions), \code{color_mode}
 (e.g. \code{"RGB"} or \code{"CMYK"}), and \code{notes} (free text).
+
+Any element is \code{NA} when the journal does not publish that
+specification. \code{NA} means "not stated by the journal", never
+"unknown to this package": no value here is inferred or assumed.
+The \emph{New England Journal of Medicine}, for instance, publishes
+accepted formats but no width, height, type size, or color mode,
+because it redraws every accepted figure in its own house style.
+\code{\link[=save_publication]{save_publication()}} substitutes a general print default for any
+\code{NA} it needs and reports having done so.
 }
 \description{
 Returns formatting specifications for a specific journal.

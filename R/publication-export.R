@@ -59,18 +59,35 @@
     )
   ),
   
+  # NEJM's Technical Guidelines for Figures state accepted formats and a
+  # single resolution rule (1200 dpi, for black-and-white line art
+  # submitted as BMP). They state no column widths, no maximum height,
+  # no type size, and no color mode:
+  #   https://www.nejm.org/pb-assets/pdfs/Technical-Guidelines-for-Figures-1511366945697.pdf
+  #   https://www.nejm.org/author-center/new-manuscripts
+  # Those fields are therefore NA rather than invented; save_publication()
+  # falls back to general print defaults and says so. NEJM redraws all
+  # accepted figures in its own house style, so what matters at
+  # submission is a vector file with live text carrying the complete
+  # data and labels, not a pixel-faithful rendering.
   nejm = list(
     name = "New England Journal of Medicine",
-    single_column_mm = 85,
-    double_column_mm = 170,
-    max_height_mm = 200,
-    min_dpi = 600,
-    preferred_dpi = 600,
-    font_size = 8,
-    font_family = "sans",
-    formats = c("tiff", "eps", "pdf"),
-    color_mode = "RGB",
-    notes = "Clinical publication standards"
+    single_column_mm = NA_real_,
+    double_column_mm = NA_real_,
+    max_height_mm = NA_real_,
+    min_dpi = NA_real_,
+    preferred_dpi = NA_real_,
+    font_size = NA_real_,
+    font_family = NA_character_,
+    formats = c("ai", "pdf", "eps", "tiff", "psd", "jpeg"),
+    color_mode = NA_character_,
+    notes = paste(
+      "NEJM prefers Adobe Illustrator or unlocked vector PDF for graphs;",
+      "EPS, TIFF, PSD and maximum-quality JPEG are accepted but not",
+      "preferred. 1200 dpi applies to black-and-white line art in BMP.",
+      "No column width, height, type size or color mode is published;",
+      "all accepted figures are redrawn in house style."
+    )
   ),
   
   cell = list(
@@ -87,32 +104,80 @@
     notes = "Cell Press standards"
   ),
   
+  # FDA and EMA are regulators, not journals: they specify the
+  # submission *document*, not a figure column grid, so there is no
+  # single-column width and single_column_mm is NA. The widths below
+  # are the usable print area implied by the stated page size and
+  # margins, which is the largest a figure can be.
+  #
+  # FDA, Portable Document Format (PDF) Specifications (incorporated by
+  # reference into the eCTD guidance):
+  #   https://www.fda.gov/files/drugs/published/Portable-Document-Format-Specifications.pdf
+  #   "Set up the print area for pages to fit on a sheet of paper that
+  #    is 8.5 inches by 11 inches. A margin of at least 3/4 of an inch
+  #    on the left side ... at least 3/8 of an inch on the other sides"
+  #    -> 215.9 - 19.05 - 9.525 = 187.3 mm wide, 260.4 mm tall.
+  #   "Use font sizes ranging from 9 to 12 point." Times New Roman
+  #    12 pt for narrative, 9-10 pt in tables, 10 pt footnotes.
+  #   Scanning table: plotter output graphics 300 dpi; photographs
+  #    600 dpi. "Black is the recommended font color."
+  #   Image colour matching: "for printing, there is more control over
+  #    the color by using CMYK ... as opposed to the RGB model."
   fda = list(
     name = "FDA Regulatory",
-    single_column_mm = 100,
-    double_column_mm = 200,
-    max_height_mm = 250,
-    min_dpi = 600,
+    single_column_mm = NA_real_,
+    double_column_mm = 187,
+    max_height_mm = 260,
+    min_dpi = 300,
     preferred_dpi = 600,
-    font_size = 10,
-    font_family = "sans",
-    formats = c("pdf", "tiff"),
-    color_mode = "RGB",
-    notes = "FDA regulatory submission standards"
+    font_size = 12,
+    font_family = "Times New Roman",
+    formats = "pdf",
+    color_mode = "CMYK",
+    notes = paste(
+      "FDA PDF Specifications: print area fits 8.5 x 11 in with 3/4 in",
+      "binding and 3/8 in other margins, giving 187 x 260 mm usable.",
+      "Type 9-12 pt, 12 pt Times New Roman for narrative, black.",
+      "300 dpi for plotter graphics and 600 dpi for photographs apply",
+      "to scanned images; submit vector PDF where possible.",
+      "No figure column grid is defined."
+    )
   ),
-  
+
+  # EMA's Harmonised Technical Guidance for eCTD Submissions in the EU
+  # (v4.0) specifies only PDF version, font embedding, tagging and Fast
+  # Web View, and defers PDF detail to the ICH specification:
+  #   https://esubmission.ema.europa.eu/tiges/docs/eCTD%20Guidance%20v4%200-20160422-final.pdf
+  # The operative numbers are therefore ICH's, Specification for PDF
+  # Formatted Documents in Regulatory Submissions v1.0, section 2.6:
+  #   https://admin.ich.org/sites/default/files/inline-files/Specification_for_PDF_Format_v1_0.pdf
+  #   "The print area for pages should fit on both a sheet of A4
+  #    (210 x 297 mm) and Letter (8.5" x 11") paper. A sufficient
+  #    margin of at least 2.5 cm on the binding edge ... The remaining
+  #    margins should be a minimum of 1.0 cm."
+  #    -> 210 - 25 - 10 = 175 mm wide; 279.4 - 20 = 259 mm tall.
+  #   Section 2.4.1: "You should use font sizes ranging from 9 to 12
+  #    points." Section 2.4.2: "The use of a black font colour is
+  #    recommended." Same scanning dpi table as FDA.
   ema = list(
-    name = "EMA Regulatory", 
-    single_column_mm = 100,
-    double_column_mm = 200,
-    max_height_mm = 250,
-    min_dpi = 600,
+    name = "EMA Regulatory",
+    single_column_mm = NA_real_,
+    double_column_mm = 175,
+    max_height_mm = 259,
+    min_dpi = 300,
     preferred_dpi = 600,
-    font_size = 10,
-    font_family = "sans",
-    formats = c("pdf", "tiff"),
-    color_mode = "RGB",
-    notes = "EMA regulatory submission standards"
+    font_size = 12,
+    font_family = "Times New Roman",
+    formats = "pdf",
+    color_mode = NA_character_,
+    notes = paste(
+      "EMA defers PDF detail to the ICH PDF specification: print area",
+      "must fit both A4 and Letter with a 2.5 cm binding margin and",
+      "1.0 cm elsewhere, giving 175 x 259 mm usable. Type 9-12 pt,",
+      "black. Embed all fonts. 300/600 dpi apply to scanned images;",
+      "submit vector PDF where possible. EMA states no colour mode.",
+      "No figure column grid is defined."
+    )
   )
 )
 
@@ -127,8 +192,12 @@
 #'   File extension determines format if not specified in format parameter.
 #' @param journal Character string specifying journal name. 
 #'   Options: "nature", "science", "nejm", "cell", "fda", "ema".
-#' @param width_mm Numeric. Plot width in millimeters. 
-#'   If NULL, uses journal's single column width.
+#' @param width_mm Numeric. Plot width in millimeters. If NULL, uses
+#'   the journal's column width for `column_type`. When the journal
+#'   publishes no width (see [get_journal_specs()]), a general print
+#'   default of 90 mm single / 180 mm double is substituted and a
+#'   message names it as the package's default rather than the
+#'   journal's.
 #' @param height_mm Numeric. Plot height in millimeters. 
 #'   If NULL, calculated from plot aspect ratio.
 #' @param dpi Numeric. Resolution in dots per inch. 
@@ -191,31 +260,57 @@ save_publication <- function(plot, filename, journal = "nature",
                     format, specs$name, paste(specs$formats, collapse = ", ")))
   }
   
+  # Some journals publish no dimensional specification at all. Rather
+  # than invent one, those fields are NA and a general print default is
+  # substituted, recorded here so the caller is told which numbers are
+  # the journal's and which are ours.
+  substituted <- character(0)
+  spec_or <- function(value, default, label) {
+    if (is.null(value) || length(value) != 1 || is.na(value)) {
+      substituted <<- c(substituted, label)
+      default
+    } else {
+      value
+    }
+  }
+
   # Set width based on column type
   if (is.null(width_mm)) {
     width_mm <- if (column_type == "single") {
-      specs$single_column_mm
+      spec_or(specs$single_column_mm, 90, "column width")
     } else {
-      specs$double_column_mm
+      spec_or(specs$double_column_mm, 180, "column width")
     }
   }
-  
+
   # Set DPI
   if (is.null(dpi)) {
-    dpi <- specs$preferred_dpi
-  } else if (dpi < specs$min_dpi) {
-    warning(sprintf("DPI %d is below %s minimum of %d DPI", 
+    dpi <- spec_or(specs$preferred_dpi, 600, "resolution")
+  } else if (!is.na(specs$min_dpi) && dpi < specs$min_dpi) {
+    warning(sprintf("DPI %d is below %s minimum of %d DPI",
                     dpi, specs$name, specs$min_dpi))
   }
-  
+
+  if (length(substituted) > 0) {
+    message(sprintf(
+      paste0("%s publishes no %s specification; using the package ",
+             "default (%d mm wide at %d dpi). Pass width_mm and dpi ",
+             "explicitly to override."),
+      specs$name, paste(unique(substituted), collapse = " or "),
+      round(width_mm), round(dpi)
+    ))
+  }
+
   # Add panel label if specified
   if (!is.null(panel_label) && add_label_to_plot) {
     plot <- plot + 
       ggplot2::annotation_custom(
         ggplot2::ggplotGrob(
           ggplot2::ggplot() + 
-            ggplot2::annotate("text", x = 0, y = 0, label = panel_label, 
-                             size = specs$font_size * 1.5, fontface = "bold") +
+            ggplot2::annotate("text", x = 0, y = 0, label = panel_label,
+                             size = spec_or(specs$font_size, 10,
+                                            "type size") * 1.5,
+                             fontface = "bold") +
             ggplot2::theme_void()
         ),
         xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf
@@ -407,6 +502,15 @@ publication_panels <- function(plots, labels = NULL, layout = "horizontal",
 #'   `preferred_dpi`, `font_size` (points), `font_family`, `formats`
 #'   (character vector of accepted file extensions), `color_mode`
 #'   (e.g. `"RGB"` or `"CMYK"`), and `notes` (free text).
+#'
+#'   Any element is `NA` when the journal does not publish that
+#'   specification. `NA` means "not stated by the journal", never
+#'   "unknown to this package": no value here is inferred or assumed.
+#'   The *New England Journal of Medicine*, for instance, publishes
+#'   accepted formats but no width, height, type size, or color mode,
+#'   because it redraws every accepted figure in its own house style.
+#'   [save_publication()] substitutes a general print default for any
+#'   `NA` it needs and reports having done so.
 #'
 #' @seealso [list_journals()] for all journals at once, and
 #'   [save_publication()] which applies these specifications.

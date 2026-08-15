@@ -27,8 +27,12 @@ File extension determines format if not specified in format parameter.}
 \item{journal}{Character string specifying journal name.
 Options: "nature", "science", "nejm", "cell", "fda", "ema".}
 
-\item{width_mm}{Numeric. Plot width in millimeters.
-If NULL, uses journal's single column width.}
+\item{width_mm}{Numeric. Plot width in millimeters. If NULL, uses
+the journal's column width for \code{column_type}. When the journal
+publishes no width (see \code{\link[=get_journal_specs]{get_journal_specs()}}), a general print
+default of 90 mm single / 180 mm double is substituted and a
+message names it as the package's default rather than the
+journal's.}
 
 \item{height_mm}{Numeric. Plot height in millimeters.
 If NULL, calculated from plot aspect ratio.}

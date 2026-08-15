@@ -993,3 +993,135 @@ w_cat <- expect_silent_build(
         baseline_value = 'BL', statistical_annotations = TRUE))
 expect_true(length(grep("coercion|non-missing", w_cat)) == 0,
   info = "categorical x with brackets builds without coercion warnings")
+
+# ---------------------------------------------------------------
+# Journal specifications must record what the journal publishes,
+# and NA where it publishes nothing. NEJM states accepted formats
+# and a BMP line-art resolution rule, but no width, height, type
+# size or color mode; those were previously invented numbers.
+# ---------------------------------------------------------------
+
+nejm <- get_journal_specs('nejm')
+for (fld in c('single_column_mm', 'double_column_mm', 'max_height_mm',
+              'min_dpi', 'preferred_dpi', 'font_size', 'font_family',
+              'color_mode')) {
+  expect_true(is.na(nejm[[fld]]),
+    info = paste("NEJM publishes no", fld, "- must be NA, not invented"))
+}
+expect_true(all(c('ai', 'pdf') %in% nejm$formats),
+  info = "NEJM's preferred vector formats are listed")
+
+# Journals that do publish specs keep them.
+nature <- get_journal_specs('nature')
+expect_equal(nature$single_column_mm, 89,
+  info = "Nature single column is 89 mm per its production guidance")
+expect_equal(nature$double_column_mm, 183,
+  info = "Nature double column is 183 mm")
+expect_equal(nature$font_size, 7,
+  info = "Nature type tops out at 7 pt")
+science <- get_journal_specs('science')
+expect_equal(science$single_column_mm, 90,
+  info = "Science single column is 90 mm in the 2025 guide")
+expect_true(is.na(science$max_height_mm),
+  info = "Science publishes no maximum figure height")
+
+# Export still works when the specification is absent, and says so.
+p_js <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) +
+  ggplot2::geom_point()
+f_js <- file.path(tempdir(), 'zzlp_nejm.pdf')
+
+msgs <- NULL
+withCallingHandlers(
+  invisible(save_publication(p_js, f_js, journal = 'nejm')),
+  message = function(m) { msgs <<- c(msgs, conditionMessage(m))
+                          invokeRestart('muffleMessage') })
+expect_true(file.exists(f_js) && file.size(f_js) > 0,
+  info = "a journal with no published width still exports")
+expect_true(any(grepl("publishes no", msgs)),
+  info = "the substituted default is disclosed, not silent")
+unlink(f_js)
+
+# An NA min_dpi must not turn the low-resolution check into an error.
+f_js2 <- file.path(tempdir(), 'zzlp_nejm2.pdf')
+expect_silent_dpi <- tryCatch({
+  suppressMessages(save_publication(p_js, f_js2, journal = 'nejm', dpi = 72))
+  TRUE
+}, error = function(e) FALSE)
+expect_true(expect_silent_dpi,
+  info = "NA min_dpi does not break the resolution comparison")
+unlink(f_js2)
+
+# A journal with a published spec must not emit the substitution notice.
+f_js3 <- file.path(tempdir(), 'zzlp_nat.pdf')
+msgs2 <- NULL
+withCallingHandlers(
+  invisible(save_publication(p_js, f_js3, journal = 'nature')),
+  message = function(m) { msgs2 <<- c(msgs2, conditionMessage(m))
+                          invokeRestart('muffleMessage') })
+expect_false(any(grepl("publishes no", msgs2)),
+  info = "journals with published specs report no substitution")
+unlink(f_js3)
+
+# --- FDA and EMA are document specs, not journal column grids ---
+# Verified against the FDA PDF Specifications and the ICH PDF
+# specification that EMA defers to. The previous 100/200/250 mm,
+# 600 dpi, 10 pt values appear in neither source.
+
+for (reg in c('fda', 'ema')) {
+  s <- get_journal_specs(reg)
+  expect_true(is.na(s$single_column_mm),
+    info = paste(reg, "defines no single-column width"))
+  expect_equal(s$font_size, 12,
+    info = paste(reg, "type range is 9-12 pt; 12 pt is the narrative size"))
+  expect_equal(s$min_dpi, 300,
+    info = paste(reg, "scanning floor is 300 dpi (plotter graphics)"))
+  expect_equal(s$formats, "pdf",
+    info = paste(reg, "submits PDF"))
+  expect_equal(s$font_family, "Times New Roman",
+    info = paste(reg, "recommends Times New Roman"))
+}
+
+# Usable print area, derived from the stated page size and margins.
+# FDA: 8.5 x 11 in less 3/4 in binding and 3/8 in elsewhere.
+expect_equal(get_journal_specs('fda')$double_column_mm, 187,
+  info = "FDA usable print width is 187 mm")
+expect_equal(get_journal_specs('fda')$max_height_mm, 260,
+  info = "FDA usable print height is 260 mm")
+# ICH/EMA: must fit A4 and Letter, less 2.5 cm binding and 1.0 cm.
+expect_equal(get_journal_specs('ema')$double_column_mm, 175,
+  info = "ICH/EMA usable print width is 175 mm")
+expect_equal(get_journal_specs('ema')$max_height_mm, 259,
+  info = "ICH/EMA usable print height is 259 mm")
+expect_true(get_journal_specs('ema')$double_column_mm <
+            get_journal_specs('fda')$double_column_mm,
+  info = "fitting both A4 and Letter is narrower than Letter alone")
+
+# EMA states no colour mode; FDA recommends CMYK for print control.
+expect_true(is.na(get_journal_specs('ema')$color_mode),
+  info = "EMA publishes no colour mode")
+expect_equal(get_journal_specs('fda')$color_mode, "CMYK",
+  info = "FDA recommends CMYK for print colour control")
+
+# The default (full print width) export is silent; asking for a
+# single column discloses that no such specification exists.
+p_reg <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) +
+  ggplot2::geom_point()
+f_reg <- file.path(tempdir(), 'zzlp_fda.pdf')
+m_dbl <- NULL
+withCallingHandlers(
+  invisible(save_publication(p_reg, f_reg, journal = 'fda')),
+  message = function(m) { m_dbl <<- c(m_dbl, conditionMessage(m))
+                          invokeRestart('muffleMessage') })
+expect_false(any(grepl("publishes no", m_dbl)),
+  info = "FDA full-width export uses the published print area silently")
+unlink(f_reg)
+
+m_sgl <- NULL
+withCallingHandlers(
+  invisible(save_publication(p_reg, f_reg, journal = 'fda',
+                             column_type = 'single')),
+  message = function(m) { m_sgl <<- c(m_sgl, conditionMessage(m))
+                          invokeRestart('muffleMessage') })
+expect_true(any(grepl("publishes no column width", m_sgl)),
+  info = "asking FDA for a single column discloses the substitution")
+unlink(f_reg)
