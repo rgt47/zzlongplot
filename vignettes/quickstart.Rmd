@@ -16,6 +16,8 @@ devtools::install_github("rgt47/zzlongplot")
 ```
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
+  dpi = 96,
+  fig.retina = 1,
   collapse = TRUE,
   comment = "#>",
   fig.width = 8,

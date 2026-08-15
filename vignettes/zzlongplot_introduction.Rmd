@@ -2,13 +2,10 @@
 title: "zzlongplot: A Flexible Framework for Longitudinal Data Visualization"
 author: "Ronald (Ryy) G. Thomas"
 date: "`r Sys.Date()`"
-output: 
-  html_document:
+output:
+  rmarkdown::html_vignette:
     toc: true
     toc_depth: 3
-    toc_float: true
-    theme: united
-    highlight: tango
 vignette: >
   %\VignetteIndexEntry{zzlongplot: A Flexible Framework for Longitudinal Data Visualization}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,6 +14,8 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
+  dpi = 96,
+  fig.retina = 1,
   echo = TRUE,
   fig.width = 10, 
   fig.height = 6,
