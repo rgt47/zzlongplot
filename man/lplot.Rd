@@ -27,7 +27,7 @@ lplot(
   treatment_colors = NULL,
   confidence_interval = NULL,
   summary_statistic = "mean",
-  show_sample_sizes = FALSE,
+  show_sample_sizes = TRUE,
   sample_size_opts = list(),
   theme = NULL,
   publication_ready = FALSE,
@@ -38,7 +38,8 @@ lplot(
   reference_lines = NULL,
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
-  contrast_display = NULL
+  contrast_display = NULL,
+  auto_caption = TRUE
 )
 }
 \arguments{
@@ -105,7 +106,14 @@ Options: "standard" (placebo=gray, active=colors), or NULL.}
 Options: "mean" (mean +/- CI/SE), "mean_se" (mean +/- SE), "median" (median + IQR),
 or "boxplot" (boxplot summary with quartiles). Default is "mean".}
 
-\item{show_sample_sizes}{Logical. If TRUE, shows sample sizes at each timepoint.}
+\item{show_sample_sizes}{Logical. If TRUE (the default), the number
+of non-missing observations contributing to each group at each
+timepoint is drawn on the plot. This is on by default because
+CONSORT 2025 item 26 requires reporting "the number of
+participants with available data at each time point", and because
+a longitudinal figure with a silently shrinking denominator hides
+attrition. Set to FALSE to suppress. See \code{sample_size_opts} for
+placement, including a numbers-below-axis table.}
 
 \item{sample_size_opts}{List. Options for sample size label appearance.
 Key option: position = "point" (default, labels next to points) or
@@ -158,6 +166,19 @@ Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.}
 \item{contrast_display}{Optional character string controlling
 whether and how pairwise contrast annotations are added to
 the plot. NULL (default) suppresses contrast display.}
+
+\item{auto_caption}{Logical. If TRUE (the default), and no
+\code{caption} is supplied, the caption is generated automatically and
+states what the error bars or bands represent: a confidence
+interval and its level, \verb{+/-1 SE}, the interquartile range, or
+the boxplot construction, matching whatever was actually
+computed. When \code{statistical_annotations = TRUE} it also states
+the significance thresholds and the multiplicity adjustment.
+This is on by default because \emph{Nature} and \emph{Nature Medicine}
+require all error bars to be defined in the figure legend, and
+\emph{JAMA} and \emph{Science} require the measure of dispersion to be
+identified. An explicit \code{caption} (or \code{caption2}) always takes
+precedence; set \code{auto_caption = FALSE} to suppress generation.}
 }
 \value{
 A plot object whose class depends on how many panels were

@@ -44,7 +44,14 @@
 #' @param summary_statistic Character. Type of summary statistic to calculate.
 #'   Options: "mean" (mean +/- CI/SE), "mean_se" (mean +/- SE), "median" (median + IQR), 
 #'   or "boxplot" (boxplot summary with quartiles). Default is "mean".
-#' @param show_sample_sizes Logical. If TRUE, shows sample sizes at each timepoint.
+#' @param show_sample_sizes Logical. If TRUE (the default), the number
+#'   of non-missing observations contributing to each group at each
+#'   timepoint is drawn on the plot. This is on by default because
+#'   CONSORT 2025 item 26 requires reporting "the number of
+#'   participants with available data at each time point", and because
+#'   a longitudinal figure with a silently shrinking denominator hides
+#'   attrition. Set to FALSE to suppress. See `sample_size_opts` for
+#'   placement, including a numbers-below-axis table.
 #' @param sample_size_opts List. Options for sample size label appearance.
 #'   Key option: position = "point" (default, labels next to points) or
 #'   "table" (color-coded table below x-axis). See [generate_plot()]
@@ -86,6 +93,18 @@
 #' @param contrast_display Optional character string controlling
 #'   whether and how pairwise contrast annotations are added to
 #'   the plot. NULL (default) suppresses contrast display.
+#' @param auto_caption Logical. If TRUE (the default), and no
+#'   `caption` is supplied, the caption is generated automatically and
+#'   states what the error bars or bands represent: a confidence
+#'   interval and its level, `+/-1 SE`, the interquartile range, or
+#'   the boxplot construction, matching whatever was actually
+#'   computed. When `statistical_annotations = TRUE` it also states
+#'   the significance thresholds and the multiplicity adjustment.
+#'   This is on by default because *Nature* and *Nature Medicine*
+#'   require all error bars to be defined in the figure legend, and
+#'   *JAMA* and *Science* require the measure of dispersion to be
+#'   identified. An explicit `caption` (or `caption2`) always takes
+#'   precedence; set `auto_caption = FALSE` to suppress generation.
 #'
 #' @return A plot object whose class depends on how many panels were
 #'   assembled:
@@ -179,13 +198,13 @@ lplot <- function(
   subtitle = "", subtitle2 = "", caption = "", caption2 = "",
   plot_type = "obs", error_type = "bar", jitter_width = 0.15, color_palette = NULL,
   clinical_mode = FALSE, treatment_colors = NULL, confidence_interval = NULL,
-  summary_statistic = "mean", show_sample_sizes = FALSE,
+  summary_statistic = "mean", show_sample_sizes = TRUE,
   sample_size_opts = list(),
   theme = NULL,
   publication_ready = FALSE, statistical_annotations = FALSE,
   test_method = "parametric", p_adjust_method = "BH", cov_struct = "auto",
   reference_lines = NULL, ribbon_alpha = 0.2, ribbon_fill = NULL,
-  contrast_display = NULL
+  contrast_display = NULL, auto_caption = TRUE
 ) {
   # Input validation
   if (!is.data.frame(df)) {
@@ -404,7 +423,10 @@ lplot <- function(
     sample_size_opts = sample_size_opts,
     contrast_display = if (identical(contrast_display, "footnote"))
       "footnote" else NULL,
-    contrast_data = contrast_data
+    contrast_data = contrast_data,
+    summary_statistic = summary_statistic,
+    p_adjust_method = p_adjust_method,
+    auto_caption = auto_caption
   )
 
   fig_change <- generate_plot(
@@ -431,7 +453,10 @@ lplot <- function(
     sample_size_opts = sample_size_opts,
     contrast_display = if (identical(contrast_display, "footnote"))
       "footnote" else NULL,
-    contrast_data = contrast_data
+    contrast_data = contrast_data,
+    summary_statistic = summary_statistic,
+    p_adjust_method = p_adjust_method,
+    auto_caption = auto_caption
   )
 
   # Apply publication theme and colors if specified

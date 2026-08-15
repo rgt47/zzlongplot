@@ -23,6 +23,7 @@ vignettes/.*\.pdf$
 ^\.zzcollab$
 ^.*/\.zzcollab$
 ^\.zzcollab-state$
+^\.claude$
 ^\.zzcollab_manifest\.json$
 ^\.zz[0-9]+\.R$
 ^CONTRIBUTING\.md$

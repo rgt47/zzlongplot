@@ -19,7 +19,7 @@ generate_plot(
   facet = NULL,
   color_palette = NULL,
   reference_lines = NULL,
-  show_sample_sizes = FALSE,
+  show_sample_sizes = TRUE,
   statistical_annotations = FALSE,
   use_boxplot = FALSE,
   ribbon_alpha = 0.2,
@@ -27,7 +27,10 @@ generate_plot(
   bw_print = FALSE,
   sample_size_opts = list(),
   contrast_display = NULL,
-  contrast_data = NULL
+  contrast_data = NULL,
+  summary_statistic = NULL,
+  p_adjust_method = "BH",
+  auto_caption = TRUE
 )
 }
 \arguments{
@@ -66,7 +69,9 @@ colors are used.}
 \item{reference_lines}{List of reference line specifications. Each element should
 be a list with components: value, axis ("x" or "y"), color, linetype, size.}
 
-\item{show_sample_sizes}{Logical. If TRUE, adds sample size annotations.}
+\item{show_sample_sizes}{Logical. If TRUE (the default), adds
+sample size annotations. On by default so the number contributing
+to each point is always visible; see \code{\link[=lplot]{lplot()}} for the rationale.}
 
 \item{statistical_annotations}{Logical. If TRUE, adds p-values and significance.}
 
@@ -111,6 +116,20 @@ the plot. NULL (default) suppresses contrast display.}
 
 \item{contrast_data}{Optional data frame of contrast results
 to annotate. When NULL (default) no contrasts are drawn.}
+
+\item{summary_statistic}{Character. The summary used to build
+\code{stats}, one of \code{"mean"}, \code{"mean_se"}, \code{"median"}, or
+\code{"boxplot"}. Used only to word the automatic caption; pass it so
+the caption names the correct uncertainty measure.}
+
+\item{p_adjust_method}{Character. Multiplicity correction that was
+applied, used to word the automatic caption.}
+
+\item{auto_caption}{Logical. If TRUE (default) and no \code{caption} is
+supplied, a caption is generated stating what the error bars or
+bands represent, and, when significance stars are drawn, what the
+star thresholds and multiplicity adjustment are. Set to FALSE to
+leave the caption empty. An explicit \code{caption} always wins.}
 }
 \value{
 A \code{ggplot} object representing the visualization.

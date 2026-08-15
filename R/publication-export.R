@@ -8,32 +8,55 @@
 # Journal specifications database
 .journal_specs <- list(
   
+  # Widths and the 5-7 pt type range are from Nature's production-stage
+  # sources, which agree with each other:
+  #   https://www.nature.com/nature/for-authors/final-submission
+  #   https://www.nature.com/documents/nature-final-artwork.pdf
+  #   https://research-figure-guide.nature.com/figures/preparing-figures-our-specifications/
+  # Nature's initial-submission page says 90/180 mm; the three
+  # production sources say 89/183 mm, so those are used here.
+  # max_height_mm 170 is the usable figure height (page depth is
+  # 247 mm, the remainder being reserved for the legend).
   nature = list(
     name = "Nature",
-    single_column_mm = 90,
-    double_column_mm = 180, 
-    max_height_mm = 170,
-    min_dpi = 600,
-    preferred_dpi = 600,
-    font_size = 8,
-    font_family = "sans",
-    formats = c("pdf", "eps", "tiff"),
-    color_mode = "RGB",
-    notes = "Nature Publishing Group standards"
-  ),
-  
-  science = list(
-    name = "Science",
-    single_column_mm = 85,
-    double_column_mm = 178,
+    single_column_mm = 89,
+    double_column_mm = 183,
     max_height_mm = 170,
     min_dpi = 300,
     preferred_dpi = 600,
     font_size = 7,
-    font_family = "sans", 
+    font_family = "sans",
+    formats = c("pdf", "eps", "tiff"),
+    color_mode = "RGB",
+    notes = paste(
+      "Nature: type 5-7 pt at final size; 89 mm single,",
+      "183 mm double column; vector preferred, text must stay live."
+    )
+  ),
+
+  # Science publishes two incompatible column grids. The 2025 author
+  # preparation guide uses the two-column grid (9 cm / 18.3 cm), which
+  # is what is encoded here:
+  #   https://www.science.org/cms/asset/67f37ac8-4d02-4625-8a05-230568cb8323/author_prep_guide_2025.pdf
+  # The older three-column grid (5.7 / 12.1 / 18.4 cm) still appears at
+  #   https://www.science.org/content/page/instructions-preparing-initial-manuscript
+  # Science publishes no maximum figure height, so max_height_mm is NA
+  # and no height cap is applied.
+  science = list(
+    name = "Science",
+    single_column_mm = 90,
+    double_column_mm = 183,
+    max_height_mm = NA_real_,
+    min_dpi = 300,
+    preferred_dpi = 600,
+    font_size = 7,
+    font_family = "sans",
     formats = c("pdf", "eps", "tiff", "png"),
     color_mode = "RGB",
-    notes = "AAAS Science journal standards"
+    notes = paste(
+      "Science: 2025 guide two-column grid (90/183 mm); type ~5-9 pt;",
+      "no published maximum height; save R graphics as vector SVG."
+    )
   ),
   
   nejm = list(
@@ -209,10 +232,12 @@ save_publication <- function(plot, filename, journal = "nature",
     aspect_ratio <- 1.618  # Golden ratio
     height_mm <- width_mm / aspect_ratio
     
-    # Ensure within journal limits
-    if (height_mm > specs$max_height_mm) {
+    # Ensure within journal limits. max_height_mm is NA for journals
+    # that publish no maximum, in which case no cap is applied.
+    if (!is.na(specs$max_height_mm) &&
+        height_mm > specs$max_height_mm) {
       height_mm <- specs$max_height_mm
-      warning(sprintf("Height adjusted to %s maximum of %d mm", 
+      warning(sprintf("Height adjusted to %s maximum of %d mm",
                       specs$name, specs$max_height_mm))
     }
   }

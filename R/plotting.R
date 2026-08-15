@@ -26,7 +26,9 @@
 #'   colors are used.
 #' @param reference_lines List of reference line specifications. Each element should
 #'   be a list with components: value, axis ("x" or "y"), color, linetype, size.
-#' @param show_sample_sizes Logical. If TRUE, adds sample size annotations.
+#' @param show_sample_sizes Logical. If TRUE (the default), adds
+#'   sample size annotations. On by default so the number contributing
+#'   to each point is always visible; see [lplot()] for the rationale.
 #' @param statistical_annotations Logical. If TRUE, adds p-values and significance.
 #' @param use_boxplot Logical. If TRUE, renders actual boxplots instead of line graphs.
 #' @param ribbon_alpha Numeric. Transparency level for ribbon/band error representations.
@@ -63,6 +65,17 @@
 #'   the plot. NULL (default) suppresses contrast display.
 #' @param contrast_data Optional data frame of contrast results
 #'   to annotate. When NULL (default) no contrasts are drawn.
+#' @param summary_statistic Character. The summary used to build
+#'   `stats`, one of `"mean"`, `"mean_se"`, `"median"`, or
+#'   `"boxplot"`. Used only to word the automatic caption; pass it so
+#'   the caption names the correct uncertainty measure.
+#' @param p_adjust_method Character. Multiplicity correction that was
+#'   applied, used to word the automatic caption.
+#' @param auto_caption Logical. If TRUE (default) and no `caption` is
+#'   supplied, a caption is generated stating what the error bars or
+#'   bands represent, and, when significance stars are drawn, what the
+#'   star thresholds and multiplicity adjustment are. Set to FALSE to
+#'   leave the caption empty. An explicit `caption` always wins.
 #'
 #' @return A `ggplot` object representing the visualization.
 #' 
@@ -121,7 +134,7 @@ generate_plot <- function(
   facet = NULL,
   color_palette = NULL,
   reference_lines = NULL,
-  show_sample_sizes = FALSE,
+  show_sample_sizes = TRUE,
   statistical_annotations = FALSE,
   use_boxplot = FALSE,
   ribbon_alpha = 0.2,
@@ -129,7 +142,10 @@ generate_plot <- function(
   bw_print = FALSE,
   sample_size_opts = list(),
   contrast_display = NULL,
-  contrast_data = NULL
+  contrast_data = NULL,
+  summary_statistic = NULL,
+  p_adjust_method = "BH",
+  auto_caption = TRUE
 ) {
   # Set x-axis scale based on whether x is continuous
   x_scale <- if (stats$is_continuous[1]) {
@@ -334,22 +350,38 @@ generate_plot <- function(
     }
   }
   
+  ci_level <- if ("ci_level" %in% names(stats)) {
+    stats$ci_level[1]
+  } else {
+    NA
+  }
+
   if (identical(contrast_display, "footnote") &&
       !is.null(contrast_data) && nrow(contrast_data) > 0) {
-    ci_level <- if ("ci_level" %in% names(stats)) {
-      stats$ci_level[1]
-    } else {
-      NA
-    }
     fn_text <- .format_contrast_footnote(
       contrast_data, x_var,
-      error_type = error_type, ci_level = ci_level
+      error_type = error_type, ci_level = ci_level,
+      summary_statistic = summary_statistic
     )
     caption <- if (!is.null(caption) && nzchar(caption)) {
       paste0(caption, "\n", fn_text)
     } else {
       fn_text
     }
+  } else if (isTRUE(auto_caption) &&
+             (is.null(caption) || !nzchar(caption))) {
+    # Journals require the legend to state what the error bars show,
+    # so generate it rather than relying on the caller to remember.
+    parts <- .describe_uncertainty(
+      ci_level = ci_level, error_type = error_type,
+      summary_statistic = summary_statistic,
+      is_change = grepl("change", y_var, fixed = TRUE)
+    )
+    if (isTRUE(statistical_annotations) &&
+        "p_adj" %in% names(stats) && any(!is.na(stats$p_adj))) {
+      parts <- c(parts, .describe_significance(p_adjust_method))
+    }
+    caption <- paste(parts, collapse = " ")
   }
 
   # Add labels
@@ -808,11 +840,14 @@ generate_plot <- function(
 #'   accurate header text).
 #' @param ci_level Confidence level used for bounds, or NA if
 #'   standard error was used.
+#' @param summary_statistic Summary statistic used, passed through so
+#'   the header names the correct uncertainty measure.
 #' @return Character string for use as a plot caption.
 #' @noRd
 .format_contrast_footnote <- function(pw_df, x_var,
                                       error_type = "bar",
-                                      ci_level = NA) {
+                                      ci_level = NA,
+                                      summary_statistic = NULL) {
   pw_df <- .filter_vs_reference(pw_df)
   has_est <- "estimate" %in% names(pw_df) &&
     any(!is.na(pw_df$estimate))
@@ -846,14 +881,94 @@ generate_plot <- function(
     )
   }
 
-  err_desc <- if (!is.na(ci_level)) {
+  header <- .describe_uncertainty(
+    ci_level = ci_level, error_type = error_type,
+    summary_statistic = summary_statistic
+  )
+  paste(c(header, lines), collapse = "\n")
+}
+
+
+#' Describe what the plotted interval represents
+#'
+#' Builds the sentence that names the uncertainty measure actually
+#' drawn, so a figure legend never has to be written by hand and can
+#' never disagree with the computation. Journals almost universally
+#' require the legend to state what error bars represent.
+#'
+#' @param ci_level Confidence level the bounds represent, or `NA` when
+#'   the bounds are not a confidence interval.
+#' @param error_type Either `"bar"` or `"band"`.
+#' @param summary_statistic One of `"mean"`, `"mean_se"`, `"median"`,
+#'   `"boxplot"`, or `NULL` when unknown.
+#' @param is_change Logical. TRUE when the panel plots change from
+#'   baseline, so the sentence can say so.
+#'
+#' @return A single sentence, e.g.
+#'   `"Error bars represent 95% CI."`.
+#' @noRd
+.describe_uncertainty <- function(ci_level = NA, error_type = "bar",
+                                  summary_statistic = NULL,
+                                  is_change = FALSE) {
+  shape <- if (identical(error_type, "band")) "Bands" else "Error bars"
+  quantity <- if (isTRUE(is_change)) "change from baseline" else NULL
+
+  # Boxplot summaries do not draw an error bar at all, so describe the
+  # box and whiskers instead of forcing them into the same sentence.
+  if (identical(summary_statistic, "boxplot")) {
+    return(sprintf(paste(
+      "Points are median %s; boxes span the interquartile range and",
+      "whiskers extend to at most 1.5 x IQR."
+    ), quantity %||% "values"))
+  }
+
+  has_ci <- length(ci_level) == 1L && !is.na(ci_level)
+
+  err_desc <- if (has_ci && identical(summary_statistic, "median")) {
+    sprintf("%.0f%% CI for the median (normal approximation)",
+            ci_level * 100)
+  } else if (has_ci) {
     sprintf("%.0f%% CI", ci_level * 100)
+  } else if (identical(summary_statistic, "median")) {
+    "the interquartile range"
   } else {
     "+/-1 SE"
   }
-  shape <- if (identical(error_type, "band")) "Bands" else "Error bars"
-  header <- sprintf("%s represent %s.", shape, err_desc)
-  paste(c(header, lines), collapse = "\n")
+
+  centre <- if (identical(summary_statistic, "median")) {
+    sprintf("Points are median %s. ", quantity %||% "values")
+  } else if (isTRUE(is_change)) {
+    "Points are mean change from baseline. "
+  } else {
+    ""
+  }
+
+  paste0(centre, sprintf("%s represent %s.", shape, err_desc))
+}
+
+
+#' Describe the significance codes and multiplicity correction
+#'
+#' Named so the reader can tell an unadjusted p-value from an
+#' adjusted one, which is the point of reporting the method.
+#'
+#' @param p_adjust_method Method passed to [stats::p.adjust()].
+#' @return A single sentence.
+#' @noRd
+.describe_significance <- function(p_adjust_method = "BH") {
+  label <- switch(
+    as.character(p_adjust_method),
+    BH = "Benjamini-Hochberg adjusted",
+    fdr = "Benjamini-Hochberg adjusted",
+    BY = "Benjamini-Yekutieli adjusted",
+    bonferroni = "Bonferroni adjusted",
+    holm = "Holm adjusted",
+    hochberg = "Hochberg adjusted",
+    hommel = "Hommel adjusted",
+    none = "unadjusted",
+    sprintf("%s adjusted", p_adjust_method)
+  )
+  sprintf("*p<0.05, **p<0.01, ***p<0.001 (%s).", label)
 }
 
 

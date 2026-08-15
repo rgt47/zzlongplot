@@ -9,12 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## Installation
-
-```{r install, eval=FALSE}
-devtools::install_github("rgt47/zzlongplot")
-```
-```{r setup, include=FALSE}
+```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(
   dpi = 96,
   fig.retina = 1,
@@ -23,12 +18,8 @@ knitr::opts_chunk$set(
   fig.width = 8,
   fig.height = 5,
   message = FALSE,
-  warning = FALSE,
-  eval = TRUE
+  warning = FALSE
 )
-library(zzlongplot)
-library(dplyr)
-library(ggplot2)
 
 # The MMRM contrast chunks below are skipped when the suggested mmrm
 # and emmeans packages are unavailable.
@@ -36,12 +27,49 @@ has_mmrm <- requireNamespace("mmrm", quietly = TRUE) &&
   requireNamespace("emmeans", quietly = TRUE)
 ```
 
+## Installation
+
+```{r install, eval=FALSE}
+# install.packages("pak")
+pak::pak("rgt47/zzlongplot")
+```
+
+## Setup
+
+```{r setup}
+library(zzlongplot)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+```
+
+```{css side-by-side, echo=FALSE}
+.cmp { display: flex; gap: 1rem; align-items: flex-start; }
+.cmp > div { flex: 1 1 0; min-width: 0; }
+.cmp pre { overflow-x: auto; font-size: 0.78em; }
+.cmp h4 { margin-top: 0; }
+@media (max-width: 720px) { .cmp { display: block; } }
+```
+
 ## Overview
 
-**zzlongplot** provides a flexible framework for longitudinal data
-visualization in R. The package uses a formula-based interface for
-creating publication-quality plots of repeated measurements over
-time, with specialized support for clinical trials.
+**zzlongplot** is a wrapper around **ggplot2**. It exists to graph
+possibly complex longitudinal data with a minimum of syntax: you
+describe the data with a formula, and the package does the
+per-subject baseline arithmetic, the group-wise summarizing, the
+error bounds, the dodging, and the styling.
+
+Two consequences follow, and both matter more than any individual
+option in this guide:
+
+1. **The formula is usually the only thing you have to write.**
+   Everything else has a working default.
+2. **The result is an ordinary `ggplot` object.** Anything you know
+   how to do in ggplot2 still applies; you are never trapped inside
+   the wrapper.
+
+The rest of this section makes both points concrete by putting the
+`zzlongplot` call next to the ggplot2 code it replaces.
 
 
 ## Simulated Data
@@ -89,82 +117,234 @@ three_arm <- expand.grid(
   )
 ```
 
+## The Same Figure, Two Ways
+
+### Observed values
+
+The formula `response ~ visit | treatment` reads "response over
+visit, split by treatment". Nothing else is required: the baseline
+visit is detected from the data and the subject column defaults to
+`subject_id`.
+
+::: {.cmp}
+#### zzlongplot
+
+```{r zz-obs, eval=FALSE}
+p_zz <- lplot(
+  two_arm,
+  response ~ visit | treatment
+)
+```
+
+#### ggplot2
+
+```{r gg-obs, eval=FALSE}
+p_gg <- two_arm |>
+  group_by(treatment, visit) |>
+  summarise(
+    m = mean(response),
+    se = sd(response) / sqrt(n()),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(visit, m,
+             colour = treatment,
+             group = treatment,
+             linetype = treatment,
+             shape = treatment)) +
+  geom_errorbar(
+    aes(ymin = m - se, ymax = m + se),
+    width = 0.6,
+    position = position_dodge(0.15)
+  ) +
+  geom_line(position = position_dodge(0.15)) +
+  geom_point(position = position_dodge(0.15)) +
+  scale_colour_grey(start = 0, end = 0.6) +
+  labs(x = "visit", y = "measure",
+       colour = "group", linetype = "group",
+       shape = "group") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+:::
+
+```{r run-obs, ref.label=c("zz-obs", "gg-obs"), include=FALSE}
+```
+
+```{r show-obs, echo=FALSE, fig.width=11, fig.height=4, fig.cap="Figure 1: zzlongplot (left) and the equivalent hand-written ggplot2 (right)."}
+(p_zz + ggtitle("zzlongplot")) + (p_gg + ggtitle("ggplot2"))
+```
+
+Three lines against roughly twenty-five. Note what the right-hand
+column has to spell out to match the default: the group summary, the
+standard error, the dodge applied consistently to three layers, and
+the redundant linetype and shape encoding that makes the figure
+survive grayscale printing.
+
+Two things the left panel has that the right one does not, because
+they are on by default:
+
+- **The per-timepoint sample size.** CONSORT 2025 item 26 requires
+  reporting the number of participants with available data at each
+  timepoint, and a curve whose denominator silently shrinks hides
+  attrition. Pass `show_sample_sizes = FALSE` to suppress it.
+- **A caption naming the uncertainty measure.** *Nature* and *Nature
+  Medicine* require all error bars to be defined in the figure legend.
+  The caption is generated from what was actually computed, so it
+  cannot drift from the statistics. Pass your own `caption`, or
+  `auto_caption = FALSE`, to take over.
+
+### Change from baseline
+
+The gap widens as the question gets harder. Change from baseline
+requires a per-subject lookup of that subject's baseline value
+before any group summarizing can happen. In `zzlongplot` it is one
+argument.
+
+::: {.cmp}
+#### zzlongplot
+
+```{r zz-chg, eval=FALSE}
+p_zz2 <- lplot(
+  two_arm,
+  response ~ visit | treatment,
+  plot_type = "change"
+)
+```
+
+#### ggplot2
+
+```{r gg-chg, eval=FALSE}
+p_gg2 <- two_arm |>
+  group_by(subject_id) |>
+  mutate(
+    change = response -
+      response[visit == 0][1]
+  ) |>
+  ungroup() |>
+  group_by(treatment, visit) |>
+  summarise(
+    m = mean(change),
+    se = sd(change) / sqrt(n()),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(visit, m,
+             colour = treatment,
+             group = treatment,
+             linetype = treatment,
+             shape = treatment)) +
+  geom_errorbar(
+    aes(ymin = m - se, ymax = m + se),
+    width = 0.6,
+    position = position_dodge(0.15)
+  ) +
+  geom_line(position = position_dodge(0.15)) +
+  geom_point(position = position_dodge(0.15)) +
+  scale_colour_grey(start = 0, end = 0.6) +
+  labs(x = "visit", y = "measure change",
+       colour = "group", linetype = "group",
+       shape = "group") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+:::
+
+```{r run-chg, ref.label=c("zz-chg", "gg-chg"), include=FALSE}
+```
+
+```{r show-chg, echo=FALSE, fig.width=11, fig.height=4, fig.cap="Figure 2: Change from baseline, both routes."}
+(p_zz2 + ggtitle("zzlongplot")) + (p_gg2 + ggtitle("ggplot2"))
+```
+
+### The result is a ggplot
+
+`lplot()` returns an ordinary `ggplot` object, so the whole of
+ggplot2 remains available for anything the wrapper does not cover.
+
+```{r extend, fig.width=8, fig.height=4, fig.cap="Figure 3: Extending the result with ordinary ggplot2 layers."}
+lplot(two_arm, response ~ visit | treatment) +
+  scale_y_continuous(limits = c(0, 70)) +
+  labs(title = "Extended after the fact") +
+  theme_minimal()
+```
+
+One exception is worth knowing early: with `plot_type = "both"` the
+return is a `patchwork` of two panels rather than a single `ggplot`.
+It still prints and still saves with `ggsave()`, but `+` then adds to
+the composition rather than to one panel.
+
 ## Basic Usage
 
-The main function `lplot()` uses a formula interface:
-`outcome ~ time | group`.
+The remaining examples pass `baseline_value` explicitly and add
+titles and captions, since that is what a real figure needs.
 
 ### Observed Values with Error Bars
 
-```{r obs-bars, fig.cap="Figure 1: Observed values with error bars (default)."}
-# Figure 1
+```{r obs-bars, fig.cap="Figure 4: Observed values with error bars (default)."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
-  caption = "Error bars represent mean +/- 1 SE.",
   title = "Observed Values: Error Bars")
 ```
 
 ### Observed Values with Confidence Ribbons
 
-```{r obs-band, fig.cap="Figure 2: Observed values with confidence ribbons."}
-# Figure 2
+```{r obs-band, fig.cap="Figure 5: Observed values with confidence ribbons."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
   error_type = "band",
-  caption = "Shaded ribbons represent mean +/- 1 SE.",
   title = "Observed Values: Confidence Ribbons")
 ```
 
 ### Change from Baseline
 
-```{r change, fig.cap="Figure 3: Change from baseline plot."}
-# Figure 3
+```{r change, fig.cap="Figure 6: Change from baseline plot."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
   plot_type = "change",
-  caption = "Error bars represent mean change +/- 1 SE.",
   title = "Change from Baseline")
 ```
 
 ### Combined Plot
 
-```{r both, fig.width=12, fig.cap="Figure 4: Side-by-side observed and change plots."}
-# Figure 4
+```{r both, fig.width=12, fig.cap="Figure 7: Side-by-side observed and change plots."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
-  plot_type = "both",
-  caption = "Error bars represent mean +/- 1 SE.",
-  caption2 = "Error bars represent mean change +/- 1 SE.")
+  plot_type = "both",)
 ```
 
 ## Sample Size Annotations
 
-Display per-group sample sizes at each timepoint, either as
-in-plot labels or as a color-coded table below the x-axis.
+Per-group sample sizes are shown at each timepoint by default, as
+in-plot labels. The alternative is a color-coded table below the
+x-axis, the layout familiar from the numbers-at-risk row under a
+Kaplan-Meier curve.
 
-```{r sample-sizes, fig.cap="Figure 5: Sample sizes as point labels."}
-# Figure 5
+```{r sample-sizes, fig.cap="Figure 8: Sample sizes as point labels (default)."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
-  show_sample_sizes = TRUE,
-  caption = "Error bars represent mean +/- 1 SE. N shown per group.",
   title = "With Sample Size Labels")
 ```
 
-```{r sample-table, fig.height=6, fig.cap="Figure 6: Sample size table below axis."}
-# Figure 6
+```{r sample-table, fig.height=6, fig.cap="Figure 9: Sample size table below axis."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
-  show_sample_sizes = TRUE,
   sample_size_opts = list(position = "table"),
-  caption = "Error bars represent mean +/- 1 SE.",
   title = "With Sample Size Table")
+```
+
+To suppress the annotation entirely, pass `show_sample_sizes = FALSE`.
+
+```{r sample-off, fig.cap="Figure 10: Sample size annotation suppressed."}
+lplot(two_arm,
+  response ~ visit | treatment,
+  baseline_value = 0,
+  show_sample_sizes = FALSE,
+  title = "Without Sample Size Labels")
 ```
 
 ## Statistical Annotations
@@ -174,13 +354,11 @@ lplot(two_arm,
 Stars appear above timepoints where the adjusted p-value
 crosses standard significance thresholds.
 
-```{r stats-2g, fig.cap="Figure 7: Two-group significance stars."}
-# Figure 7
+```{r stats-2g, fig.cap="Figure 11: Two-group significance stars."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
   statistical_annotations = TRUE,
-  caption = "Error bars represent mean +/- 1 SE. *p<0.05, **p<0.01, ***p<0.001 (BH-adjusted).",
   title = "Two-Group: Significance Stars")
 ```
 
@@ -189,14 +367,12 @@ lplot(two_arm,
 For three or more groups, pairwise brackets with significance
 stars are displayed at each timepoint.
 
-```{r stats-3g, fig.height=6, fig.cap="Figure 8: Three-group pairwise brackets."}
-# Figure 8
+```{r stats-3g, fig.height=6, fig.cap="Figure 12: Three-group pairwise brackets."}
 lplot(three_arm,
   response ~ visit | treatment,
   cluster_var = "subject_id",
   baseline_value = 0,
   statistical_annotations = TRUE,
-  caption = "Error bars represent mean +/- 1 SE. *p<0.05, **p<0.01, ***p<0.001 (BH-adjusted).",
   title = "Three-Group: Pairwise Brackets")
 ```
 
@@ -206,31 +382,38 @@ When using `test_method = "mmrm"`, emmeans contrast results
 (LS mean difference, 95% CI, p-value) can be displayed as a
 footnote or a table below the plot.
 
+This requires the suggested packages **mmrm** and **emmeans**. The two
+figures in this section are only built when both are installed.
+
+```{r mmrm-note, echo=FALSE, results="asis"}
+if (!has_mmrm) {
+  cat("> **Note:** mmrm and emmeans are not installed, so Figures 13",
+      "and 14 are omitted from this rendering. Install them with",
+      "`pak::pak(c(\"mmrm\", \"emmeans\"))` to reproduce them.\n")
+}
+```
+
 ### Footnote Mode
 
-```{r contrast-fn, eval=has_mmrm, fig.height=6, fig.cap="Figure 9: MMRM with contrast footnote."}
-# Figure 9
+```{r contrast-fn, eval=has_mmrm, fig.height=6, fig.cap="Figure 13: MMRM with contrast footnote."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
   statistical_annotations = TRUE,
   test_method = "mmrm",
   contrast_display = "footnote",
-  caption = "Error bars represent mean +/- 1 SE. MMRM contrasts shown below.",
   title = "MMRM: Contrast Footnote")
 ```
 
 ### Table Mode
 
-```{r contrast-tbl, eval=has_mmrm, fig.height=7, fig.cap="Figure 10: MMRM with contrast table."}
-# Figure 10
+```{r contrast-tbl, eval=has_mmrm, fig.height=7, fig.cap="Figure 14: MMRM with contrast table."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
   statistical_annotations = TRUE,
   test_method = "mmrm",
   contrast_display = "table",
-  caption = "Error bars represent mean +/- 1 SE. MMRM contrast table below.",
   title = "MMRM: Contrast Table")
 ```
 
@@ -238,28 +421,30 @@ lplot(two_arm,
 
 ### Black-and-White Print Theme
 
-Differentiates groups by linetype and shape rather than color,
-suitable for journals that print in grayscale.
+This is the default. Groups are distinguished redundantly by linetype
+and point shape as well as by color, and the palette itself is
+grayscale, so the figure survives grayscale printing and photocopying.
 
-```{r bw-theme, fig.cap="Figure 11: Black-and-white print theme (default)."}
-# Figure 11
+```{r bw-theme, fig.cap="Figure 15: Black-and-white print theme (default)."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
-  caption = "Error bars represent mean +/- 1 SE.",
   title = "Black-and-White Theme (Default)")
 ```
 
 ### NEJM Theme
 
-```{r nejm-theme, fig.cap="Figure 12: NEJM journal theme."}
-# Figure 12
+Pass the theme by name through `theme =`. This applies the journal's
+typography **and** its official color palette in one step. Adding
+`+ theme_nejm()` to a finished plot changes only the typography, so
+the colors would stay on the default grayscale palette.
+
+```{r nejm-theme, fig.cap="Figure 16: NEJM journal theme."}
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
-  caption = "Error bars represent mean +/- 1 SE.",
-  title = "NEJM Theme") +
-  theme_nejm()
+  theme = "nejm",
+  title = "NEJM Theme")
 ```
 
 ## Tips
@@ -315,10 +500,23 @@ outcome ~ time | group
 | `show_sample_sizes` | Show N at each timepoint | FALSE |
 | `statistical_annotations` | Significance annotations | FALSE |
 | `test_method` | "parametric", "nonparametric", or "mmrm" | "parametric" |
+| `p_adjust_method` | Multiplicity correction | "BH" |
 | `contrast_display` | "footnote" or "table" (MMRM) | NULL |
-| `theme` | "bw" for black-and-white print | "bw" |
+| `summary_statistic` | "mean", "mean_se", "median", "boxplot" | "mean" |
+| `confidence_interval` | Level for CI bounds, e.g. `0.95`; `NULL` gives +/-1 SE | NULL |
+| `theme` | "bw", "nejm", "nature", "lancet", "jama", "science", "jco", "fda", "default" | NULL (see below) |
 | `cluster_var` | Subject ID column | "subject_id" |
 | `facet_form` | Faceting formula (e.g., `~ site`) | NULL |
+
+`theme = NULL` resolves to `"bw"` for a plain call, to `"nejm"` under
+`clinical_mode = TRUE`, and to `"nature"` under
+`publication_ready = TRUE`. Passing `theme` explicitly overrides all
+of these.
+
+Note that `confidence_interval` applies only to `summary_statistic`
+values `"mean"` and `"median"`. With `"mean_se"` the bars are always
++/-1 standard error, and with `"boxplot"` they are quartiles and
+whiskers; in both cases no confidence level is claimed.
 
 ## Next Steps
 
@@ -327,7 +525,3 @@ outcome ~ time | group
 - `vignette("clinical-trials")` -- Clinical trial applications
 - `vignette("cdisc-compliance")` -- CDISC-compliant workflows
 - `vignette("publication-themes")` -- Publication-ready themes
-
----
-*Rendered on 2026-04-13 at 16:32 PDT.*
-*Source: ~/prj/sfw/01-zzlongplot/zzlongplot/vignettes/quickstart.Rmd*
