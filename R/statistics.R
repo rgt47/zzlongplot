@@ -272,6 +272,9 @@ compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_val
       )
   }
   
+  # See .contrast_estimate() and .contrast_ci() below for why the
+  # pairwise estimate is not taken with diff().
+
   # The plotted bounds are a confidence interval only for "mean" and
   # "median", and only when a level was requested. "mean_se" draws
   # +/-1 SE and "boxplot" draws quartiles/whiskers. Downstream captions
@@ -444,7 +447,8 @@ add_statistical_tests <- function(
       if (length(group1_data) > 1 && length(group2_data) > 1) {
         test_result <- tryCatch({
           if (nonparam) {
-            stats::wilcox.test(group1_data, group2_data)
+            stats::wilcox.test(group1_data, group2_data,
+                               conf.int = TRUE)
           } else {
             stats::t.test(group1_data, group2_data)
           }
@@ -453,12 +457,13 @@ add_statistical_tests <- function(
         if (!is.null(test_result)) {
           stats_df[stats_df[[x_var]] == x_val, "p_value"] <-
             test_result$p.value
-          est <- if (!nonparam) {
-            diff(test_result$estimate)
-          } else {
-            NA_real_
-          }
-          ci <- if (!nonparam) test_result$conf.int else c(NA, NA)
+          # t.test()$estimate is c(mean of x, mean of y), and conf.int
+          # is the interval for x - y. diff() would return y - x, which
+          # puts the point estimate outside its own interval.
+          # wilcox.test(conf.int = TRUE) already reports the
+          # Hodges-Lehmann location shift for x - y.
+          est <- .contrast_estimate(test_result, nonparam)
+          ci <- .contrast_ci(test_result)
           pw_list[[length(pw_list) + 1]] <- data.frame(
             x_val = x_val,
             group1 = as.character(groups[1]),
@@ -508,18 +513,14 @@ add_statistical_tests <- function(
           if (length(g1_data) > 1 && length(g2_data) > 1) {
             pw_res <- tryCatch({
               if (nonparam) {
-                stats::wilcox.test(g1_data, g2_data)
+                stats::wilcox.test(g1_data, g2_data, conf.int = TRUE)
               } else {
                 stats::t.test(g1_data, g2_data)
               }
             }, error = function(e) NULL)
             if (!is.null(pw_res)) {
-              est <- if (!nonparam) {
-                diff(pw_res$estimate)
-              } else {
-                NA_real_
-              }
-              ci <- if (!nonparam) pw_res$conf.int else c(NA, NA)
+              est <- .contrast_estimate(pw_res, nonparam)
+              ci <- .contrast_ci(pw_res)
               pw_list[[length(pw_list) + 1]] <- data.frame(
                 x_val = x_val, group1 = gp[1], group2 = gp[2],
                 estimate = est,
@@ -809,4 +810,45 @@ detect_baseline <- function(x) {
 
   message(sprintf("baseline_value not specified; using '%s'.", hits))
   hits
+}
+
+
+#' Point estimate of a pairwise contrast, oriented as group1 - group2
+#'
+#' `stats::t.test()` returns `estimate` as the pair of group means
+#' (`mean of x`, `mean of y`) while `conf.int` is the interval for
+#' `x - y`. Taking `diff()` of the means yields `y - x`, which is the
+#' negation of the interval and places the point estimate outside its
+#' own confidence limits. `stats::wilcox.test(conf.int = TRUE)` instead
+#' returns a single-element `estimate` (the Hodges-Lehmann location
+#' shift) already oriented as `x - y`.
+#'
+#' @param test_result An `htest` from `t.test()` or `wilcox.test()`.
+#' @param nonparam Logical, TRUE for the Wilcoxon path.
+#' @return A single unnamed numeric, or `NA_real_` if unavailable.
+#' @noRd
+.contrast_estimate <- function(test_result, nonparam = FALSE) {
+  est <- test_result$estimate
+  if (is.null(est) || length(est) == 0) {
+    return(NA_real_)
+  }
+  if (isTRUE(nonparam) || length(est) == 1L) {
+    return(unname(est[[1]]))
+  }
+  unname(est[[1]] - est[[2]])
+}
+
+
+#' Confidence limits of a pairwise contrast
+#'
+#' @param test_result An `htest` from `t.test()` or `wilcox.test()`.
+#' @return Length-2 numeric of lower and upper limits, `c(NA, NA)` when
+#'   the test did not produce an interval.
+#' @noRd
+.contrast_ci <- function(test_result) {
+  ci <- test_result$conf.int
+  if (is.null(ci) || length(ci) < 2) {
+    return(c(NA_real_, NA_real_))
+  }
+  c(unname(ci[1]), unname(ci[2]))
 }

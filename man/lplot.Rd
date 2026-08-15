@@ -164,8 +164,21 @@ Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.}
 \item{ribbon_fill}{Character. Custom fill color for ribbons. If NULL, uses group colors.}
 
 \item{contrast_display}{Optional character string controlling
-whether and how pairwise contrast annotations are added to
-the plot. NULL (default) suppresses contrast display.}
+whether and how the between-group contrasts are reported.
+Requires \code{statistical_annotations = TRUE}. Options:
+\describe{
+\item{\code{"footnote"}}{Adds the estimate, confidence interval and
+p-value for each significant contrast to the caption.}
+\item{\code{"table"}}{Appends a table of all contrasts below the
+plot.}
+\item{\code{"panel"}}{Appends a panel plotting each contrast against
+time with its confidence interval and a zero reference line.}
+}
+\code{NULL} (the default) reports no contrasts. The per-arm error bars
+on the main plot describe each group separately and cannot show
+the difference between them; CONSORT 2025 item 26 asks for the
+effect size and its precision, so prefer one of these when the
+figure is making a comparative claim.}
 
 \item{auto_caption}{Logical. If TRUE (the default), and no
 \code{caption} is supplied, the caption is generated automatically and
@@ -186,9 +199,9 @@ assembled:
 \itemize{
 \item a \code{ggplot} when \code{plot_type} is \code{"obs"} or \code{"change"};
 \item a \code{patchwork} (which also inherits from \code{ggplot}) when
-\code{plot_type = "both"}, or when \code{contrast_display = "table"} and
-pairwise contrasts were produced, since the contrast table is
-appended as an extra panel.
+\code{plot_type = "both"}, or when \code{contrast_display} is \code{"table"} or
+\code{"panel"} and pairwise contrasts were produced, since the
+contrast display is appended as an extra panel.
 }
 
 Because \code{contrast_display} can change the class independently of

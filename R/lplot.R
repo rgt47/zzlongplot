@@ -91,8 +91,21 @@
 #'   Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.
 #' @param ribbon_fill Character. Custom fill color for ribbons. If NULL, uses group colors.
 #' @param contrast_display Optional character string controlling
-#'   whether and how pairwise contrast annotations are added to
-#'   the plot. NULL (default) suppresses contrast display.
+#'   whether and how the between-group contrasts are reported.
+#'   Requires `statistical_annotations = TRUE`. Options:
+#'   \describe{
+#'     \item{`"footnote"`}{Adds the estimate, confidence interval and
+#'       p-value for each significant contrast to the caption.}
+#'     \item{`"table"`}{Appends a table of all contrasts below the
+#'       plot.}
+#'     \item{`"panel"`}{Appends a panel plotting each contrast against
+#'       time with its confidence interval and a zero reference line.}
+#'   }
+#'   `NULL` (the default) reports no contrasts. The per-arm error bars
+#'   on the main plot describe each group separately and cannot show
+#'   the difference between them; CONSORT 2025 item 26 asks for the
+#'   effect size and its precision, so prefer one of these when the
+#'   figure is making a comparative claim.
 #' @param auto_caption Logical. If TRUE (the default), and no
 #'   `caption` is supplied, the caption is generated automatically and
 #'   states what the error bars or bands represent: a confidence
@@ -110,9 +123,9 @@
 #'   assembled:
 #'   * a `ggplot` when `plot_type` is `"obs"` or `"change"`;
 #'   * a `patchwork` (which also inherits from `ggplot`) when
-#'     `plot_type = "both"`, or when `contrast_display = "table"` and
-#'     pairwise contrasts were produced, since the contrast table is
-#'     appended as an extra panel.
+#'     `plot_type = "both"`, or when `contrast_display` is `"table"` or
+#'     `"panel"` and pairwise contrasts were produced, since the
+#'     contrast display is appended as an extra panel.
 #'
 #'   Because `contrast_display` can change the class independently of
 #'   `plot_type`, callers that manipulate the result programmatically
@@ -250,7 +263,7 @@ lplot <- function(
   }
   
   if (!is.null(contrast_display)) {
-    valid_cd <- c("footnote", "table")
+    valid_cd <- c("footnote", "table", "panel")
     if (!contrast_display %in% valid_cd) {
       stop(sprintf(
         "Invalid contrast_display '%s'. Must be one of: %s",
@@ -522,6 +535,14 @@ lplot <- function(
     )
   }
 
+  panel_plot <- NULL
+  if (identical(contrast_display, "panel") &&
+      !is.null(contrast_data)) {
+    panel_plot <- .build_contrast_panel_plot(
+      contrast_data, parsed_form$x
+    )
+  }
+
   # Return the requested plots
   if (plot_type == "obs") {
     result <- fig_obs
@@ -539,6 +560,11 @@ lplot <- function(
   if (!is.null(table_plot)) {
     result <- result / table_plot +
       patchwork::plot_layout(heights = c(4, 1))
+  }
+
+  if (!is.null(panel_plot)) {
+    result <- result / panel_plot +
+      patchwork::plot_layout(heights = c(2, 1))
   }
 
   result

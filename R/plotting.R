@@ -711,12 +711,22 @@ generate_plot <- function(
     stringsAsFactors = FALSE
   )
 
-  for (xv in x_values) {
-    xn <- as.numeric(xv)
-    tp_upper <- max(
-      y_vals[as.numeric(stats[[x_var]]) == xn],
-      na.rm = TRUE
-    )
+  # Positions must be resolved through .as_x_position(): coercing a
+  # categorical label such as "Week 4" with as.numeric() yields NA, so
+  # the timepoint never matches, max() is handed nothing, and the
+  # bracket baseline silently becomes -Inf.
+  x_pos_all <- .as_x_position(stats[[x_var]])
+  x_pos_values <- x_pos_all[match(x_values, stats[[x_var]])]
+
+  for (i in seq_along(x_values)) {
+    xv <- x_values[i]
+    xn <- x_pos_values[i]
+    at_tp <- y_vals[x_pos_all == xn]
+    at_tp <- at_tp[is.finite(at_tp)]
+    if (length(at_tp) == 0) {
+      next
+    }
+    tp_upper <- max(at_tp)
     bracket_base <- tp_upper + bracket_gap
 
     tp_pw <- sig_pw[sig_pw$x_val == xv, , drop = FALSE]
@@ -1065,4 +1075,113 @@ generate_plot <- function(
     ggplot2::theme(plot.margin = ggplot2::margin(2, 10, 2, 10))
 
   p
+}
+
+
+#' Build a contrast panel showing each difference with its CI
+#'
+#' Plots the between-group difference against time with confidence
+#' limits and a zero reference line. This is the estimate the trial is
+#' actually about: CONSORT 2025 item 26 requires "the estimated effect
+#' size and its precision", and the CONSORT explanation names per-arm
+#' intervals in place of an interval on the contrast as a common error.
+#' Per-arm error bars on the main plot cannot supply it.
+#'
+#' @param pw_df Pairwise data frame with `x_val`, `group1`, `group2`,
+#'   `estimate`, `lower_cl`, `upper_cl`.
+#' @param x_var Name of the time variable, used for the axis label.
+#' @return A `ggplot`, or NULL when no finite estimate is available.
+#' @noRd
+.build_contrast_panel_plot <- function(pw_df, x_var) {
+  if (is.null(pw_df) || nrow(pw_df) == 0) {
+    return(NULL)
+  }
+  pw_df <- .filter_vs_reference(pw_df)
+  if (!"estimate" %in% names(pw_df) || all(is.na(pw_df$estimate))) {
+    return(NULL)
+  }
+
+  pw_df$contrast <- paste(pw_df$group1, "-", pw_df$group2)
+  pw_df$x_num <- .as_x_position(pw_df$x_val)
+  is_labelled <- anyNA(
+    suppressWarnings(as.numeric(as.character(pw_df$x_val)))
+  )
+  x_scale <- if (is_labelled) {
+    ggplot2::scale_x_continuous(
+      breaks = sort(unique(pw_df$x_num)),
+      labels = unique(as.character(pw_df$x_val))[
+        order(unique(pw_df$x_num))
+      ]
+    )
+  } else {
+    # Break at the visits that were actually assessed, so the axis
+    # never implies a measurement time that does not exist.
+    ggplot2::scale_x_continuous(breaks = sort(unique(pw_df$x_num)))
+  }
+
+  n_contrasts <- length(unique(pw_df$contrast))
+  dodge <- ggplot2::position_dodge(width = 0.15)
+
+  p <- ggplot2::ggplot(
+    pw_df,
+    ggplot2::aes(
+      x = .data[["x_num"]], y = .data[["estimate"]],
+      group = .data[["contrast"]]
+    )
+  ) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed",
+                        colour = "grey40", linewidth = 0.3)
+
+  if (n_contrasts > 1) {
+    p <- p + ggplot2::aes(
+      colour = .data[["contrast"]], shape = .data[["contrast"]]
+    )
+  }
+
+  p +
+    ggplot2::geom_errorbar(
+      ggplot2::aes(
+        ymin = .data[["lower_cl"]], ymax = .data[["upper_cl"]]
+      ),
+      width = 0.4, position = dodge, na.rm = TRUE
+    ) +
+    ggplot2::geom_point(position = dodge, na.rm = TRUE) +
+    x_scale +
+    # Match the grayscale, shape-encoded default of the main plot so
+    # the composed figure stays legible in black and white.
+    (if (n_contrasts > 1) {
+      ggplot2::scale_colour_grey(start = 0, end = 0.6)
+    } else {
+      NULL
+    }) +
+    ggplot2::labs(x = x_var, y = "Difference (95% CI)",
+                  colour = NULL, shape = NULL) +
+    theme_bw_print() +
+    ggplot2::theme(
+      legend.position = if (n_contrasts > 1) "bottom" else "none"
+    )
+}
+
+
+#' Numeric plotting position for an x variable of any type
+#'
+#' A numeric time variable plots at its own value; a factor or
+#' character visit label plots at its level index, matching how
+#' ggplot2 positions a discrete scale. Coercing labels directly with
+#' `as.numeric()` returns NA and silently breaks any downstream
+#' position arithmetic.
+#'
+#' @param x A numeric, factor, or character vector of x values.
+#' @return A numeric vector of positions, the same length as `x`.
+#' @noRd
+.as_x_position <- function(x) {
+  if (is.numeric(x)) {
+    return(as.numeric(x))
+  }
+  num <- suppressWarnings(as.numeric(as.character(x)))
+  if (!anyNA(num)) {
+    return(num)
+  }
+  lev <- if (is.factor(x)) levels(x) else unique(as.character(x))
+  as.numeric(match(as.character(x), lev))
 }

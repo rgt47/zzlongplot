@@ -287,8 +287,13 @@ expect_true('p_value' %in% names(stats_np),
 pw_np <- attr(stats_np, 'pairwise')
 expect_false(is.null(pw_np),
   info = "nonparametric: pairwise attribute set")
-expect_true(all(is.na(pw_np$estimate)),
-  info = "nonparametric: estimate is NA by design")
+# wilcox.test() is now called with conf.int = TRUE, so nonparametric
+# contrasts report the Hodges-Lehmann location shift and its interval
+# rather than a column of NA.
+expect_true(any(is.finite(pw_np$estimate)),
+  info = "nonparametric: location-shift estimate is reported")
+expect_true(any(is.finite(pw_np$lower_cl)),
+  info = "nonparametric: confidence limits are reported")
 
 # --- 3+ groups: omnibus + pairwise contrasts ---
 
@@ -843,3 +848,148 @@ p_both <- lp(plot_type = 'both')
 expect_true(grepl("change from baseline", p_both[[2]]$labels$caption,
   fixed = TRUE),
   info = "the change panel caption identifies the plotted quantity")
+
+# ---------------------------------------------------------------
+# Between-group contrasts: estimate orientation, CIs, and the
+# contrast_display = "panel" mode.
+# ---------------------------------------------------------------
+
+set.seed(7)
+n_ct <- 40
+d_ct <- data.frame(
+  subject_id = rep(seq_len(n_ct), each = 4),
+  visit = rep(c(0, 4, 8, 12), times = n_ct),
+  arm = rep(c('A', 'B'), each = 4, length.out = 4 * n_ct)
+)
+d_ct$y <- 50 + d_ct$visit * ifelse(d_ct$arm == 'A', -2, -0.4) +
+  rnorm(4 * n_ct, 0, 5)
+
+pw_of <- function(tm) {
+  s <- compute_stats(d_ct, x_var = 'visit', y_var = 'y',
+    group_var = 'arm', cluster_var = 'subject_id', baseline_value = 0,
+    statistical_tests = TRUE, test_method = tm)
+  attr(s, 'pairwise')
+}
+
+# The point estimate must lie inside its own confidence interval.
+# Regression guard: diff(t.test()$estimate) returned group2 - group1
+# while conf.int describes group1 - group2, so the estimate fell
+# outside its own limits and contradicted the reported direction.
+for (tm in c('parametric', 'nonparametric')) {
+  pw <- pw_of(tm)
+  ok <- !is.na(pw$estimate) & !is.na(pw$lower_cl)
+  expect_true(all(pw$estimate[ok] >= pw$lower_cl[ok]),
+    info = paste(tm, "contrast estimate is at or above its lower limit"))
+  expect_true(all(pw$estimate[ok] <= pw$upper_cl[ok]),
+    info = paste(tm, "contrast estimate is at or below its upper limit"))
+}
+
+# Nonparametric contrasts must carry a Hodges-Lehmann estimate and CI,
+# not a column of NA.
+pw_np <- pw_of('nonparametric')
+expect_true(any(is.finite(pw_np$estimate)),
+  info = "nonparametric contrasts report a location-shift estimate")
+expect_true(any(is.finite(pw_np$lower_cl)),
+  info = "nonparametric contrasts report confidence limits")
+
+# The estimate must be oriented as group1 - group2, matching the label
+# the footnote prints and the direction conf.int describes.
+pw_p <- pw_of('parametric')
+row12 <- pw_p[pw_p$x_val == 12, ][1, ]
+obs12 <- d_ct[d_ct$visit == 12, ]
+expected <- mean(obs12$y[obs12$arm == row12$group1]) -
+  mean(obs12$y[obs12$arm == row12$group2])
+expect_equal(row12$estimate, expected,
+  info = "parametric contrast is group1 - group2, as labelled")
+expect_true(expected < 0,
+  info = "sanity: arm A declines faster, so A - B is negative here")
+
+# contrast_display = "panel"
+p_panel <- lplot(d_ct, y ~ visit | arm, cluster_var = 'subject_id',
+  baseline_value = 0, statistical_annotations = TRUE,
+  contrast_display = 'panel')
+expect_inherits(p_panel, "patchwork",
+  info = "contrast_display = 'panel' appends a panel")
+
+expect_error(
+  lplot(d_ct, y ~ visit | arm, cluster_var = 'subject_id',
+    baseline_value = 0, statistical_annotations = TRUE,
+    contrast_display = 'banana'),
+  "Invalid contrast_display")
+
+# The panel builder itself returns a ggplot with the contrast on y.
+panel <- zzlongplot:::.build_contrast_panel_plot(pw_p, 'visit')
+expect_inherits(panel, "ggplot",
+  info = "the contrast panel builder returns a ggplot")
+expect_equal(panel$labels$y, "Difference (95% CI)",
+  info = "the contrast panel names what it plots")
+
+# An empty or all-NA contrast set yields NULL rather than an error.
+expect_null(zzlongplot:::.build_contrast_panel_plot(NULL, 'visit'),
+  info = "no contrast data yields no panel")
+pw_na <- pw_p
+pw_na$estimate <- NA_real_
+expect_null(zzlongplot:::.build_contrast_panel_plot(pw_na, 'visit'),
+  info = "all-NA estimates yield no panel")
+
+# Panel mode works for every test method and for a categorical x.
+for (tm in c('parametric', 'nonparametric')) {
+  expect_inherits(
+    lplot(d_ct, y ~ visit | arm, cluster_var = 'subject_id',
+      baseline_value = 0, statistical_annotations = TRUE,
+      test_method = tm, contrast_display = 'panel'),
+    "patchwork", info = paste("panel mode works for", tm))
+}
+
+d_cat <- d_ct
+d_cat$visit <- factor(c('BL', 'W4', 'W8', 'W12')[
+  match(d_ct$visit, c(0, 4, 8, 12))],
+  levels = c('BL', 'W4', 'W8', 'W12'))
+expect_inherits(
+  lplot(d_cat, y ~ visit | arm, cluster_var = 'subject_id',
+    baseline_value = 'BL', statistical_annotations = TRUE,
+    contrast_display = 'panel'),
+  "patchwork", info = "panel mode works with a categorical x variable")
+
+# --- categorical x must not break position arithmetic ---
+# as.numeric("Week 4") is NA, which made max() return -Inf and put the
+# significance brackets at an infinite baseline. Positions now resolve
+# through .as_x_position().
+
+expect_equal(zzlongplot:::.as_x_position(c(0, 4, 8, 12)), c(0, 4, 8, 12),
+  info = "numeric x positions are the values themselves")
+expect_equal(
+  zzlongplot:::.as_x_position(factor(c('BL', 'W4', 'W8'),
+    levels = c('BL', 'W4', 'W8'))),
+  c(1, 2, 3),
+  info = "factor x positions follow level order")
+expect_equal(zzlongplot:::.as_x_position(c('BL', 'W4', 'BL')), c(1, 2, 1),
+  info = "character x positions are stable level indices")
+expect_equal(zzlongplot:::.as_x_position(c('4', '8')), c(4, 8),
+  info = "numeric-looking character x keeps its numeric value")
+
+d_bk <- data.frame(
+  subject_id = rep(seq_len(45), each = 3),
+  visit = factor(rep(c('BL', 'M3', 'M6'), times = 45),
+                 levels = c('BL', 'M3', 'M6')),
+  arm = rep(c('A', 'B', 'C'), each = 3, length.out = 135)
+)
+set.seed(5)
+d_bk$y <- 50 + rnorm(135, 0, 4) +
+  ifelse(d_bk$arm == 'A', -6, ifelse(d_bk$arm == 'B', -3, 0)) *
+    as.numeric(d_bk$visit)
+
+expect_silent_build <- function(p) {
+  w <- NULL
+  withCallingHandlers(invisible(ggplot2::ggplot_build(
+    if (inherits(p, 'patchwork')) p[[1]] else p)),
+    warning = function(x) { w <<- c(w, conditionMessage(x))
+                            invokeRestart('muffleWarning') })
+  w
+}
+
+w_cat <- expect_silent_build(
+  lplot(d_bk, y ~ visit | arm, cluster_var = 'subject_id',
+        baseline_value = 'BL', statistical_annotations = TRUE))
+expect_true(length(grep("coercion|non-missing", w_cat)) == 0,
+  info = "categorical x with brackets builds without coercion warnings")
