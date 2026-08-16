@@ -8,7 +8,8 @@
 #' @param x_var The independent variable (x-axis) name.
 #' @param y_var The dependent variable (y-axis) name.
 #' @param group_var Grouping variable for data (optional).
-#' @param cluster_var Cluster variable for within-subject grouping (subject ID).
+#' @param cluster_var Cluster variable for within-subject grouping
+#'   (subject ID). Defaults to `"subject_id"`, matching [lplot()].
 #' @param baseline_value Baseline value for calculating changes.
 #' 
 #' @return A tibble (`tbl_df`) of one row per x value per group, with
@@ -87,7 +88,8 @@
 #'
 #' @import dplyr
 #' @export
-compute_stats <- function(df, x_var, y_var, group_var, cluster_var, baseline_value,
+compute_stats <- function(df, x_var, y_var, group_var,
+                         cluster_var = "subject_id", baseline_value,
                          confidence_interval = NULL, summary_statistic = "mean",
                          statistical_tests = FALSE,
                          facet_vars = NULL, test_method = "parametric",
