@@ -9,7 +9,7 @@ compute_stats(
   x_var,
   y_var,
   group_var,
-  cluster_var,
+  cluster_var = "subject_id",
   baseline_value,
   confidence_interval = NULL,
   summary_statistic = "mean",
@@ -29,7 +29,8 @@ compute_stats(
 
 \item{group_var}{Grouping variable for data (optional).}
 
-\item{cluster_var}{Cluster variable for within-subject grouping (subject ID).}
+\item{cluster_var}{Cluster variable for within-subject grouping
+(subject ID). Defaults to \code{"subject_id"}, matching \code{\link[=lplot]{lplot()}}.}
 
 \item{baseline_value}{Baseline value for calculating changes.}
 
