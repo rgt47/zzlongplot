@@ -30,10 +30,21 @@ A ggplot2 theme object.
 
 ## Details
 
-Designed for figures that will be printed in greyscale or photocopied.
+Designed for figures that will be printed in grayscale or photocopied.
 Uses high-contrast black-on-white styling with no color dependency. Pair
-with greyscale color scales and mapped linetype/shape aesthetics for
+with grayscale color scales and mapped linetype/shape aesthetics for
 full black-and-white compatibility.
+
+## See also
+
+Other publication themes:
+[`theme_fda()`](https://rgt47.github.io/zzlongplot/reference/theme_fda.md),
+[`theme_jama()`](https://rgt47.github.io/zzlongplot/reference/theme_jama.md),
+[`theme_jco()`](https://rgt47.github.io/zzlongplot/reference/theme_jco.md),
+[`theme_lancet()`](https://rgt47.github.io/zzlongplot/reference/theme_lancet.md),
+[`theme_nature()`](https://rgt47.github.io/zzlongplot/reference/theme_nature.md),
+[`theme_nejm()`](https://rgt47.github.io/zzlongplot/reference/theme_nejm.md),
+[`theme_science()`](https://rgt47.github.io/zzlongplot/reference/theme_science.md)
 
 ## Examples
 

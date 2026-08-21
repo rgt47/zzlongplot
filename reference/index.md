@@ -12,10 +12,6 @@
   : Clinical Trial Color Palettes
 - [`compute_stats()`](https://rgt47.github.io/zzlongplot/reference/compute_stats.md)
   : Compute Summary Statistics for Longitudinal Data
-- [`.cdisc_lookup`](https://rgt47.github.io/zzlongplot/reference/dot-cdisc_lookup.md)
-  : CDISC Variable Recognition and Utilities
-- [`.journal_specs`](https://rgt47.github.io/zzlongplot/reference/dot-journal_specs.md)
-  : Publication-Ready Plot Export Functions
 - [`generate_plot()`](https://rgt47.github.io/zzlongplot/reference/generate_plot.md)
   : Generate Custom ggplot2 Visualization for Longitudinal Data
 - [`get_cdisc_template()`](https://rgt47.github.io/zzlongplot/reference/get_cdisc_template.md)
@@ -56,6 +52,3 @@
   : Science Journal Theme
 - [`validate_cdisc_data()`](https://rgt47.github.io/zzlongplot/reference/validate_cdisc_data.md)
   : Validate CDISC Data Compliance
-- [`zzlongplot-package`](https://rgt47.github.io/zzlongplot/reference/zzlongplot-package.md)
-  : Flexible Plotting of Observed and Change Values with Grouping and
-  Faceting

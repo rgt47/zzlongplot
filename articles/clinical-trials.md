@@ -95,20 +95,6 @@ p1 <- lplot(
   ylab = "Efficacy Score", 
   title = "Efficacy Over Time by Treatment Group"
 )
-#> Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the zzlongplot package.
-#>   Please report the issue at <https://github.com/rgt47/zzlongplot/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
-#> Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the zzlongplot package.
-#>   Please report the issue at <https://github.com/rgt47/zzlongplot/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 
 print(p1)
 ```
@@ -169,7 +155,7 @@ print(p3)
 
 Clinical mode automatically enables: - 95% confidence intervals instead
 of standard error - Sample size annotations at each timepoint  
-- Clinical color scheme (placebo in grey, treatments in distinct
+- Clinical color scheme (placebo in gray, treatments in distinct
 colors) - Professional theme suitable for regulatory submissions
 
 ### Individual Clinical Features
@@ -216,69 +202,19 @@ p5 <- lplot(
   title = "Efficacy by Visit",
   title2 = "Change from Baseline"
 )
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
-#> Warning in .add_pairwise_annotations(plot, stats, pw_df, x_var, y_var,
-#> group_var): NAs introduced by coercion
-#> Warning in max(y_vals[as.numeric(stats[[x_var]]) == xn], na.rm = TRUE): no
-#> non-missing arguments to max; returning -Inf
 
 print(p5)
-#> Warning: Removed 3 rows containing missing values or values outside the scale range
-#> (`geom_segment()`).
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_text()`).
-#> Warning: Removed 3 rows containing missing values or values outside the scale range
-#> (`geom_segment()`).
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_text()`).
 ```
 
 ![](clinical-trials_files/figure-html/categorical-visits-1.png)
 
-### Visit Window Tolerance
+### Visit Timing Variation
 
-Real clinical trials have visit timing variations. Handle this with
-visit windows:
+Real clinical trials have visit timing variations. `zzlongplot` has no
+dedicated visit-window argument; plot against the actual study day by
+passing that column as the x variable.
 
 ``` r
-
-# NOTE: visit_windows is a planned feature; the example below is
-# illustrative.
 
 # Add some visit timing variation
 clinical_data_windows <- clinical_data |>
@@ -299,18 +235,20 @@ p6 <- lplot(
   cluster_var = "SUBJID",
   baseline_value = 0,
   clinical_mode = TRUE,
-  visit_windows = list(
-    "Month 1" = c(21, 35),
-    "Month 2" = c(49, 63),
-    "Month 3" = c(77, 91),
-    "Month 4" = c(105, 119)
-  ),
   xlab = "Study Day",
   title = "Efficacy Over Time (Study Days)"
 )
+#> Warning: There were 4 warnings in `dplyr::mutate()`.
+#> The first warning was:
+#> ℹ In argument: `bound_lower = if (...) NULL`.
+#> Caused by warning in `stats::qt()`:
+#> ! NaNs produced
+#> ℹ Run `dplyr::last_dplyr_warnings()` to see the 3 remaining warnings.
 
 print(p6)
 ```
+
+![](clinical-trials_files/figure-html/visit-timing-1.png)
 
 ## Regulatory-Ready Outputs
 
@@ -340,14 +278,24 @@ print(p7)
 
 ### Export for Regulatory Submission
 
+FDA accepts PDF and TIFF at a minimum of 600 DPI;
+[`save_publication()`](https://rgt47.github.io/zzlongplot/reference/save_publication.md)
+warns if you ask for anything less, and fills in the journal’s own
+defaults when `dpi` and `format` are left unset.
+
 ``` r
 
-# Save in regulatory-friendly format
+out_file <- file.path(tempdir(), "Figure_1_1_Primary_Efficacy.pdf")
 save_publication(p7,
-  filename = "Figure_1_1_Primary_Efficacy.png",
+  filename = out_file,
   journal = "fda",
-  width_mm = 254, height_mm = 152, dpi = 300
+  width_mm = 254, height_mm = 152
 )
+#> Plot saved for FDA Regulatory:
+#>   File: /tmp/RtmpdKy3MF/Figure_1_1_Primary_Efficacy.pdf
+#>   Dimensions: 254 x 152 mm
+#>   Resolution: 600 DPI
+#>   Format: PDF
 ```
 
 ## Clinical Utility Functions
@@ -421,10 +369,10 @@ Get standard clinical color palettes:
 
 ``` r
 
-# Get clinical color palette
+# Get clinical color palette: placebo grey, then active treatments
 colors <- clinical_colors(type = "treatment", n = 3)
 print(colors)
-#> [1] "#7F7F7F" "#1F77B4" "#D62728"  # Grey, Blue, Red
+#> [1] "#7F7F7F" "#1F77B4" "#D62728"
 
 # Use with custom styling
 p8 <- lplot(

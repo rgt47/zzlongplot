@@ -22,7 +22,7 @@ generate_plot(
   facet = NULL,
   color_palette = NULL,
   reference_lines = NULL,
-  show_sample_sizes = FALSE,
+  show_sample_sizes = TRUE,
   statistical_annotations = FALSE,
   use_boxplot = FALSE,
   ribbon_alpha = 0.2,
@@ -30,7 +30,10 @@ generate_plot(
   bw_print = FALSE,
   sample_size_opts = list(),
   contrast_display = NULL,
-  contrast_data = NULL
+  contrast_data = NULL,
+  summary_statistic = NULL,
+  p_adjust_method = "BH",
+  auto_caption = TRUE
 )
 ```
 
@@ -101,7 +104,10 @@ generate_plot(
 
 - show_sample_sizes:
 
-  Logical. If TRUE, adds sample size annotations.
+  Logical. If TRUE (the default), adds sample size annotations. On by
+  default so the number contributing to each point is always visible;
+  see [`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md)
+  for the rationale.
 
 - statistical_annotations:
 
@@ -161,12 +167,12 @@ generate_plot(
   gap
 
   :   Fraction of y-range between plot area and first table row (only
-      for position = "table"). Default 0.10.
+      for position = "table"). Default 0.18.
 
   row_height
 
   :   Fraction of y-range between table rows (only for position =
-      "table"). Default 0.05.
+      "table"). Default 0.06.
 
   label_size
 
@@ -188,6 +194,26 @@ generate_plot(
 
   Optional data frame of contrast results to annotate. When NULL
   (default) no contrasts are drawn.
+
+- summary_statistic:
+
+  Character. The summary used to build `stats`, one of `"mean"`,
+  `"mean_se"`, `"median"`, or `"boxplot"`. Used only to word the
+  automatic caption; pass it so the caption names the correct
+  uncertainty measure.
+
+- p_adjust_method:
+
+  Character. Multiplicity correction that was applied, used to word the
+  automatic caption.
+
+- auto_caption:
+
+  Logical. If TRUE (default) and no `caption` is supplied, a caption is
+  generated stating what the error bars or bands represent, and, when
+  significance stars are drawn, what the star thresholds and
+  multiplicity adjustment are. Set to FALSE to leave the caption empty.
+  An explicit `caption` always wins.
 
 ## Value
 

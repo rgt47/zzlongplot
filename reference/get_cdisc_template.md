@@ -20,6 +20,12 @@ get_cdisc_template(scenario = "efficacy")
 
 Character vector of recommended variable names.
 
+## See also
+
+Other CDISC utilities:
+[`suggest_clinical_vars()`](https://rgt47.github.io/zzlongplot/reference/suggest_clinical_vars.md),
+[`validate_cdisc_data()`](https://rgt47.github.io/zzlongplot/reference/validate_cdisc_data.md)
+
 ## Examples
 
 ``` r

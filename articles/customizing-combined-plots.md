@@ -43,20 +43,6 @@ trial$score <- 50 +
 
 p <- lplot(trial, score ~ visit | arm, baseline_value = 0,
            plot_type = "both")
-#> Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the zzlongplot package.
-#>   Please report the issue at <https://github.com/rgt47/zzlongplot/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
-#> Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the zzlongplot package.
-#>   Please report the issue at <https://github.com/rgt47/zzlongplot/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 p
 ```
 

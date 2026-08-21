@@ -57,27 +57,13 @@ trial$score <- 50 +
 ## Simple formula: `y ~ x`
 
 The minimal formula specifies only an outcome and a time variable. This
-produces a single line with error bars summarising all subjects
+produces a single line with error bars summarizing all subjects
 together, with no group differentiation.
 
 ``` r
 
 lplot(trial, score ~ visit, baseline_value = 0,
       plot_type = "obs")
-#> Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the zzlongplot package.
-#>   Please report the issue at <https://github.com/rgt47/zzlongplot/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
-#> Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the zzlongplot package.
-#>   Please report the issue at <https://github.com/rgt47/zzlongplot/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 ```
 
 ![](formula-interface_files/figure-html/simple-1.png)
@@ -130,10 +116,15 @@ For two-dimensional faceting, use a two-sided formula:
 
 ``` r
 
+# facet_form draws on columns of the data, so `site` must exist.
+trial$site <- rep(c("Site 1", "Site 2"), length.out = nrow(trial))
+
 lplot(trial, score ~ visit | arm, baseline_value = 0,
       facet_form = sex ~ site,
       plot_type = "obs")
 ```
+
+![](formula-interface_files/figure-html/facet-grid-1.png)
 
 ## Baseline auto-detection
 
@@ -155,7 +146,7 @@ lplot(trial, score ~ visit | arm, plot_type = "obs")
 
 ![](formula-interface_files/figure-html/auto-detect-1.png)
 
-If the visit variable uses a recognised character code, the detection
+If the visit variable uses a recognized character code, the detection
 works the same way:
 
 ``` r

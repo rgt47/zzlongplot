@@ -39,6 +39,17 @@ FDA regulatory specifications:
 
 - Suitable for CSR (Clinical Study Report) inclusion
 
+## See also
+
+Other publication themes:
+[`theme_bw_print()`](https://rgt47.github.io/zzlongplot/reference/theme_bw_print.md),
+[`theme_jama()`](https://rgt47.github.io/zzlongplot/reference/theme_jama.md),
+[`theme_jco()`](https://rgt47.github.io/zzlongplot/reference/theme_jco.md),
+[`theme_lancet()`](https://rgt47.github.io/zzlongplot/reference/theme_lancet.md),
+[`theme_nature()`](https://rgt47.github.io/zzlongplot/reference/theme_nature.md),
+[`theme_nejm()`](https://rgt47.github.io/zzlongplot/reference/theme_nejm.md),
+[`theme_science()`](https://rgt47.github.io/zzlongplot/reference/theme_science.md)
+
 ## Examples
 
 ``` r

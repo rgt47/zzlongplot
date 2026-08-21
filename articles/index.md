@@ -8,8 +8,6 @@
   zzlongplot](https://rgt47.github.io/zzlongplot/articles/clinical-trials.md):
 - [Customizing Combined
   Plots](https://rgt47.github.io/zzlongplot/articles/customizing-combined-plots.md):
-- [zzlongplot Feature Enhancement
-  Roadmap](https://rgt47.github.io/zzlongplot/articles/feature-enhancement-roadmap.md):
 - [The Formula
   Interface](https://rgt47.github.io/zzlongplot/articles/formula-interface.md):
 - [MMRM Analysis with

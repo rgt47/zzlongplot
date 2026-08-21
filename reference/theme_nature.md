@@ -50,6 +50,17 @@ Nature journal specifications:
 
 - Professional appearance for peer review
 
+## See also
+
+Other publication themes:
+[`theme_bw_print()`](https://rgt47.github.io/zzlongplot/reference/theme_bw_print.md),
+[`theme_fda()`](https://rgt47.github.io/zzlongplot/reference/theme_fda.md),
+[`theme_jama()`](https://rgt47.github.io/zzlongplot/reference/theme_jama.md),
+[`theme_jco()`](https://rgt47.github.io/zzlongplot/reference/theme_jco.md),
+[`theme_lancet()`](https://rgt47.github.io/zzlongplot/reference/theme_lancet.md),
+[`theme_nejm()`](https://rgt47.github.io/zzlongplot/reference/theme_nejm.md),
+[`theme_science()`](https://rgt47.github.io/zzlongplot/reference/theme_science.md)
+
 ## Examples
 
 ``` r

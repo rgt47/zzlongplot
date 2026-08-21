@@ -37,12 +37,12 @@ A character vector of hex color codes.
 
 Clinical color palettes follow these conventions:
 
-- **Treatment**: Placebo in neutral grey, active treatments in distinct
+- **Treatment**: Placebo in neutral gray, active treatments in distinct
   colors
 
 - **Severity**: Progression from mild (light) to severe (dark)
 
-- **Outcome**: Green for positive, red for negative, grey for neutral
+- **Outcome**: Green for positive, red for negative, gray for neutral
 
 - **FDA**: High contrast colors for regulatory submissions
 
@@ -62,6 +62,13 @@ Journal-specific palettes (based on ggsci package):
 
 All palettes maintain distinction in grayscale printing and follow
 accessibility guidelines.
+
+## See also
+
+Other color helpers:
+[`apply_clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/apply_clinical_colors.md),
+[`assign_treatment_colors()`](https://rgt47.github.io/zzlongplot/reference/assign_treatment_colors.md),
+[`get_colorblind_palette()`](https://rgt47.github.io/zzlongplot/reference/get_colorblind_palette.md)
 
 ## Examples
 

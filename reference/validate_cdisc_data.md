@@ -29,7 +29,35 @@ validate_cdisc_data(
 
 ## Value
 
-A list containing compliance score and recommendations.
+A list of six elements, returned visibly:
+
+- `compliance_score`: overall score as a percentage of
+  `max_possible_score`.
+
+- `score_breakdown`: named list of the seven component scores
+  (`required_vars`, `subject_id`, `visit_vars`, `analysis_values`,
+  `change_vars`, `treatment_vars`, `population_flags`).
+
+- `issues`: character vector of detected compliance problems;
+  `character(0)` when none.
+
+- `recommendations`: character vector of suggested remedies;
+  `character(0)` when none.
+
+- `max_possible_score`: the denominator used, normally `100`.
+
+- `actual_score`: the unnormalized points awarded.
+
+## See also
+
+[`suggest_clinical_vars()`](https://rgt47.github.io/zzlongplot/reference/suggest_clinical_vars.md)
+to detect CDISC variables and build a formula, and
+[`get_cdisc_template()`](https://rgt47.github.io/zzlongplot/reference/get_cdisc_template.md)
+for the expected variable set of a given analysis scenario.
+
+Other CDISC utilities:
+[`get_cdisc_template()`](https://rgt47.github.io/zzlongplot/reference/get_cdisc_template.md),
+[`suggest_clinical_vars()`](https://rgt47.github.io/zzlongplot/reference/suggest_clinical_vars.md)
 
 ## Examples
 

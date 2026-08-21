@@ -39,8 +39,12 @@ save_publication(
 
 - width_mm:
 
-  Numeric. Plot width in millimeters. If NULL, uses journal's single
-  column width.
+  Numeric. Plot width in millimeters. If NULL, uses the journal's column
+  width for `column_type`. When the journal publishes no width (see
+  [`get_journal_specs()`](https://rgt47.github.io/zzlongplot/reference/get_journal_specs.md)),
+  a general print default of 90 mm single / 180 mm double is substituted
+  and a message names it as the package's default rather than the
+  journal's.
 
 - height_mm:
 
@@ -79,6 +83,13 @@ save_publication(
 
 Invisible path to saved file.
 
+## See also
+
+Other publication export:
+[`get_journal_specs()`](https://rgt47.github.io/zzlongplot/reference/get_journal_specs.md),
+[`list_journals()`](https://rgt47.github.io/zzlongplot/reference/list_journals.md),
+[`publication_panels()`](https://rgt47.github.io/zzlongplot/reference/publication_panels.md)
+
 ## Examples
 
 ``` r
@@ -89,20 +100,23 @@ p <- ggplot(mtcars, aes(wt, mpg, color = factor(cyl))) +
   geom_point() + 
   theme_nature()
 
-# Save for Nature journal
-save_publication(p, "figure1.pdf", journal = "nature")
+# Save for Nature journal (written to a temporary directory here so
+# the example does not create files in the working directory)
+save_publication(p, file.path(tempdir(), "figure1.pdf"),
+                 journal = "nature")
 #> Plot saved for Nature:
-#>   File: figure1.pdf
-#>   Dimensions: 180 x 111 mm
+#>   File: /tmp/Rtmpv9jNvj/figure1.pdf
+#>   Dimensions: 183 x 113 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF
 
 # Save with panel label for multi-panel figure
-save_publication(p, "figure1a.pdf", journal = "nature", 
+save_publication(p, file.path(tempdir(), "figure1a.pdf"),
+                 journal = "nature",
                  panel_label = "A", column_type = "single")
 #> Plot saved for Nature:
-#>   File: figure1a.pdf
-#>   Dimensions: 90 x 56 mm
+#>   File: /tmp/Rtmpv9jNvj/figure1a.pdf
+#>   Dimensions: 89 x 55 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF
 #>   Panel: A

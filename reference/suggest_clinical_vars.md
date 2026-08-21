@@ -21,17 +21,36 @@ suggest_clinical_vars(data, verbose = TRUE)
 
 ## Value
 
-A list containing:
+Invisibly, a list of five elements. The function is normally called for
+its side effect: when `verbose = TRUE` (the default) it prints a
+formatted report to the console. Assign the result to inspect it.
 
-- suggested_formula: Recommended formula for lplot
+- `suggested_formula`: recommended formula for
+  [`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md), as
+  a character string, or `NA_character_` if required variables were not
+  found.
 
-- detected_vars: List of detected CDISC variables by category
+- `detected_vars`: named list of detected CDISC variables by category
+  (`subject_id`, `visit`, `analysis_value`, `treatment`, `change`,
+  `population`); entries are `character(0)` when nothing matched.
 
-- cluster_var: Recommended cluster variable (subject ID)
+- `cluster_var`: recommended cluster variable (subject ID).
 
-- baseline_value: Detected baseline visit value
+- `baseline_value`: detected baseline visit value.
 
-- warnings: Any data quality or compliance issues
+- `warnings`: character vector of data-quality or compliance issues;
+  `character(0)` when none.
+
+## See also
+
+[`validate_cdisc_data()`](https://rgt47.github.io/zzlongplot/reference/validate_cdisc_data.md)
+for a compliance score, and
+[`get_cdisc_template()`](https://rgt47.github.io/zzlongplot/reference/get_cdisc_template.md)
+for the expected variables of a scenario.
+
+Other CDISC utilities:
+[`get_cdisc_template()`](https://rgt47.github.io/zzlongplot/reference/get_cdisc_template.md),
+[`validate_cdisc_data()`](https://rgt47.github.io/zzlongplot/reference/validate_cdisc_data.md)
 
 ## Examples
 

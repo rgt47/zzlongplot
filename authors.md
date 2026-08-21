@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/rgt47/zzlongplot/blob/main/DESCRIPTION)
+[`inst/CITATION`](https://github.com/rgt47/zzlongplot/blob/main/inst/CITATION)
 
 Thomas R (2026). *zzlongplot: Longitudinal Plotting with Clinical Trials
 Support*. R package version 0.2.0,

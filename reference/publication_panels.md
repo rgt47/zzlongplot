@@ -61,16 +61,33 @@ publication_panels(
 
 - spacing:
 
-  Numeric. Spacing between panels.
+  Numeric. Margin added around each panel, in `npc` units (fraction of
+  the panel region). Default `0.02`.
 
 ## Value
 
-A combined plot object (patchwork or equivalent).
+A `patchwork` object combining `plots`, with class
+`c("patchwork", "gg", "ggplot")`. It prints like a ggplot and can be
+passed to
+[`save_publication()`](https://rgt47.github.io/zzlongplot/reference/save_publication.md)
+or
+[`ggplot2::ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html).
+
+## See also
+
+[`save_publication()`](https://rgt47.github.io/zzlongplot/reference/save_publication.md)
+to write the result to a journal-specified file;
+[`get_publication_theme()`](https://rgt47.github.io/zzlongplot/reference/get_publication_theme.md)
+and the `theme_*()` family for styling the individual panels.
+
+Other publication export:
+[`get_journal_specs()`](https://rgt47.github.io/zzlongplot/reference/get_journal_specs.md),
+[`list_journals()`](https://rgt47.github.io/zzlongplot/reference/list_journals.md),
+[`save_publication()`](https://rgt47.github.io/zzlongplot/reference/save_publication.md)
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 library(ggplot2)
 
 # Create individual plots
@@ -79,12 +96,17 @@ p2 <- ggplot(mtcars, aes(hp, mpg)) + geom_point() + theme_nature()
 
 # Combine into publication figure
 fig <- publication_panels(
-  plots = list(p1, p2), 
+  plots = list(p1, p2),
   labels = c("A", "B"),
   layout = "horizontal"
 )
 
-# Save the combined figure
-save_publication(fig, "figure1.pdf", journal = "nature", column_type = "double")
-} # }
+# Save the combined figure to a temporary location
+out <- file.path(tempdir(), "figure1.pdf")
+save_publication(fig, out, journal = "nature", column_type = "double")
+#> Plot saved for Nature:
+#>   File: /tmp/Rtmpv9jNvj/figure1.pdf
+#>   Dimensions: 183 x 113 mm
+#>   Resolution: 600 DPI
+#>   Format: PDF
 ```

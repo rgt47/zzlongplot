@@ -34,12 +34,28 @@ apply_clinical_colors(
 
 ## Value
 
-Modified ggplot object with clinical colors applied.
+The input `plot` with manual color and fill scales added, assigning gray
+to any detected placebo or control level and distinct colors to the
+active arms. If `treatment_var` is not a column of the plot's data, the
+plot is returned **unchanged** and a warning is issued.
+
+## See also
+
+[`assign_treatment_colors()`](https://rgt47.github.io/zzlongplot/reference/assign_treatment_colors.md)
+for the underlying name-to-color mapping,
+[`clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/clinical_colors.md)
+for the palettes, and
+[`apply_publication_style()`](https://rgt47.github.io/zzlongplot/reference/apply_publication_style.md)
+to apply a journal theme at the same time.
+
+Other color helpers:
+[`assign_treatment_colors()`](https://rgt47.github.io/zzlongplot/reference/assign_treatment_colors.md),
+[`clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/clinical_colors.md),
+[`get_colorblind_palette()`](https://rgt47.github.io/zzlongplot/reference/get_colorblind_palette.md)
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 library(ggplot2)
 
 # Create sample data
@@ -55,5 +71,4 @@ p <- ggplot(data, aes(x = visit, y = efficacy, color = treatment)) +
 
 # Apply clinical colors
 p_clinical <- apply_clinical_colors(p, "treatment")
-} # }
 ```

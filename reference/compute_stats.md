@@ -12,7 +12,7 @@ compute_stats(
   x_var,
   y_var,
   group_var,
-  cluster_var,
+  cluster_var = "subject_id",
   baseline_value,
   confidence_interval = NULL,
   summary_statistic = "mean",
@@ -44,7 +44,9 @@ compute_stats(
 
 - cluster_var:
 
-  Cluster variable for within-subject grouping (subject ID).
+  Cluster variable for within-subject grouping (subject ID). Defaults to
+  `"subject_id"`, matching
+  [`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md).
 
 - baseline_value:
 
@@ -57,9 +59,9 @@ compute_stats(
 
 - summary_statistic:
 
-  Character. Type of summary statistic: "mean" (mean ± CI/SE), "mean_se"
-  (mean ± SE), "median" (median + IQR), or "boxplot" (quartiles +
-  whiskers).
+  Character. Type of summary statistic: "mean" (mean +/- CI/SE),
+  "mean_se" (mean +/- SE), "median" (median + IQR), or "boxplot"
+  (quartiles + whiskers).
 
 - statistical_tests:
 
@@ -90,32 +92,67 @@ compute_stats(
 
 ## Value
 
-A data frame containing the computed statistics with columns:
+A tibble (`tbl_df`) of one row per x value per group, with one
+observation dropped for any group-timepoint whose summary is `NA`.
+Columns, in addition to the original x, grouping, and faceting
+variables:
 
-- Original x and group variables
+- `mean_value`: mean of y, or median when `summary_statistic` is
+  `"median"` or `"boxplot"`.
 
-- mean_value: Mean/median of y values (depending on summary_statistic)
+- `change_mean`: the same summary applied to change from baseline.
 
-- change_mean: Mean/median of change from baseline
+- `sample_size`: count of non-missing y values, after missing-value
+  removal.
 
-- sample_size: Number of observations
+- `standard_deviation`, `change_sd`: SD for `"mean"`/`"mean_se"`; IQR
+  for `"median"`/`"boxplot"`.
 
-- standard_deviation: SD of y values (for mean) or IQR (for median)
+- `standard_error`, `change_se`: the above divided by
+  `sqrt(sample_size)`.
 
-- change_sd: SD of change values (for mean) or IQR (for median)
+- `bound_lower`, `bound_upper`, `bound_lower_change`,
+  `bound_upper_change`: the plotted interval. A *t*-based confidence
+  interval for `"mean"` with `confidence_interval` set; a
+  normal-approximation median interval for `"median"` with
+  `confidence_interval` set; +/-1 standard error for `"mean_se"`;
+  quartiles for `"median"` without a level; and 1.5-IQR whiskers for
+  `"boxplot"`.
 
-- standard_error: Standard error of mean/median
+- `ci_level`: the confidence level the bounds represent, or `NA` when
+  they are not a confidence interval (`"mean_se"`, `"boxplot"`, or no
+  `confidence_interval`).
 
-- change_se: Standard error of change mean/median
+- `group`: an [`interaction()`](https://rdrr.io/r/base/interaction.html)
+  factor of the grouping variables, or the character scalar `"all"` when
+  `group_var` is `NULL`.
 
-- bound_lower/bound_upper: Lower/upper bounds (CI/SE for mean, Q1/Q3 for
-  median)
+- `is_continuous`: `TRUE` when the x variable is numeric.
 
-- bound_lower_change/bound_upper_change: Bounds for change values
+When `statistical_tests = TRUE`, three further columns are present:
 
-- group: Factor combining all grouping variables
+- `p_value`: the omnibus p-value for that x value, repeated across that
+  value's group rows.
 
-- is_continuous: Boolean indicating if x is continuous
+- `p_adj`: `p_value` adjusted by `p_adjust_method` across the distinct
+  tests (one per x value, not one per row).
+
+- `significance`: a star code derived from `p_adj`.
+
+Additionally, when pairwise comparisons were computed, the result
+carries a `"pairwise"` attribute (retrieve with `attr(x, "pairwise")`):
+a data frame with columns `x_val`, `group1`, `group2`, `estimate`,
+`lower_cl`, `upper_cl`, `p_value`, `p_adj`, and `significance`. This
+attribute is absent when no pairwise comparison was performed.
+
+## See also
+
+[`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md) for
+the end-to-end workflow,
+[`generate_plot()`](https://rgt47.github.io/zzlongplot/reference/generate_plot.md)
+which consumes this result, and
+[`parse_formula()`](https://rgt47.github.io/zzlongplot/reference/parse_formula.md)
+which produces the variable names it expects.
 
 ## Examples
 
@@ -133,13 +170,13 @@ head(stats)
 #> # A tibble: 6 × 15
 #>   group visit mean_value change_mean sample_size standard_deviation change_sd
 #>   <fct> <dbl>      <dbl>       <dbl>       <int>              <dbl>     <dbl>
-#> 1 A         0       42.8       0               5               4.55      0   
-#> 2 A         1       45.8      -0.375           5               7.01     17.2 
-#> 3 A         2       60.1      17.3             5               7.16     10.8 
-#> 4 B         0       46.2       0               5              10.5       0   
-#> 5 B         1       49.7       6.90            5              14.9      14.5 
-#> 6 B         2       50.9       4.65            5               7.85      7.78
+#> 1 A         0       49.8        0              5               9.16      0   
+#> 2 A         1       53.5        4.81           5              12.5       9.35
+#> 3 A         2       57.7        7.92           5               7.82     16.3 
+#> 4 B         0       48.7        0              5              13.7       0   
+#> 5 B         1       53.0        3.22           5              11.5      15.3 
+#> 6 B         2       52.8        4.09           5              11.9      24.1 
 #> # ℹ 8 more variables: standard_error <dbl>, change_se <dbl>, bound_lower <dbl>,
 #> #   bound_upper <dbl>, bound_lower_change <dbl>, bound_upper_change <dbl>,
-#> #   ci_level <lgl>, is_continuous <lgl>
+#> #   ci_level <dbl>, is_continuous <lgl>
 ```

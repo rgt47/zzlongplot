@@ -103,20 +103,6 @@ p_nejm <- lplot(demo_data,
                subtitle = "NEJM Theme with Official Colors",
                xlab = "Week",
                ylab = "Efficacy Score (points)")
-#> Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the zzlongplot package.
-#>   Please report the issue at <https://github.com/rgt47/zzlongplot/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
-#> Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the zzlongplot package.
-#>   Please report the issue at <https://github.com/rgt47/zzlongplot/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 
 p_nejm
 ```
@@ -203,7 +189,7 @@ p_jama
 ![](publication-themes_files/figure-html/jama-theme-1.png)
 
 **JAMA Theme Features:** - Conservative color palette with dark
-blue-grey (#374E55) and orange (#DF8F44) - Professional typography
+blue-gray (#374E55) and orange (#DF8F44) - Professional typography
 suitable for medical publications - Clear, readable design for clinical
 data
 

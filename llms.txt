@@ -37,8 +37,6 @@ visit-dependent structure.
   professional themes
 - **Treatment Styling**: Predefined color schemes for placebo vs. active
   treatment visualization
-- **Visit Windows**: Handle visit timing variations common in clinical
-  trials
 - **Clinical Statistics**: 95% confidence intervals, sample size
   annotations, missing data handling
 - **Regulatory Output**: Export plots in formats suitable for regulatory
@@ -191,12 +189,33 @@ helper functions to produce observed plots, change plots, or both.
   Auto-detect likely CDISC variables in a given dataset and suggest
   proper formula syntax.
 
-- **`get_clinical_theme()`**: Returns regulatory-ready ggplot2 themes
-  (FDA, EMA, ICH guidelines).
+- **[`validate_cdisc_data()`](https://rgt47.github.io/zzlongplot/reference/validate_cdisc_data.md)**:
+  Score a dataset for CDISC compliance and report issues and
+  recommendations.
+
+- **[`get_publication_theme()`](https://rgt47.github.io/zzlongplot/reference/get_publication_theme.md)**
+  and the `theme_*()` family: Regulatory- and journal-ready ggplot2
+  themes
+  ([`theme_fda()`](https://rgt47.github.io/zzlongplot/reference/theme_fda.md),
+  [`theme_nejm()`](https://rgt47.github.io/zzlongplot/reference/theme_nejm.md),
+  [`theme_nature()`](https://rgt47.github.io/zzlongplot/reference/theme_nature.md),
+  [`theme_lancet()`](https://rgt47.github.io/zzlongplot/reference/theme_lancet.md),
+  [`theme_jama()`](https://rgt47.github.io/zzlongplot/reference/theme_jama.md),
+  [`theme_science()`](https://rgt47.github.io/zzlongplot/reference/theme_science.md),
+  [`theme_jco()`](https://rgt47.github.io/zzlongplot/reference/theme_jco.md),
+  [`theme_bw_print()`](https://rgt47.github.io/zzlongplot/reference/theme_bw_print.md)).
 
 - **[`clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/clinical_colors.md)**:
   Predefined color palettes for treatment groups following clinical
   standards.
+
+- **[`save_publication()`](https://rgt47.github.io/zzlongplot/reference/save_publication.md)**
+  and
+  **[`publication_panels()`](https://rgt47.github.io/zzlongplot/reference/publication_panels.md)**:
+  Assemble multi-panel figures and export them at journal-specified
+  dimensions and resolution. See
+  [`list_journals()`](https://rgt47.github.io/zzlongplot/reference/list_journals.md)
+  for supported targets.
 
 ------------------------------------------------------------------------
 
@@ -221,17 +240,22 @@ plots side-by-side using the **patchwork** package.
 
 #### Clinical Modes
 
+Note that `cluster_var` defaults to `"subject_id"`, so CDISC data must
+name its subject column explicitly.
+
 ``` r
 
 # Enable all clinical defaults at once
-lplot(data, AVAL ~ AVISITN | TRT01P, clinical_mode = TRUE)
+lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+      cluster_var = "SUBJID", baseline_value = 0,
+      clinical_mode = TRUE)
 
 # Or customize individual clinical features
-lplot(data, AVAL ~ AVISITN | TRT01P, 
+lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+      cluster_var = "SUBJID", baseline_value = 0,
       treatment_colors = "standard",    # Placebo=grey, Active=blue/red
       confidence_interval = 0.95,       # 95% CI instead of SE
-      show_sample_sizes = TRUE,         # N at each timepoint
-      visit_windows = list("Week 4" = c(22, 35))  # Handle visit windows
+      show_sample_sizes = TRUE          # N at each timepoint
 )
 ```
 
@@ -241,31 +265,41 @@ lplot(data, AVAL ~ AVISITN | TRT01P,
 
 # Automatically suggests CDISC-compliant formulas
 suggest_clinical_vars(clinical_data)
-#> Suggested formula: AVAL ~ AVISITN | TRT01P
-#> Cluster variable: SUBJID detected
-#> Baseline: Visit 1 (AVISITN = 1)
+#> CDISC Variable Detection Results:
+#> =================================
+#>
+#> Suggested Formula: AVAL ~ AVISITN | TRT01P
+#> Cluster Variable: SUBJID
+#> Baseline Value: 0
 ```
 
-#### Regulatory Themes
+#### Regulatory and Journal Themes
+
+Available `theme` values are `"bw"`, `"nejm"`, `"nature"`, `"lancet"`,
+`"jama"`, `"science"`, `"jco"`, `"fda"`, and `"default"`.
 
 ``` r
 
 # FDA submission ready
-lplot(data, AVAL ~ AVISITN | TRT01P, theme = "fda")
-
-# EMA guidelines compliant  
-lplot(data, AVAL ~ AVISITN | TRT01P, theme = "ema")
+lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+      cluster_var = "SUBJID", baseline_value = 0, theme = "fda")
 ```
+
+EMA is supported as an *export* target rather than a theme; use
+`save_publication(p, "figure.pdf", journal = "ema")`.
 
 ------------------------------------------------------------------------
 
 ## **Dependencies**
 
-The `zzlongplot` package depends on the following R packages: -
-**dplyr**: For data manipulation. - **ggplot2**: For visualization. -
-**patchwork**: For combining plots.
+The `zzlongplot` package imports the following R packages: - **dplyr**:
+For data manipulation. - **ggplot2**: For visualization. -
+**patchwork**: For combining plots. - **RColorBrewer**: For
+colorblind-friendly palettes.
 
-Ensure these packages are installed before using `zzlongplot`.
+These are installed automatically. The optional MMRM analysis path
+(`test_method = "mmrm"`) additionally requires the suggested packages
+**mmrm** and **emmeans**.
 
 ------------------------------------------------------------------------
 
@@ -398,10 +432,6 @@ Issues](https://github.com/rgt47/zzlongplot/issues) page.
   : Clinical Trial Color Palettes
 - [`compute_stats()`](https://rgt47.github.io/zzlongplot/reference/compute_stats.md)
   : Compute Summary Statistics for Longitudinal Data
-- [`.cdisc_lookup`](https://rgt47.github.io/zzlongplot/reference/dot-cdisc_lookup.md)
-  : CDISC Variable Recognition and Utilities
-- [`.journal_specs`](https://rgt47.github.io/zzlongplot/reference/dot-journal_specs.md)
-  : Publication-Ready Plot Export Functions
 - [`generate_plot()`](https://rgt47.github.io/zzlongplot/reference/generate_plot.md)
   : Generate Custom ggplot2 Visualization for Longitudinal Data
 - [`get_cdisc_template()`](https://rgt47.github.io/zzlongplot/reference/get_cdisc_template.md)
@@ -442,9 +472,6 @@ Issues](https://github.com/rgt47/zzlongplot/issues) page.
   : Science Journal Theme
 - [`validate_cdisc_data()`](https://rgt47.github.io/zzlongplot/reference/validate_cdisc_data.md)
   : Validate CDISC Data Compliance
-- [`zzlongplot-package`](https://rgt47.github.io/zzlongplot/reference/zzlongplot-package.md)
-  : Flexible Plotting of Observed and Change Values with Grouping and
-  Faceting
 
 # Articles
 
@@ -456,8 +483,6 @@ Issues](https://github.com/rgt47/zzlongplot/issues) page.
   zzlongplot](https://rgt47.github.io/zzlongplot/articles/clinical-trials.md):
 - [Customizing Combined
   Plots](https://rgt47.github.io/zzlongplot/articles/customizing-combined-plots.md):
-- [zzlongplot Feature Enhancement
-  Roadmap](https://rgt47.github.io/zzlongplot/articles/feature-enhancement-roadmap.md):
 - [The Formula
   Interface](https://rgt47.github.io/zzlongplot/articles/formula-interface.md):
 - [MMRM Analysis with

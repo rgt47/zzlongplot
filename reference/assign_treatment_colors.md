@@ -26,10 +26,17 @@ Named character vector of colors with treatment names as names.
 ## Details
 
 This function uses pattern matching to identify placebo groups and
-assigns neutral grey color, while active treatments get distinct colors.
+assigns neutral gray color, while active treatments get distinct colors.
 
 Placebo detection patterns include: "placebo", "control", "sham",
 case-insensitive matching.
+
+## See also
+
+Other color helpers:
+[`apply_clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/apply_clinical_colors.md),
+[`clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/clinical_colors.md),
+[`get_colorblind_palette()`](https://rgt47.github.io/zzlongplot/reference/get_colorblind_palette.md)
 
 ## Examples
 

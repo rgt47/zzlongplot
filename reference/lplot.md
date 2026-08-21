@@ -29,9 +29,9 @@ lplot(
   treatment_colors = NULL,
   confidence_interval = NULL,
   summary_statistic = "mean",
-  show_sample_sizes = FALSE,
+  show_sample_sizes = TRUE,
   sample_size_opts = list(),
-  theme = "bw",
+  theme = NULL,
   publication_ready = FALSE,
   statistical_annotations = FALSE,
   test_method = "parametric",
@@ -40,7 +40,8 @@ lplot(
   reference_lines = NULL,
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
-  contrast_display = NULL
+  contrast_display = NULL,
+  auto_caption = TRUE
 )
 ```
 
@@ -124,7 +125,7 @@ lplot(
 - jitter_width:
 
   Numeric. Width of horizontal jitter for error bars when multiple
-  groups are present. Default is 0.1. Set to 0 to disable jittering.
+  groups are present. Default is 0.15. Set to 0 to disable jittering.
   Only applies when error_type = "bar".
 
 - color_palette:
@@ -140,7 +141,7 @@ lplot(
 - treatment_colors:
 
   Character. Predefined color scheme for treatments. Options: "standard"
-  (placebo=grey, active=colors), or NULL.
+  (placebo=gray, active=colors), or NULL.
 
 - confidence_interval:
 
@@ -150,12 +151,19 @@ lplot(
 - summary_statistic:
 
   Character. Type of summary statistic to calculate. Options: "mean"
-  (mean ± CI/SE), "mean_se" (mean ± SE), "median" (median + IQR), or
+  (mean +/- CI/SE), "mean_se" (mean +/- SE), "median" (median + IQR), or
   "boxplot" (boxplot summary with quartiles). Default is "mean".
 
 - show_sample_sizes:
 
-  Logical. If TRUE, shows sample sizes at each timepoint.
+  Logical. If TRUE (the default), the number of non-missing observations
+  contributing to each group at each timepoint is drawn on the plot.
+  This is on by default because CONSORT 2025 item 26 requires reporting
+  "the number of participants with available data at each time point",
+  and because a longitudinal figure with a silently shrinking
+  denominator hides attrition. Set to FALSE to suppress. See
+  `sample_size_opts` for placement, including a numbers-below-axis
+  table.
 
 - sample_size_opts:
 
@@ -169,13 +177,17 @@ lplot(
 
   Character. Predefined publication theme with matching colors. Options:
   "bw", "nejm", "nature", "lancet", "jama", "science", "jco", "fda", or
-  NULL. Defaults to "bw". Applies both typography/layout AND
-  journal-specific color palette automatically.
+  "default". Applies both typography/layout AND, where one exists, the
+  journal-specific color palette. Defaults to `NULL`, which resolves to
+  `"nejm"` under `clinical_mode`, `"nature"` under `publication_ready`,
+  and otherwise to `"bw"`. Pass an explicit value to override the mode
+  defaults.
 
 - publication_ready:
 
-  Logical. If TRUE, applies publication-ready defaults (professional
-  theme, proper typography, clean styling).
+  Logical. If TRUE, applies publication-ready defaults: the `"nature"`
+  theme (unless `theme` is given explicitly), a 95% confidence interval,
+  and sample-size annotations.
 
 - statistical_annotations:
 
@@ -221,14 +233,71 @@ lplot(
 
 - contrast_display:
 
-  Optional character string controlling whether and how pairwise
-  contrast annotations are added to the plot. NULL (default) suppresses
-  contrast display.
+  Optional character string controlling whether and how the
+  between-group contrasts are reported. Requires
+  `statistical_annotations = TRUE`. Options:
+
+  `"footnote"`
+
+  :   Adds the estimate, confidence interval and p-value for each
+      significant contrast to the caption.
+
+  `"table"`
+
+  :   Appends a table of all contrasts below the plot.
+
+  `"panel"`
+
+  :   Appends a panel plotting each contrast against time with its
+      confidence interval and a zero reference line.
+
+  `NULL` (the default) reports no contrasts. The per-arm error bars on
+  the main plot describe each group separately and cannot show the
+  difference between them; CONSORT 2025 item 26 asks for the effect size
+  and its precision, so prefer one of these when the figure is making a
+  comparative claim.
+
+- auto_caption:
+
+  Logical. If TRUE (the default), and no `caption` is supplied, the
+  caption is generated automatically and states what the error bars or
+  bands represent: a confidence interval and its level, `+/-1 SE`, the
+  interquartile range, or the boxplot construction, matching whatever
+  was actually computed. When `statistical_annotations = TRUE` it also
+  states the significance thresholds and the multiplicity adjustment.
+  This is on by default because *Nature* and *Nature Medicine* require
+  all error bars to be defined in the figure legend, and *JAMA* and
+  *Science* require the measure of dispersion to be identified. An
+  explicit `caption` (or `caption2`) always takes precedence; set
+  `auto_caption = FALSE` to suppress generation.
 
 ## Value
 
-A ggplot2 object or a combination of objects representing the requested
-plots.
+A plot object whose class depends on how many panels were assembled:
+
+- a `ggplot` when `plot_type` is `"obs"` or `"change"`;
+
+- a `patchwork` (which also inherits from `ggplot`) when
+  `plot_type = "both"`, or when `contrast_display` is `"table"` or
+  `"panel"` and pairwise contrasts were produced, since the contrast
+  display is appended as an extra panel.
+
+Because `contrast_display` can change the class independently of
+`plot_type`, callers that manipulate the result programmatically should
+test with `inherits(x, "patchwork")` rather than assume a plain
+`ggplot`. Both classes print and both accept
+[`ggplot2::ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html).
+
+## See also
+
+[`compute_stats()`](https://rgt47.github.io/zzlongplot/reference/compute_stats.md)
+for the statistics underlying the plot,
+[`generate_plot()`](https://rgt47.github.io/zzlongplot/reference/generate_plot.md)
+for the lower-level renderer,
+[`parse_formula()`](https://rgt47.github.io/zzlongplot/reference/parse_formula.md)
+for the accepted formula syntax, and
+[`save_publication()`](https://rgt47.github.io/zzlongplot/reference/save_publication.md)
+to export the result.
 
 ## Examples
 
@@ -255,7 +324,7 @@ lplot(df, measure ~ visit | group, baseline_value = 0,
       cluster_var = "subject_id", summary_statistic = "median")
 
 
-# Plot using mean ± SE (standard error)
+# Plot using mean +/- SE (standard error)
 lplot(df, measure ~ visit | group, baseline_value = 0,
       cluster_var = "subject_id", summary_statistic = "mean_se")
 

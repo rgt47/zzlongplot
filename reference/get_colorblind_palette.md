@@ -31,6 +31,13 @@ package. For qualitative data, it uses the "Dark2" palette which is
 colorblind-friendly. For sequential data, it uses the "Blues" palette.
 For diverging data, it uses the "RdBu" palette.
 
+## See also
+
+Other color helpers:
+[`apply_clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/apply_clinical_colors.md),
+[`assign_treatment_colors()`](https://rgt47.github.io/zzlongplot/reference/assign_treatment_colors.md),
+[`clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/clinical_colors.md)
+
 ## Examples
 
 ``` r
