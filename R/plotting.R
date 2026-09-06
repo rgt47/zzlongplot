@@ -11,10 +11,22 @@
 #' @param x_var A string specifying the column name for the x-axis variable.
 #' @param y_var A string specifying the column name for the y-axis variable.
 #' @param group_var A string specifying the column name for the grouping variable.
-#' @param error_type A string specifying the error type. Use `"bar"` for error bars or 
-#'   `"band"` for ribbons.
-#' @param jitter_width Numeric. Width of horizontal jitter for error bars when 
-#'   multiple groups are present. Only applies when error_type = "bar".
+#' @param error_type A string specifying the error type. Use `"bar"` for
+#'   capped error bars, `"line"` for uncapped ranges, or `"band"` for
+#'   ribbons.
+#' @param jitter_width Numeric. Width of horizontal jitter for error bars when
+#'   multiple groups are present. Only applies when error_type = "bar"
+#'   or `"line"`.
+#' @param error_opts List. Appearance overrides for the `"bar"` and
+#'   `"line"` error layers. Elements (all optional):
+#'   \describe{
+#'     \item{colour}{Bar colour. `NULL`, the default, inherits the
+#'       group colour so that error bars match the series they belong
+#'       to. Supply a string (e.g. `"black"`) to override.}
+#'     \item{alpha}{Transparency, 0-1. Default 1.}
+#'     \item{linewidth}{Line width. Default 0.35.}
+#'     \item{width}{Cap width, `error_type = "bar"` only. Default 0.2.}
+#'   }
 #' @param xlab A string for the x-axis label.
 #' @param ylab A string for the y-axis label.
 #' @param title A string for the plot title.
@@ -59,6 +71,23 @@
 #'     \item{label_offset}{Horizontal offset for group labels
 #'       (only for position = "table"). Default 0.08 for
 #'       continuous x, 0.35 for categorical.}
+#'     \item{show_group_labels}{Logical, `position = "table"` only.
+#'       Whether to print the group name at the left of each row.
+#'       Default `TRUE`. Set `FALSE` to identify the rows from the
+#'       legend instead, which also reclaims the left margin the
+#'       labels reserve.}
+#'     \item{legend}{`position = "table"` only. `"none"` (the default)
+#'       hides the legend, on the assumption that the row labels
+#'       identify the groups; `"keep"` leaves it in place, which is
+#'       what `show_group_labels = FALSE` needs.}
+#'     \item{region}{`position = "table"` only. Where the rows are
+#'       drawn: `"margin"` (the default) holds the panel to the data
+#'       range and reserves plot margin beneath it; `"panel"` expands
+#'       the y scale to include the rows, spending vertical space
+#'       inside the panel rather than outside it. Prefer `"panel"` on
+#'       a figure that is already tall on furniture (a multi-line
+#'       subtitle, a bottom legend), where a reserved margin can
+#'       squeeze the panel to a sliver.}
 #'   }
 #' @param contrast_display Optional character string controlling
 #'   whether and how pairwise contrast annotations are added to
@@ -141,6 +170,7 @@ generate_plot <- function(
   ribbon_fill = NULL,
   bw_print = FALSE,
   sample_size_opts = list(),
+  error_opts = list(),
   contrast_display = NULL,
   contrast_data = NULL,
   summary_statistic = NULL,
@@ -298,31 +328,13 @@ generate_plot <- function(
   }
   
   # Add error representation based on type (skip for boxplots as they have their own whiskers)
-  if (!use_boxplot && error_type == "bar") {
-    if (has_groups && jitter_width > 0) {
-      # Use position_dodge for multiple groups
-      plot <- plot + ggplot2::geom_errorbar(
-        ggplot2::aes(
-          ymin = .data[["bound_lower"]], 
-          ymax = .data[["bound_upper"]]
-        ),
-        width = 0.2, 
-        color = "black", 
-        alpha = 0.3,
-        position = ggplot2::position_dodge(width = jitter_width)
-      )
-    } else {
-      # Standard error bars without dodging
-      plot <- plot + ggplot2::geom_errorbar(
-        ggplot2::aes(
-          ymin = .data[["bound_lower"]], 
-          ymax = .data[["bound_upper"]]
-        ),
-        width = 0.2, 
-        color = "black", 
-        alpha = 0.3
-      )
-    }
+  if (!use_boxplot && error_type %in% c("bar", "line")) {
+    plot <- plot + .error_layer(
+      error_type = error_type,
+      has_groups = has_groups,
+      jitter_width = jitter_width,
+      error_opts = error_opts
+    )
   } else if (!use_boxplot) {
     # Add error bands (ribbons) - skip for boxplots
     if (is.null(ribbon_fill)) {
@@ -451,7 +463,8 @@ generate_plot <- function(
     if (ss_position == "table" && has_groups) {
       plot <- .add_sample_size_table(
         plot, stats, x_var, y_var, group_var,
-        ss_size, ss_alpha, ss
+        ss_size, ss_alpha, ss,
+        facet_vars = c(facet$facet_y, facet$facet_x)
       )
     } else {
       ss_color <- ss$color %||% "grey40"
@@ -528,6 +541,65 @@ generate_plot <- function(
 }
 
 
+#' Build the error-bar or error-line layer
+#'
+#' Single construction point for the `error_type = "bar"` and
+#' `error_type = "line"` layers, so that the aesthetic mapping is not
+#' duplicated across the dodged and undodged paths.
+#'
+#' The layer inherits `colour` from the plot's base aesthetic, which is
+#' mapped to the group variable, so error bars take the group colour
+#' like every other layer. `linetype` is pinned to solid: under
+#' `bw_print` the base aesthetic maps linetype to group as well, and a
+#' dashed error bar is not a legible interval.
+#'
+#' @param error_type Either `"bar"` (capped, [ggplot2::geom_errorbar()])
+#'   or `"line"` (uncapped, [ggplot2::geom_linerange()]).
+#' @param has_groups Logical, whether a grouping variable with more than
+#'   one level is present.
+#' @param jitter_width Dodge width, applied only when `has_groups`.
+#' @param error_opts List of appearance overrides. See [generate_plot()].
+#'
+#' @return A ggplot2 layer.
+#' @keywords internal
+#' @noRd
+.error_layer <- function(error_type, has_groups, jitter_width,
+                         error_opts = list()) {
+  mapping <- ggplot2::aes(
+    ymin = .data[["bound_lower"]],
+    ymax = .data[["bound_upper"]]
+  )
+
+  # NULL colour means inherit the group colour. A character value
+  # overrides it, which is how the pre-0.3.0 appearance is restored.
+  colour <- error_opts$colour %||% error_opts$color
+  alpha <- error_opts$alpha %||% 1
+  linewidth <- error_opts$linewidth %||% 0.35
+
+  args <- list(
+    mapping = mapping,
+    alpha = alpha,
+    linewidth = linewidth,
+    linetype = 1,
+    show.legend = FALSE
+  )
+  if (!is.null(colour)) {
+    args$colour <- colour
+  }
+  if (has_groups && jitter_width > 0) {
+    args$position <- ggplot2::position_dodge(width = jitter_width)
+  }
+
+  if (identical(error_type, "line")) {
+    do.call(ggplot2::geom_linerange, args)
+  } else {
+    args$width <- error_opts$width %||% 0.2
+    do.call(ggplot2::geom_errorbar, args)
+  }
+}
+
+
+
 #' Add sample size table below x-axis
 #'
 #' Places a color-coded table of sample sizes below the plot area,
@@ -542,11 +614,14 @@ generate_plot <- function(
 #' @param ss_alpha Transparency for labels.
 #' @param ss_opts Full sample_size_opts list for additional settings.
 #'
+#' @param facet_vars Character vector of facet column names present in
+#'   `stats`, or NULL. Carried onto the count rows so that each
+#'   panel reports its own sample sizes.
 #' @return Modified ggplot object with sample size table.
 #' @noRd
 .add_sample_size_table <- function(
   plot, stats, x_var, y_var, group_var,
-  ss_size, ss_alpha, ss_opts
+  ss_size, ss_alpha, ss_opts, facet_vars = NULL
 ) {
   y_vals <- c(
     stats[[y_var]],
@@ -564,49 +639,51 @@ generate_plot <- function(
   gap <- ss_opts$gap %||% 0.18
   row_height <- ss_opts$row_height %||% 0.06
   label_size <- ss_opts$label_size %||% ss_size
+  show_group_labels <- ss_opts$show_group_labels %||% TRUE
+  legend <- ss_opts$legend %||% "none"
+  region <- match.arg(ss_opts$region %||% "margin",
+                      c("margin", "panel"))
 
-  table_rows <- data.frame(
-    x = numeric(0), y = numeric(0),
-    label = character(0), group = character(0),
-    stringsAsFactors = FALSE
+  facet_vars <- intersect(facet_vars, names(stats))
+
+  # One row of counts per group. The facet columns are carried through
+  # from `stats` so that ggplot assigns every count to the panel it was
+  # computed in; without them a single panel's counts are recycled into
+  # all of them.
+  row_y <- stats::setNames(
+    y_min - y_range * (gap + (seq_along(groups) - 1) * row_height),
+    as.character(groups)
   )
+  count_rows <- stats[, c(facet_vars, group_var, x_var, "sample_size"),
+                      drop = FALSE]
+  names(count_rows)[names(count_rows) == group_var] <- "group"
+  names(count_rows)[names(count_rows) == x_var] <- "x"
+  count_rows$x <- as.numeric(count_rows$x)
+  count_rows$y <- unname(row_y[as.character(count_rows$group)])
+  count_rows$label <- as.character(count_rows$sample_size)
 
-  x_numeric <- as.numeric(stats[[x_var]])
-  x_positions <- sort(unique(x_numeric))
-
-  for (i in seq_along(groups)) {
-    grp <- groups[i]
-    row_y <- y_min - y_range * (gap + (i - 1) * row_height)
-    grp_stats <- stats[stats[[group_var]] == grp, ]
-
-    for (xp in x_positions) {
-      match_row <- grp_stats[as.numeric(grp_stats[[x_var]]) == xp, ]
-      n_label <- if (nrow(match_row) > 0) {
-        as.character(match_row[["sample_size"]][1])
-      } else {
-        ""
-      }
-      table_rows <- rbind(table_rows, data.frame(
-        x = xp, y = row_y, label = n_label,
-        group = grp, stringsAsFactors = FALSE
-      ))
-    }
-
-    x_label_pos <- if (stats$is_continuous[1]) {
-      min(x_positions) - diff(range(x_positions)) *
-        (ss_opts$label_offset %||% 0.08)
-    } else {
-      1 - (ss_opts$label_offset %||% 0.35)
-    }
-    table_rows <- rbind(table_rows, data.frame(
-      x = x_label_pos, y = row_y, label = as.character(grp),
-      group = grp, stringsAsFactors = FALSE
-    ))
+  x_positions <- sort(unique(as.numeric(stats[[x_var]])))
+  x_label_pos <- if (stats$is_continuous[1]) {
+    min(x_positions) - diff(range(x_positions)) *
+      (ss_opts$label_offset %||% 0.08)
+  } else {
+    1 - (ss_opts$label_offset %||% 0.35)
   }
 
-  is_label <- !table_rows$x %in% x_positions
-  count_rows <- table_rows[!is_label, ]
-  label_rows <- table_rows[is_label, ]
+  # The group labels name the rows, so they are drawn once rather than
+  # once per panel. Pinning them to the first level of each facet
+  # variable puts them in the first panel, which is the one whose left
+  # edge they sit against.
+  label_rows <- data.frame(
+    x = x_label_pos,
+    y = unname(row_y[as.character(groups)]),
+    label = as.character(groups),
+    group = groups,
+    stringsAsFactors = FALSE
+  )
+  for (fv in facet_vars) {
+    label_rows[[fv]] <- .first_level(stats[[fv]])
+  }
 
   bottom_margin <- n_groups * 18 + 30
 
@@ -621,8 +698,10 @@ generate_plot <- function(
       size = ss_size, alpha = ss_alpha,
       hjust = 0.5, show.legend = FALSE,
       inherit.aes = FALSE
-    ) +
-    ggplot2::geom_text(
+    )
+
+  if (isTRUE(show_group_labels)) {
+    plot <- plot + ggplot2::geom_text(
       data = label_rows,
       ggplot2::aes(
         x = .data[["x"]], y = .data[["y"]],
@@ -632,22 +711,58 @@ generate_plot <- function(
       size = label_size, alpha = ss_alpha,
       hjust = 1, fontface = "bold", show.legend = FALSE,
       inherit.aes = FALSE
-    ) +
-    ggplot2::coord_cartesian(
-      clip = "off",
-      ylim = c(y_min, y_max)
-    ) +
-    ggplot2::theme(
-      plot.margin = ggplot2::margin(
-        t = 5.5, r = 5.5,
-        b = bottom_margin,
-        l = 40,
-        unit = "pt"
-      ),
-      legend.position = "none"
     )
+  }
+
+  # region = "margin" holds the panel to the data range and draws the
+  # rows underneath it, in reserved plot margin. region = "panel" lets
+  # the y scale expand to take the rows in, which costs vertical space
+  # inside the panel but none outside it, and so survives a crowded
+  # figure (long subtitle, bottom legend) that the reserved margin does
+  # not.
+  if (identical(region, "margin")) {
+    plot <- plot +
+      ggplot2::coord_cartesian(
+        clip = "off",
+        ylim = c(y_min, y_max)
+      ) +
+      ggplot2::theme(
+        plot.margin = ggplot2::margin(
+          t = 5.5, r = 5.5,
+          b = bottom_margin,
+          l = if (isTRUE(show_group_labels)) 40 else 5.5,
+          unit = "pt"
+        )
+      )
+  }
+
+  # Legend suppression is a separate decision from where the counts are
+  # drawn: a caller who turns the group labels off needs the legend to
+  # identify the rows.
+  if (identical(legend, "none")) {
+    plot <- plot + ggplot2::theme(legend.position = "none")
+  }
 
   plot
+}
+
+
+#' First level of a facet variable
+#'
+#' The panel a once-only annotation should be attached to. Factor level
+#' order is what ggplot lays panels out by, so it takes precedence over
+#' the order of appearance in the data.
+#'
+#' @param x A vector taken from a facet column.
+#' @return A length-one vector of the same type as `x`.
+#' @keywords internal
+#' @noRd
+.first_level <- function(x) {
+  if (is.factor(x)) {
+    factor(levels(x)[1], levels = levels(x))
+  } else {
+    sort(unique(x))[1]
+  }
 }
 
 
