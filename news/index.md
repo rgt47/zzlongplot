@@ -1,5 +1,67 @@
 # Changelog
 
+## zzlongplot 0.3.0
+
+### Corrections
+
+These change what existing code draws. Figures produced with 0.2.0
+should be regenerated.
+
+- The sample-size table (`sample_size_opts$position = "table"`) reported
+  the wrong counts under faceting. It built its rows without the facet
+  columns and resolved each count with a first-match lookup, so the
+  first panel’s sample sizes were recycled into every other panel. A
+  faceted figure with unequal panel sizes therefore stated sample sizes
+  that were not its own. The table now carries the facet columns through
+  and reports each panel’s counts.
+
+- Error bars ignored `color_palette`. Both
+  [`geom_errorbar()`](https://ggplot2.tidyverse.org/reference/geom_linerange.html)
+  branches in
+  [`generate_plot()`](https://rgt47.github.io/zzlongplot/reference/generate_plot.md)
+  set `color = "black", alpha = 0.3` as fixed aesthetics, so bars
+  rendered grey no matter how the series were colored, and no
+  caller-side scale could reach them. They now inherit the group colour.
+  Pass `error_opts = list(colour = "black", alpha = 0.3)` to restore the
+  previous appearance exactly.
+
+- [`compute_stats()`](https://rgt47.github.io/zzlongplot/reference/compute_stats.md)
+  silently overwrote a `y` variable named `change`. The
+  change-from-baseline column was created under that literal name before
+  the summary was taken, so a caller plotting their own column called
+  `change` was summarizing the package’s, not theirs. Where the caller’s
+  baseline value was non-zero the reported mean was wrong. The
+  intermediate is now held under a reserved name.
+
+### New
+
+- `error_type = "line"` draws uncapped ranges via
+  [`ggplot2::geom_linerange()`](https://ggplot2.tidyverse.org/reference/geom_linerange.html),
+  alongside the existing `"bar"` and `"band"`. It also leaves zero-width
+  intervals invisible, where a capped bar still draws its cap: relevant
+  at a baseline visit where change is zero for every subject.
+
+- `error_opts` controls the appearance of the `"bar"` and `"line"`
+  layers: `colour`, `alpha`, `linewidth`, and `width` (cap width).
+
+- `base_size` on
+  [`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md)
+  forwards a base type size to the publication theme. Previously the
+  only way to match a document’s type size was to add a complete theme
+  to the returned plot, which also discarded the margin and legend
+  settings the sample-size table relies on.
+
+- `sample_size_opts` gains three options for `position = "table"`:
+  `show_group_labels` (default `TRUE`) to suppress the per-row group
+  names; `legend` (`"none"`, the default, or `"keep"`) to control legend
+  suppression independently of the table, which the previous code
+  bundled together; and `region` (`"margin"`, the default, or `"panel"`)
+  to choose between reserving plot margin beneath the panel and
+  expanding the y scale to take the rows in.
+
+- The group labels on the sample-size table are drawn once, in the first
+  panel, rather than repeated in every panel.
+
 ## zzlongplot 0.2.0
 
 Initial public release.

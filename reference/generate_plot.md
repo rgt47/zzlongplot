@@ -29,6 +29,7 @@ generate_plot(
   ribbon_fill = NULL,
   bw_print = FALSE,
   sample_size_opts = list(),
+  error_opts = list(),
   contrast_display = NULL,
   contrast_data = NULL,
   summary_statistic = NULL,
@@ -59,13 +60,13 @@ generate_plot(
 
 - error_type:
 
-  A string specifying the error type. Use `"bar"` for error bars or
-  `"band"` for ribbons.
+  A string specifying the error type. Use `"bar"` for capped error bars,
+  `"line"` for uncapped ranges, or `"band"` for ribbons.
 
 - jitter_width:
 
   Numeric. Width of horizontal jitter for error bars when multiple
-  groups are present. Only applies when error_type = "bar".
+  groups are present. Only applies when error_type = "bar" or `"line"`.
 
 - xlab:
 
@@ -183,6 +184,53 @@ generate_plot(
 
   :   Horizontal offset for group labels (only for position = "table").
       Default 0.08 for continuous x, 0.35 for categorical.
+
+  show_group_labels
+
+  :   Logical, `position = "table"` only. Whether to print the group
+      name at the left of each row. Default `TRUE`. Set `FALSE` to
+      identify the rows from the legend instead, which also reclaims the
+      left margin the labels reserve.
+
+  legend
+
+  :   `position = "table"` only. `"none"` (the default) hides the
+      legend, on the assumption that the row labels identify the groups;
+      `"keep"` leaves it in place, which is what
+      `show_group_labels = FALSE` needs.
+
+  region
+
+  :   `position = "table"` only. Where the rows are drawn: `"margin"`
+      (the default) holds the panel to the data range and reserves plot
+      margin beneath it; `"panel"` expands the y scale to include the
+      rows, spending vertical space inside the panel rather than outside
+      it. Prefer `"panel"` on a figure that is already tall on furniture
+      (a multi-line subtitle, a bottom legend), where a reserved margin
+      can squeeze the panel to a sliver.
+
+- error_opts:
+
+  List. Appearance overrides for the `"bar"` and `"line"` error layers.
+  Elements (all optional):
+
+  colour
+
+  :   Bar colour. `NULL`, the default, inherits the group colour so that
+      error bars match the series they belong to. Supply a string (e.g.
+      `"black"`) to override.
+
+  alpha
+
+  :   Transparency, 0-1. Default 1.
+
+  linewidth
+
+  :   Line width. Default 0.35.
+
+  width
+
+  :   Cap width, `error_type = "bar"` only. Default 0.2.
 
 - contrast_display:
 

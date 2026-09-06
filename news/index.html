@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">zzlongplot</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,24 @@
       <small>Source: <a href="https://github.com/rgt47/zzlongplot/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="zzlongplot-030">zzlongplot 0.3.0<a class="anchor" aria-label="anchor" href="#zzlongplot-030"></a></h2>
+<div class="section level3">
+<h3 id="corrections-0-3-0">Corrections<a class="anchor" aria-label="anchor" href="#corrections-0-3-0"></a></h3>
+<p>These change what existing code draws. Figures produced with 0.2.0 should be regenerated.</p>
+<ul><li><p>The sample-size table (<code>sample_size_opts$position = "table"</code>) reported the wrong counts under faceting. It built its rows without the facet columns and resolved each count with a first-match lookup, so the first panel’s sample sizes were recycled into every other panel. A faceted figure with unequal panel sizes therefore stated sample sizes that were not its own. The table now carries the facet columns through and reports each panel’s counts.</p></li>
+<li><p>Error bars ignored <code>color_palette</code>. Both <code><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar()</a></code> branches in <code><a href="../reference/generate_plot.html">generate_plot()</a></code> set <code>color = "black", alpha = 0.3</code> as fixed aesthetics, so bars rendered grey no matter how the series were colored, and no caller-side scale could reach them. They now inherit the group colour. Pass <code>error_opts = list(colour = "black", alpha = 0.3)</code> to restore the previous appearance exactly.</p></li>
+<li><p><code><a href="../reference/compute_stats.html">compute_stats()</a></code> silently overwrote a <code>y</code> variable named <code>change</code>. The change-from-baseline column was created under that literal name before the summary was taken, so a caller plotting their own column called <code>change</code> was summarizing the package’s, not theirs. Where the caller’s baseline value was non-zero the reported mean was wrong. The intermediate is now held under a reserved name.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-0-3-0">New<a class="anchor" aria-label="anchor" href="#new-0-3-0"></a></h3>
+<ul><li><p><code>error_type = "line"</code> draws uncapped ranges via <code><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">ggplot2::geom_linerange()</a></code>, alongside the existing <code>"bar"</code> and <code>"band"</code>. It also leaves zero-width intervals invisible, where a capped bar still draws its cap: relevant at a baseline visit where change is zero for every subject.</p></li>
+<li><p><code>error_opts</code> controls the appearance of the <code>"bar"</code> and <code>"line"</code> layers: <code>colour</code>, <code>alpha</code>, <code>linewidth</code>, and <code>width</code> (cap width).</p></li>
+<li><p><code>base_size</code> on <code><a href="../reference/lplot.html">lplot()</a></code> forwards a base type size to the publication theme. Previously the only way to match a document’s type size was to add a complete theme to the returned plot, which also discarded the margin and legend settings the sample-size table relies on.</p></li>
+<li><p><code>sample_size_opts</code> gains three options for <code>position = "table"</code>: <code>show_group_labels</code> (default <code>TRUE</code>) to suppress the per-row group names; <code>legend</code> (<code>"none"</code>, the default, or <code>"keep"</code>) to control legend suppression independently of the table, which the previous code bundled together; and <code>region</code> (<code>"margin"</code>, the default, or <code>"panel"</code>) to choose between reserving plot margin beneath the panel and expanding the y scale to take the rows in.</p></li>
+<li><p>The group labels on the sample-size table are drawn once, in the first panel, rather than repeated in every panel.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="zzlongplot-020">zzlongplot 0.2.0<a class="anchor" aria-label="anchor" href="#zzlongplot-020"></a></h2>
 <p>Initial public release.</p>

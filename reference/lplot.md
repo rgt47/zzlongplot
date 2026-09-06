@@ -40,6 +40,8 @@ lplot(
   reference_lines = NULL,
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
+  error_opts = list(),
+  base_size = NULL,
   contrast_display = NULL,
   auto_caption = TRUE
 )
@@ -118,15 +120,17 @@ lplot(
 
 - error_type:
 
-  Type of error representation. Options are `"bar"` for error bars
-  (vertical lines showing standard error) or `"band"` for error ribbons
-  (shaded areas around the line).
+  Type of error representation. Options are `"bar"` for capped error
+  bars, `"line"` for uncapped ranges (which also draw nothing where an
+  interval has zero width, such as a baseline visit at which change is
+  zero for every subject), or `"band"` for error ribbons (shaded areas
+  around the line).
 
 - jitter_width:
 
   Numeric. Width of horizontal jitter for error bars when multiple
   groups are present. Default is 0.15. Set to 0 to disable jittering.
-  Only applies when error_type = "bar".
+  Only applies when error_type = "bar" or `"line"`.
 
 - color_palette:
 
@@ -169,7 +173,10 @@ lplot(
 
   List. Options for sample size label appearance. Key option: position =
   "point" (default, labels next to points) or "table" (color-coded table
-  below x-axis). See
+  below x-axis, one row per group). Under `"table"`,
+  `show_group_labels = FALSE` drops the row names and `legend = "keep"`
+  retains the legend that would otherwise identify them; the two are
+  usually set together. See
   [`generate_plot()`](https://rgt47.github.io/zzlongplot/reference/generate_plot.md)
   for all available options.
 
@@ -230,6 +237,23 @@ lplot(
 - ribbon_fill:
 
   Character. Custom fill color for ribbons. If NULL, uses group colors.
+
+- error_opts:
+
+  List. Appearance overrides for the `"bar"` and `"line"` error layers:
+  `colour` (`NULL`, the default, inherits the group colour), `alpha`
+  (default 1), `linewidth` (default 0.35) and `width` (cap width for
+  `"bar"`, default 0.2). Before version 0.3.0 error bars were always
+  drawn in black at `alpha = 0.3`; pass
+  `list(colour = "black", alpha = 0.3)` to restore that.
+
+- base_size:
+
+  Numeric. Base type size passed to the publication theme, for matching
+  the type size of a surrounding document. `NULL` (the default) uses the
+  theme's own default. Prefer this over adding a complete theme to the
+  returned plot, which would discard the margin and legend settings that
+  the sample-size table depends on.
 
 - contrast_display:
 

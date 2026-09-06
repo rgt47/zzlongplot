@@ -292,7 +292,7 @@ save_publication(p7,
   width_mm = 254, height_mm = 152
 )
 #> Plot saved for FDA Regulatory:
-#>   File: /tmp/RtmpdKy3MF/Figure_1_1_Primary_Efficacy.pdf
+#>   File: /tmp/RtmpU5nnsj/Figure_1_1_Primary_Efficacy.pdf
 #>   Dimensions: 254 x 152 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF

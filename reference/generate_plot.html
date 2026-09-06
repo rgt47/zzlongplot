@@ -11,7 +11,7 @@ with ribbons or error bars."><meta property="og:image" content="https://rgt47.gi
 
     <a class="navbar-brand me-2" href="../index.html">zzlongplot</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,6 +79,7 @@ with ribbons or error bars.</p>
 <span>  ribbon_fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bw_print <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sample_size_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  error_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  contrast_display <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  contrast_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  summary_statistic <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -110,13 +111,15 @@ and <code>bound_upper</code> for error visualization.</p></dd>
 
 
 <dt id="arg-error-type">error_type<a class="anchor" aria-label="anchor" href="#arg-error-type"></a></dt>
-<dd><p>A string specifying the error type. Use <code>"bar"</code> for error bars or
-<code>"band"</code> for ribbons.</p></dd>
+<dd><p>A string specifying the error type. Use <code>"bar"</code> for
+capped error bars, <code>"line"</code> for uncapped ranges, or <code>"band"</code> for
+ribbons.</p></dd>
 
 
 <dt id="arg-jitter-width">jitter_width<a class="anchor" aria-label="anchor" href="#arg-jitter-width"></a></dt>
 <dd><p>Numeric. Width of horizontal jitter for error bars when
-multiple groups are present. Only applies when error_type = "bar".</p></dd>
+multiple groups are present. Only applies when error_type = "bar"
+or <code>"line"</code>.</p></dd>
 
 
 <dt id="arg-xlab">xlab<a class="anchor" aria-label="anchor" href="#arg-xlab"></a></dt>
@@ -223,6 +226,49 @@ table row (only for position = "table"). Default 0.18.</p></dd>
 <dd><p>Horizontal offset for group labels
 (only for position = "table"). Default 0.08 for
 continuous x, 0.35 for categorical.</p></dd>
+
+<dt>show_group_labels</dt>
+<dd><p>Logical, <code>position = "table"</code> only.
+Whether to print the group name at the left of each row.
+Default <code>TRUE</code>. Set <code>FALSE</code> to identify the rows from the
+legend instead, which also reclaims the left margin the
+labels reserve.</p></dd>
+
+<dt>legend</dt>
+<dd><p><code>position = "table"</code> only. <code>"none"</code> (the default)
+hides the legend, on the assumption that the row labels
+identify the groups; <code>"keep"</code> leaves it in place, which is
+what <code>show_group_labels = FALSE</code> needs.</p></dd>
+
+<dt>region</dt>
+<dd><p><code>position = "table"</code> only. Where the rows are
+drawn: <code>"margin"</code> (the default) holds the panel to the data
+range and reserves plot margin beneath it; <code>"panel"</code> expands
+the y scale to include the rows, spending vertical space
+inside the panel rather than outside it. Prefer <code>"panel"</code> on
+a figure that is already tall on furniture (a multi-line
+subtitle, a bottom legend), where a reserved margin can
+squeeze the panel to a sliver.</p></dd>
+
+
+</dl></dd>
+
+
+<dt id="arg-error-opts">error_opts<a class="anchor" aria-label="anchor" href="#arg-error-opts"></a></dt>
+<dd><p>List. Appearance overrides for the <code>"bar"</code> and
+<code>"line"</code> error layers. Elements (all optional):</p><dl><dt>colour</dt>
+<dd><p>Bar colour. <code>NULL</code>, the default, inherits the
+group colour so that error bars match the series they belong
+to. Supply a string (e.g. <code>"black"</code>) to override.</p></dd>
+
+<dt>alpha</dt>
+<dd><p>Transparency, 0-1. Default 1.</p></dd>
+
+<dt>linewidth</dt>
+<dd><p>Line width. Default 0.35.</p></dd>
+
+<dt>width</dt>
+<dd><p>Cap width, <code>error_type = "bar"</code> only. Default 0.2.</p></dd>
 
 
 </dl></dd>

@@ -9,7 +9,7 @@ observed values, change from baseline, or both. Supports grouping and faceting."
 
     <a class="navbar-brand me-2" href="../index.html">zzlongplot</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,6 +88,8 @@ observed values, change from baseline, or both. Supports grouping and faceting.<
 <span>  reference_lines <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ribbon_alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  ribbon_fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  error_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  base_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  contrast_display <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  auto_caption <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -167,15 +169,17 @@ numeric visit variables, uses the minimum value.</p></dd>
 
 
 <dt id="arg-error-type">error_type<a class="anchor" aria-label="anchor" href="#arg-error-type"></a></dt>
-<dd><p>Type of error representation. Options are <code>"bar"</code> for error bars
-(vertical lines showing standard error) or <code>"band"</code> for error ribbons
-(shaded areas around the line).</p></dd>
+<dd><p>Type of error representation. Options are <code>"bar"</code>
+for capped error bars, <code>"line"</code> for uncapped ranges (which also
+draw nothing where an interval has zero width, such as a baseline
+visit at which change is zero for every subject), or <code>"band"</code> for
+error ribbons (shaded areas around the line).</p></dd>
 
 
 <dt id="arg-jitter-width">jitter_width<a class="anchor" aria-label="anchor" href="#arg-jitter-width"></a></dt>
 <dd><p>Numeric. Width of horizontal jitter for error bars when
 multiple groups are present. Default is 0.15. Set to 0 to disable jittering.
-Only applies when error_type = "bar".</p></dd>
+Only applies when error_type = "bar" or <code>"line"</code>.</p></dd>
 
 
 <dt id="arg-color-palette">color_palette<a class="anchor" aria-label="anchor" href="#arg-color-palette"></a></dt>
@@ -218,8 +222,11 @@ placement, including a numbers-below-axis table.</p></dd>
 <dt id="arg-sample-size-opts">sample_size_opts<a class="anchor" aria-label="anchor" href="#arg-sample-size-opts"></a></dt>
 <dd><p>List. Options for sample size label appearance.
 Key option: position = "point" (default, labels next to points) or
-"table" (color-coded table below x-axis). See <code><a href="generate_plot.html">generate_plot()</a></code>
-for all available options.</p></dd>
+"table" (color-coded table below x-axis, one row per group). Under
+<code>"table"</code>, <code>show_group_labels = FALSE</code> drops the row names and
+<code>legend = "keep"</code> retains the legend that would otherwise identify
+them; the two are usually set together. See <code><a href="generate_plot.html">generate_plot()</a></code> for
+all available options.</p></dd>
 
 
 <dt id="arg-theme">theme<a class="anchor" aria-label="anchor" href="#arg-theme"></a></dt>
@@ -281,6 +288,24 @@ Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.</p></dd>
 
 <dt id="arg-ribbon-fill">ribbon_fill<a class="anchor" aria-label="anchor" href="#arg-ribbon-fill"></a></dt>
 <dd><p>Character. Custom fill color for ribbons. If NULL, uses group colors.</p></dd>
+
+
+<dt id="arg-error-opts">error_opts<a class="anchor" aria-label="anchor" href="#arg-error-opts"></a></dt>
+<dd><p>List. Appearance overrides for the <code>"bar"</code> and
+<code>"line"</code> error layers: <code>colour</code> (<code>NULL</code>, the default, inherits the
+group colour), <code>alpha</code> (default 1), <code>linewidth</code> (default 0.35) and
+<code>width</code> (cap width for <code>"bar"</code>, default 0.2). Before version 0.3.0
+error bars were always drawn in black at <code>alpha = 0.3</code>; pass
+<code>list(colour = "black", alpha = 0.3)</code> to restore that.</p></dd>
+
+
+<dt id="arg-base-size">base_size<a class="anchor" aria-label="anchor" href="#arg-base-size"></a></dt>
+<dd><p>Numeric. Base type size passed to the publication
+theme, for matching the type size of a surrounding document.
+<code>NULL</code> (the default) uses the theme's own default. Prefer this over
+adding a complete theme to the returned plot, which would discard
+the margin and legend settings that the sample-size table depends
+on.</p></dd>
 
 
 <dt id="arg-contrast-display">contrast_display<a class="anchor" aria-label="anchor" href="#arg-contrast-display"></a></dt>
