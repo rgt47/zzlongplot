@@ -31,3 +31,4 @@ vignettes/.*\.pdf$
 ^tooling\.lock$
 ^zzcollab\.yaml$
 ^pkgdown$
+^feature-enhancement-roadmap\.Rmd$
