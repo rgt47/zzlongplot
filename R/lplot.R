@@ -27,12 +27,26 @@
 #' @param caption2 Caption for the change values plot.
 #' @param plot_type Type of plot to return. Options are `"obs"` (observed values), 
 #'   `"change"` (change values), or `"both"` for combined plots.
-#' @param error_type Type of error representation. Options are `"bar"` for error bars 
-#'   (vertical lines showing standard error) or `"band"` for error ribbons 
-#'   (shaded areas around the line).
-#' @param jitter_width Numeric. Width of horizontal jitter for error bars when 
+#' @param error_type Type of error representation. Options are `"bar"`
+#'   for capped error bars, `"line"` for uncapped ranges (which also
+#'   draw nothing where an interval has zero width, such as a baseline
+#'   visit at which change is zero for every subject), or `"band"` for
+#'   error ribbons (shaded areas around the line).
+#' @param jitter_width Numeric. Width of horizontal jitter for error bars when
 #'   multiple groups are present. Default is 0.15. Set to 0 to disable jittering.
-#'   Only applies when error_type = "bar".
+#'   Only applies when error_type = "bar" or `"line"`.
+#' @param error_opts List. Appearance overrides for the `"bar"` and
+#'   `"line"` error layers: `colour` (`NULL`, the default, inherits the
+#'   group colour), `alpha` (default 1), `linewidth` (default 0.35) and
+#'   `width` (cap width for `"bar"`, default 0.2). Before version 0.3.0
+#'   error bars were always drawn in black at `alpha = 0.3`; pass
+#'   `list(colour = "black", alpha = 0.3)` to restore that.
+#' @param base_size Numeric. Base type size passed to the publication
+#'   theme, for matching the type size of a surrounding document.
+#'   `NULL` (the default) uses the theme's own default. Prefer this over
+#'   adding a complete theme to the returned plot, which would discard
+#'   the margin and legend settings that the sample-size table depends
+#'   on.
 #' @param color_palette Optional vector of colors to use for groups. If NULL, 
 #'   default ggplot colors are used.
 #' @param clinical_mode Logical. If TRUE, enables clinical trial defaults 
@@ -54,8 +68,11 @@
 #'   placement, including a numbers-below-axis table.
 #' @param sample_size_opts List. Options for sample size label appearance.
 #'   Key option: position = "point" (default, labels next to points) or
-#'   "table" (color-coded table below x-axis). See [generate_plot()]
-#'   for all available options.
+#'   "table" (color-coded table below x-axis, one row per group). Under
+#'   `"table"`, `show_group_labels = FALSE` drops the row names and
+#'   `legend = "keep"` retains the legend that would otherwise identify
+#'   them; the two are usually set together. See [generate_plot()] for
+#'   all available options.
 #' @param theme Character. Predefined publication theme with matching colors.
 #'   Options: "bw", "nejm", "nature", "lancet", "jama", "science", "jco",
 #'   "fda", or "default". Applies both typography/layout AND, where one
@@ -217,6 +234,7 @@ lplot <- function(
   publication_ready = FALSE, statistical_annotations = FALSE,
   test_method = "parametric", p_adjust_method = "BH", cov_struct = "auto",
   reference_lines = NULL, ribbon_alpha = 0.2, ribbon_fill = NULL,
+  error_opts = list(), base_size = NULL,
   contrast_display = NULL, auto_caption = TRUE
 ) {
   # Input validation
@@ -244,7 +262,7 @@ lplot <- function(
   }
   
   # Validate error type
-  valid_error_types <- c("bar", "band")
+  valid_error_types <- c("bar", "line", "band")
   if (!error_type %in% valid_error_types) {
     stop(sprintf("Invalid error_type '%s'. Must be one of: %s", 
                  error_type, paste(valid_error_types, collapse = ", ")))
@@ -432,6 +450,7 @@ lplot <- function(
     use_boxplot = (summary_statistic == "boxplot"),
     ribbon_alpha = ribbon_alpha,
     ribbon_fill = ribbon_fill,
+    error_opts = error_opts,
     bw_print = identical(theme, "bw"),
     sample_size_opts = sample_size_opts,
     contrast_display = if (identical(contrast_display, "footnote"))
@@ -462,6 +481,7 @@ lplot <- function(
     use_boxplot = (summary_statistic == "boxplot"),
     ribbon_alpha = ribbon_alpha,
     ribbon_fill = ribbon_fill,
+    error_opts = error_opts,
     bw_print = identical(theme, "bw"),
     sample_size_opts = sample_size_opts,
     contrast_display = if (identical(contrast_display, "footnote"))
@@ -474,8 +494,15 @@ lplot <- function(
 
   # Apply publication theme and colors if specified
   if (!is.null(theme)) {
-    # Apply theme
-    pub_theme <- get_publication_theme(theme)
+    # Apply theme. base_size is forwarded so that matching a
+    # surrounding document's type size does not require replacing the
+    # whole theme afterwards, which would also discard the margins and
+    # legend settings set below.
+    pub_theme <- if (is.null(base_size)) {
+      get_publication_theme(theme)
+    } else {
+      get_publication_theme(theme, base_size = base_size)
+    }
     fig_obs <- fig_obs + pub_theme
     fig_change <- fig_change + pub_theme
     
@@ -513,17 +540,29 @@ lplot <- function(
     sample_size_opts$position %||% "point", "table"
   )
   if (ss_table) {
-    n_groups <- length(unique(stats$group))
-    table_margin_b <- n_groups * 18 + 30
-    table_theme <- ggplot2::theme(
-      legend.position = "none",
-      plot.margin = ggplot2::margin(
-        t = 5.5, r = 5.5, b = table_margin_b, l = 40,
-        unit = "pt"
+    # The theme applied above replaces the margin and legend settings
+    # that .add_sample_size_table() attached, so they are re-applied
+    # here. show_group_labels and legend are honored in both places.
+    ss_labels <- sample_size_opts$show_group_labels %||% TRUE
+    ss_legend <- sample_size_opts$legend %||% "none"
+    ss_region <- sample_size_opts$region %||% "margin"
+    if (identical(ss_region, "margin")) {
+      n_groups <- length(unique(stats$group))
+      table_margin_b <- n_groups * 18 + 30
+      table_theme <- ggplot2::theme(
+        plot.margin = ggplot2::margin(
+          t = 5.5, r = 5.5, b = table_margin_b,
+          l = if (isTRUE(ss_labels)) 40 else 5.5,
+          unit = "pt"
+        )
       )
-    )
-    fig_obs <- fig_obs + table_theme
-    fig_change <- fig_change + table_theme
+      fig_obs <- fig_obs + table_theme
+      fig_change <- fig_change + table_theme
+    }
+    if (identical(ss_legend, "none")) {
+      fig_obs <- fig_obs + ggplot2::theme(legend.position = "none")
+      fig_change <- fig_change + ggplot2::theme(legend.position = "none")
+    }
   }
 
   # Build contrast table if requested

@@ -194,11 +194,15 @@ compute_stats <- function(df, x_var, y_var, group_var,
       )
   }
   
-  # Add the change column, grouped by the cluster_var
+  # Add the change column under a reserved name, grouped by the
+  # cluster_var. The name is reserved rather than literal 'change'
+  # because a caller whose y variable is itself called 'change' would
+  # otherwise have their data silently overwritten before it is
+  # summarized.
   df <- df %>%
     dplyr::group_by(.data[[cluster_var]]) %>%
     dplyr::mutate(
-      change = .data[[y_var]] - .data[[y_var]][.data[[x_var]] == baseline_value][1]
+      .zzl_change = .data[[y_var]] - .data[[y_var]][.data[[x_var]] == baseline_value][1]
     ) %>%
     dplyr::ungroup()
   
@@ -217,10 +221,10 @@ compute_stats <- function(df, x_var, y_var, group_var,
     result <- df %>%
       dplyr::summarize(
         mean_value = mean(.data[[y_var]], na.rm = TRUE),
-        change_mean = mean(change, na.rm = TRUE),
+        change_mean = mean(.data[[".zzl_change"]], na.rm = TRUE),
         sample_size = sum(!is.na(.data[[y_var]])),
         standard_deviation = stats::sd(.data[[y_var]], na.rm = TRUE),
-        change_sd = stats::sd(change, na.rm = TRUE),
+        change_sd = stats::sd(.data[[".zzl_change"]], na.rm = TRUE),
         .groups = "drop"
       ) %>%
       dplyr::mutate(
@@ -232,12 +236,12 @@ compute_stats <- function(df, x_var, y_var, group_var,
     result <- df %>%
       dplyr::summarize(
         mean_value = stats::median(.data[[y_var]], na.rm = TRUE),
-        change_mean = stats::median(change, na.rm = TRUE),
+        change_mean = stats::median(.data[[".zzl_change"]], na.rm = TRUE),
         sample_size = sum(!is.na(.data[[y_var]])),
         q25_value = stats::quantile(.data[[y_var]], 0.25, na.rm = TRUE),
         q75_value = stats::quantile(.data[[y_var]], 0.75, na.rm = TRUE),
-        q25_change = stats::quantile(change, 0.25, na.rm = TRUE),
-        q75_change = stats::quantile(change, 0.75, na.rm = TRUE),
+        q25_change = stats::quantile(.data[[".zzl_change"]], 0.25, na.rm = TRUE),
+        q75_change = stats::quantile(.data[[".zzl_change"]], 0.75, na.rm = TRUE),
         .groups = "drop"
       ) %>%
       dplyr::mutate(
@@ -251,19 +255,19 @@ compute_stats <- function(df, x_var, y_var, group_var,
     result <- df %>%
       dplyr::summarize(
         mean_value = stats::median(.data[[y_var]], na.rm = TRUE),  # Median as center
-        change_mean = stats::median(change, na.rm = TRUE),
+        change_mean = stats::median(.data[[".zzl_change"]], na.rm = TRUE),
         sample_size = sum(!is.na(.data[[y_var]])),
         q25_value = stats::quantile(.data[[y_var]], 0.25, na.rm = TRUE),
         q75_value = stats::quantile(.data[[y_var]], 0.75, na.rm = TRUE),
-        q25_change = stats::quantile(change, 0.25, na.rm = TRUE),
-        q75_change = stats::quantile(change, 0.75, na.rm = TRUE),
+        q25_change = stats::quantile(.data[[".zzl_change"]], 0.25, na.rm = TRUE),
+        q75_change = stats::quantile(.data[[".zzl_change"]], 0.75, na.rm = TRUE),
         # Calculate whiskers (1.5 * IQR rule)
         iqr_value = q75_value - q25_value,
         iqr_change = q75_change - q25_change,
         whisker_lower = pmax(min(.data[[y_var]], na.rm = TRUE), q25_value - 1.5 * iqr_value),
         whisker_upper = pmin(max(.data[[y_var]], na.rm = TRUE), q75_value + 1.5 * iqr_value),
-        whisker_lower_change = pmax(min(change, na.rm = TRUE), q25_change - 1.5 * iqr_change),
-        whisker_upper_change = pmin(max(change, na.rm = TRUE), q75_change + 1.5 * iqr_change),
+        whisker_lower_change = pmax(min(.data[[".zzl_change"]], na.rm = TRUE), q25_change - 1.5 * iqr_change),
+        whisker_upper_change = pmin(max(.data[[".zzl_change"]], na.rm = TRUE), q75_change + 1.5 * iqr_change),
         .groups = "drop"
       ) %>%
       dplyr::mutate(

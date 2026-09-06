@@ -38,6 +38,8 @@ lplot(
   reference_lines = NULL,
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
+  error_opts = list(),
+  base_size = NULL,
   contrast_display = NULL,
   auto_caption = TRUE
 )
@@ -82,13 +84,15 @@ numeric visit variables, uses the minimum value.}
 \item{plot_type}{Type of plot to return. Options are \code{"obs"} (observed values),
 \code{"change"} (change values), or \code{"both"} for combined plots.}
 
-\item{error_type}{Type of error representation. Options are \code{"bar"} for error bars
-(vertical lines showing standard error) or \code{"band"} for error ribbons
-(shaded areas around the line).}
+\item{error_type}{Type of error representation. Options are \code{"bar"}
+for capped error bars, \code{"line"} for uncapped ranges (which also
+draw nothing where an interval has zero width, such as a baseline
+visit at which change is zero for every subject), or \code{"band"} for
+error ribbons (shaded areas around the line).}
 
 \item{jitter_width}{Numeric. Width of horizontal jitter for error bars when
 multiple groups are present. Default is 0.15. Set to 0 to disable jittering.
-Only applies when error_type = "bar".}
+Only applies when error_type = "bar" or \code{"line"}.}
 
 \item{color_palette}{Optional vector of colors to use for groups. If NULL,
 default ggplot colors are used.}
@@ -117,8 +121,11 @@ placement, including a numbers-below-axis table.}
 
 \item{sample_size_opts}{List. Options for sample size label appearance.
 Key option: position = "point" (default, labels next to points) or
-"table" (color-coded table below x-axis). See \code{\link[=generate_plot]{generate_plot()}}
-for all available options.}
+"table" (color-coded table below x-axis, one row per group). Under
+\code{"table"}, \code{show_group_labels = FALSE} drops the row names and
+\code{legend = "keep"} retains the legend that would otherwise identify
+them; the two are usually set together. See \code{\link[=generate_plot]{generate_plot()}} for
+all available options.}
 
 \item{theme}{Character. Predefined publication theme with matching colors.
 Options: "bw", "nejm", "nature", "lancet", "jama", "science", "jco",
@@ -162,6 +169,20 @@ list with 'value', 'axis' ("x"/"y"), 'color', 'linetype', etc.}
 Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.}
 
 \item{ribbon_fill}{Character. Custom fill color for ribbons. If NULL, uses group colors.}
+
+\item{error_opts}{List. Appearance overrides for the \code{"bar"} and
+\code{"line"} error layers: \code{colour} (\code{NULL}, the default, inherits the
+group colour), \code{alpha} (default 1), \code{linewidth} (default 0.35) and
+\code{width} (cap width for \code{"bar"}, default 0.2). Before version 0.3.0
+error bars were always drawn in black at \code{alpha = 0.3}; pass
+\code{list(colour = "black", alpha = 0.3)} to restore that.}
+
+\item{base_size}{Numeric. Base type size passed to the publication
+theme, for matching the type size of a surrounding document.
+\code{NULL} (the default) uses the theme's own default. Prefer this over
+adding a complete theme to the returned plot, which would discard
+the margin and legend settings that the sample-size table depends
+on.}
 
 \item{contrast_display}{Optional character string controlling
 whether and how the between-group contrasts are reported.

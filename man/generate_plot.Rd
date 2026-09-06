@@ -26,6 +26,7 @@ generate_plot(
   ribbon_fill = NULL,
   bw_print = FALSE,
   sample_size_opts = list(),
+  error_opts = list(),
   contrast_display = NULL,
   contrast_data = NULL,
   summary_statistic = NULL,
@@ -44,11 +45,13 @@ and \code{bound_upper} for error visualization.}
 
 \item{group_var}{A string specifying the column name for the grouping variable.}
 
-\item{error_type}{A string specifying the error type. Use \code{"bar"} for error bars or
-\code{"band"} for ribbons.}
+\item{error_type}{A string specifying the error type. Use \code{"bar"} for
+capped error bars, \code{"line"} for uncapped ranges, or \code{"band"} for
+ribbons.}
 
 \item{jitter_width}{Numeric. Width of horizontal jitter for error bars when
-multiple groups are present. Only applies when error_type = "bar".}
+multiple groups are present. Only applies when error_type = "bar"
+or \code{"line"}.}
 
 \item{xlab}{A string for the x-axis label.}
 
@@ -108,6 +111,34 @@ table row (only for position = "table"). Default 0.18.}
 \item{label_offset}{Horizontal offset for group labels
 (only for position = "table"). Default 0.08 for
 continuous x, 0.35 for categorical.}
+\item{show_group_labels}{Logical, \code{position = "table"} only.
+Whether to print the group name at the left of each row.
+Default \code{TRUE}. Set \code{FALSE} to identify the rows from the
+legend instead, which also reclaims the left margin the
+labels reserve.}
+\item{legend}{\code{position = "table"} only. \code{"none"} (the default)
+hides the legend, on the assumption that the row labels
+identify the groups; \code{"keep"} leaves it in place, which is
+what \code{show_group_labels = FALSE} needs.}
+\item{region}{\code{position = "table"} only. Where the rows are
+drawn: \code{"margin"} (the default) holds the panel to the data
+range and reserves plot margin beneath it; \code{"panel"} expands
+the y scale to include the rows, spending vertical space
+inside the panel rather than outside it. Prefer \code{"panel"} on
+a figure that is already tall on furniture (a multi-line
+subtitle, a bottom legend), where a reserved margin can
+squeeze the panel to a sliver.}
+}}
+
+\item{error_opts}{List. Appearance overrides for the \code{"bar"} and
+\code{"line"} error layers. Elements (all optional):
+\describe{
+\item{colour}{Bar colour. \code{NULL}, the default, inherits the
+group colour so that error bars match the series they belong
+to. Supply a string (e.g. \code{"black"}) to override.}
+\item{alpha}{Transparency, 0-1. Default 1.}
+\item{linewidth}{Line width. Default 0.35.}
+\item{width}{Cap width, \code{error_type = "bar"} only. Default 0.2.}
 }}
 
 \item{contrast_display}{Optional character string controlling
