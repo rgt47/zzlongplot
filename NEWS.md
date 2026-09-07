@@ -17,6 +17,28 @@
   the width of the connecting lines. Both default to `NULL`, leaving
   ggplot2's own defaults untouched, so no existing figure changes.
 
+## Documentation
+
+* `vignette("sample-size-annotations")` documents the table layout
+  (`position = "table"`) and its `show_group_labels`, `legend` and
+  `region` options, the behavior under faceting, and the full option
+  reference, which had been missing every table-mode option.
+
+* `vignette("formula-interface")` documents `facet_type` and
+  `facet_labeller`, and why a labeller is preferable to recoding the
+  factor levels of the analysis data.
+
+* `vignette("publication-themes")` documents `bw_print` as an argument
+  independent of the theme, and `base_size`.
+
+* `vignette("customizing-combined-plots")` gains a section on
+  preferring an argument to post-composition, and warns that adding a
+  complete theme resets the margin and legend settings the sample-size
+  table depends on.
+
+* `README` lists the presentation arguments, and `?lplot` gains
+  examples for each of them.
+
 # zzlongplot 0.4.0
 
 ## New

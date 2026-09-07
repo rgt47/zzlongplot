@@ -340,6 +340,40 @@ lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
       clinical_mode = TRUE, plot_type = "both",
       title = "Clinical Trial Results")
 
+# Settings that would otherwise be added to the returned plot:
+# axis breaks, legend title, type size and geom sizes. Prefer
+# these to post-composition, which replaces any scale or complete
+# theme the plot already carried.
+lplot(df2, measure ~ visit | group, baseline_value = "baseline",
+      cluster_var = "subject_id",
+      legend_title = "Study group", base_size = 11,
+      point_size = 2.5, line_width = 0.8)
+
+# Redundant encoding under a journal theme: linetype and shape
+# carry the group as well as colour, so the figure survives
+# greyscale printing.
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id",
+      theme = "nejm", bw_print = TRUE)
+
+# Uncapped error bars in the group colour, and sample sizes as a
+# table below the panel rather than beside each point.
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id",
+      error_type = "line", error_opts = list(linewidth = 0.4),
+      sample_size_opts = list(position = "table",
+                              show_group_labels = FALSE,
+                              legend = "keep"))
+
+# Panel strip names supplied at draw time, leaving the factor
+# levels of the analysis data alone.
+df$stratum <- rep(c("a", "b"), length.out = nrow(df))
+lplot(df, measure ~ visit | group, baseline_value = 0,
+      cluster_var = "subject_id",
+      facet_form = ~ stratum, facet_type = "wrap",
+      facet_labeller = ggplot2::labeller(
+        stratum = c(a = "Stratum A", b = "Stratum B")))
+
 }
 \seealso{
 \code{\link[=compute_stats]{compute_stats()}} for the statistics underlying the plot,

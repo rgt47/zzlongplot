@@ -471,6 +471,81 @@ p_accessible <- lplot(demo_data,
 p_accessible
 ```
 
+## Redundant Encoding, Under Any Theme
+
+Colour alone is a fragile channel. A figure printed in
+greyscale, photocopied, or read by someone with a colour
+vision deficiency needs a second cue, and the usual second
+cues are line type and point shape.
+
+`bw_print` maps both to the grouping variable in addition to
+colour. It defaults to `TRUE` under `theme = "bw"` and
+`FALSE` otherwise, which is what the `"bw"` theme is for, but
+it is an argument in its own right and can be set either way
+under any theme. The two decisions are unrelated: which house
+style a figure is typeset in, and whether it survives losing
+its colour.
+
+```{r bw-print, fig.width=12, fig.height=5}
+p_colour_only <- lplot(demo_data,
+                      efficacy ~ visit | treatment,
+                      cluster_var = "subject_id",
+                      baseline_value = 0,
+                      theme = "nejm",
+                      title = "NEJM theme, colour only",
+                      xlab = "Week", ylab = "Efficacy Score")
+
+p_redundant <- lplot(demo_data,
+                    efficacy ~ visit | treatment,
+                    cluster_var = "subject_id",
+                    baseline_value = 0,
+                    theme = "nejm",
+                    bw_print = TRUE,
+                    title = "NEJM theme, linetype and shape as well",
+                    xlab = "Week", ylab = "Efficacy Score")
+
+p_colour_only | p_redundant
+```
+
+Before version 0.4.0 this was reachable only through
+`theme = "bw"`, so selecting a journal theme silently dropped
+the redundant encoding. If a figure has to be legible in
+monochrome, set `bw_print = TRUE` explicitly rather than
+relying on the theme to imply it.
+
+## Matching a Document's Type Size
+
+A figure typeset into a manuscript should carry that
+document's type size, not the theme's default. `base_size`
+passes a base size through to whichever theme is in effect.
+
+```{r base-size, fig.width=12, fig.height=5}
+p_small <- lplot(demo_data,
+                efficacy ~ visit | treatment,
+                cluster_var = "subject_id",
+                baseline_value = 0,
+                theme = "nejm", base_size = 8,
+                title = "base_size = 8",
+                xlab = "Week", ylab = "Efficacy Score")
+
+p_large <- lplot(demo_data,
+                efficacy ~ visit | treatment,
+                cluster_var = "subject_id",
+                baseline_value = 0,
+                theme = "nejm", base_size = 14,
+                title = "base_size = 14",
+                xlab = "Week", ylab = "Efficacy Score")
+
+p_small | p_large
+```
+
+Prefer this to adding a complete theme afterwards. Every
+element size in these themes is defined relative to the base
+size, so `base_size` scales the whole figure coherently,
+whereas appending `theme_bw(base_size = 8)` discards the
+journal styling along with the margin and legend settings
+that the sample-size table depends on.
+
 ## Available Color Palette Options
 
 ```{r color-options, eval=FALSE}
@@ -507,6 +582,8 @@ lplot(data, form, color_palette = c("#FF0000", "#00FF00", "#0000FF"))
 
 - Always test with colorblind simulators
 - Use `treatment_colors = "standard"` for colorblind-friendly treatment colors
+- Set `bw_print = TRUE` so line type and point shape carry the group
+  as well as colour, under whichever theme the figure uses
 - Consider `error_type = "band"` to reduce visual clutter
 
 # Summary
