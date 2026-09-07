@@ -120,15 +120,15 @@ p_gg <- two_arm |>
              shape = treatment)) +
   geom_errorbar(
     aes(ymin = m - se, ymax = m + se),
-    width = 0.6,
+    width = 0.2,
     position = position_dodge(0.15)
   ) +
   geom_line(position = position_dodge(0.15)) +
   geom_point(position = position_dodge(0.15)) +
   scale_colour_grey(start = 0, end = 0.6) +
   labs(x = "visit", y = "measure",
-       colour = "group", linetype = "group",
-       shape = "group") +
+       colour = "treatment", linetype = "treatment",
+       shape = "treatment") +
   theme_bw() +
   theme(legend.position = "bottom")
 ```
@@ -199,15 +199,15 @@ p_gg2 <- two_arm |>
              shape = treatment)) +
   geom_errorbar(
     aes(ymin = m - se, ymax = m + se),
-    width = 0.6,
+    width = 0.2,
     position = position_dodge(0.15)
   ) +
   geom_line(position = position_dodge(0.15)) +
   geom_point(position = position_dodge(0.15)) +
   scale_colour_grey(start = 0, end = 0.6) +
   labs(x = "visit", y = "measure change",
-       colour = "group", linetype = "group",
-       shape = "group") +
+       colour = "treatment", linetype = "treatment",
+       shape = "treatment") +
   theme_bw() +
   theme(legend.position = "bottom")
 ```
@@ -301,7 +301,7 @@ Figure 6: Change from baseline plot.
 lplot(two_arm,
   response ~ visit | treatment,
   baseline_value = 0,
-  plot_type = "both",)
+  plot_type = "both")
 ```
 
 ![Figure 7: Side-by-side observed and change
@@ -342,6 +342,11 @@ lplot(two_arm,
 axis.](quickstart_files/figure-html/sample-table-1.png)
 
 Figure 9: Sample size table below axis.
+
+The table has its own options: whether to name each row, whether to keep
+the legend, and whether to take its vertical space from reserved margin
+or from the panel. See
+[`vignette("sample-size-annotations")`](https://rgt47.github.io/zzlongplot/articles/sample-size-annotations.md).
 
 To suppress the annotation entirely, pass `show_sample_sizes = FALSE`.
 
@@ -536,18 +541,38 @@ numerically by default and do not require this step.
 | Parameter | Description | Default |
 |:---|:---|:---|
 | `plot_type` | “obs”, “change”, or “both” | “obs” |
-| `error_type` | “bar” or “band” | “bar” |
-| `baseline_value` | Value identifying baseline | NULL |
-| `show_sample_sizes` | Show N at each timepoint | FALSE |
+| `error_type` | “bar” (capped), “line” (uncapped), or “band” | “bar” |
+| `baseline_value` | Value identifying baseline | NULL (auto-detected) |
+| `show_sample_sizes` | Show N at each timepoint | TRUE |
 | `statistical_annotations` | Significance annotations | FALSE |
 | `test_method` | “parametric”, “nonparametric”, or “mmrm” | “parametric” |
 | `p_adjust_method` | Multiplicity correction | “BH” |
-| `contrast_display` | “footnote” or “table” (MMRM) | NULL |
+| `contrast_display` | “footnote”, “table”, or “panel” | NULL |
 | `summary_statistic` | “mean”, “mean_se”, “median”, “boxplot” | “mean” |
 | `confidence_interval` | Level for CI bounds, e.g. `0.95`; `NULL` gives +/-1 SE | NULL |
 | `theme` | “bw”, “nejm”, “nature”, “lancet”, “jama”, “science”, “jco”, “fda”, “default” | NULL (see below) |
 | `cluster_var` | Subject ID column | “subject_id” |
 | `facet_form` | Faceting formula (e.g., `~ site`) | NULL |
+
+### Presentation Parameters
+
+These exist so that common adjustments do not have to be added to the
+returned plot. An appended scale replaces whatever scale the plot
+already carried, and an appended **complete** theme resets everything
+[`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md) set,
+including the margin and legend the sample-size table depends on.
+
+| Parameter | Description | Default |
+|:---|:---|:---|
+| `x_breaks` | Axis break positions | NULL |
+| `legend_title` | Title for the group legend | the grouping variable’s name |
+| `base_size` | Base type size for the theme | NULL (theme’s own) |
+| `point_size`, `line_width` | Size of points and connecting lines | NULL (ggplot2’s own) |
+| `facet_type` | “grid” or “wrap” | “grid” |
+| `facet_labeller` | Display names for panel strips | NULL |
+| `bw_print` | Map linetype and shape to group as well as colour | TRUE under `theme = "bw"`, else FALSE |
+| `error_opts` | Colour, alpha, linewidth, cap width of the error layer | group colour, opaque |
+| `sample_size_opts` | Placement of the N labels; see [`vignette("sample-size-annotations")`](https://rgt47.github.io/zzlongplot/articles/sample-size-annotations.md) | beside each point |
 
 `theme = NULL` resolves to `"bw"` for a plain call, to `"nejm"` under
 `clinical_mode = TRUE`, and to `"nature"` under

@@ -147,11 +147,38 @@ reporting</li>
 <h4 id="statistical-representation-choices">3. Statistical Representation Choices<a class="anchor" aria-label="anchor" href="#statistical-representation-choices"></a>
 </h4>
 <ul>
-<li>Visualize uncertainty with either error bars or confidence
-ribbons</li>
-<li>Automatically calculate and display standard errors</li>
+<li>Visualize uncertainty with capped error bars, uncapped ranges, or
+confidence ribbons (<code>error_type</code>)</li>
+<li>Summarize with the mean, the mean and its standard error, the median
+and interquartile range, or a boxplot
+(<code>summary_statistic</code>)</li>
+<li>Report standard errors or confidence intervals at a chosen level
+(<code>confidence_interval</code>)</li>
 <li>Handle within-subject clustering for more accurate error
 estimation</li>
+<li>Optionally test between-group differences, including a mixed model
+for repeated measures (<code>test_method = "mmrm"</code>), and report
+the contrasts as a footnote, a table, or a panel</li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="a--reporting-defaults">3a. Reporting Defaults<a class="anchor" aria-label="anchor" href="#a--reporting-defaults"></a>
+</h4>
+<p>Two things are on by default because reporting guidelines ask for
+them, and both can be turned off:</p>
+<ul>
+<li>
+<strong>Per-timepoint sample sizes.</strong> CONSORT 2025 item 26
+asks for the number of participants with available data at each
+timepoint, and a curve whose denominator silently shrinks hides
+attrition. Suppress with <code>show_sample_sizes = FALSE</code>; see
+<code><a href="../articles/sample-size-annotations.html">vignette("sample-size-annotations")</a></code> for placement.</li>
+<li>
+<strong>A caption naming the uncertainty measure.</strong>
+<em>Nature</em> and <em>Nature Medicine</em> require error bars to be
+defined in the legend. The caption is generated from what was actually
+computed, so it cannot drift from the statistics. Supply your own
+<code>caption</code>, or <code>auto_caption = FALSE</code>.</li>
 </ul>
 </div>
 <div class="section level4">
@@ -173,9 +200,18 @@ substantial flexibility.</p>
 <h4 id="integrated-theming-and-styling">5. Integrated Theming and Styling<a class="anchor" aria-label="anchor" href="#integrated-theming-and-styling"></a>
 </h4>
 <ul>
+<li>Journal themes for NEJM, Nature, Lancet, JAMA, Science and JCO, plus
+an FDA regulatory theme and a plain black-and-white print theme</li>
 <li>Built-in support for colorblind-friendly palettes</li>
-<li>Consistent, publication-ready styling defaults</li>
-<li>Easy customization for specific journal requirements</li>
+<li>Redundant encoding (<code>bw_print</code>), mapping line type and
+point shape to the group as well as colour, so a figure survives
+greyscale printing and remains readable with a colour vision
+deficiency</li>
+<li>Presentation arguments – <code>x_breaks</code>,
+<code>legend_title</code>, <code>base_size</code>,
+<code>point_size</code>, <code>line_width</code>,
+<code>facet_type</code>, <code>facet_labeller</code> – so that routine
+adjustments do not have to be added to the returned plot</li>
 </ul>
 </div>
 </div>
@@ -201,6 +237,17 @@ using ggplot2</li>
 <code><a href="../reference/get_colorblind_palette.html">get_colorblind_palette()</a></code>: Provides accessible color
 schemes for plots</li>
 </ul>
+<p>Most work goes through <code><a href="../reference/lplot.html">lplot()</a></code>; the others are exposed
+so that the summary statistics can be inspected, or a plot assembled by
+hand, when that is needed. Alongside them the package exports the
+journal themes (<code><a href="../reference/theme_nejm.html">theme_nejm()</a></code>, <code><a href="../reference/theme_nature.html">theme_nature()</a></code>
+and the rest), the clinical palettes (<code><a href="../reference/clinical_colors.html">clinical_colors()</a></code>,
+<code><a href="../reference/assign_treatment_colors.html">assign_treatment_colors()</a></code>), CDISC helpers
+(<code><a href="../reference/validate_cdisc_data.html">validate_cdisc_data()</a></code>,
+<code><a href="../reference/suggest_clinical_vars.html">suggest_clinical_vars()</a></code>), and
+<code><a href="../reference/save_publication.html">save_publication()</a></code> for export at journal figure sizes. See
+<code><a href="../articles/publication-themes.html">vignette("publication-themes")</a></code> and
+<code><a href="../articles/cdisc-compliance.html">vignette("cdisc-compliance")</a></code>.</p>
 <p>These functions work together to deliver a streamlined workflow for
 creating sophisticated longitudinal visualizations with minimal
 code.</p>
@@ -438,13 +485,42 @@ standard error. We can switch to confidence bands using the
 <p><img src="zzlongplot_introduction_files/figure-html/error_bands-1.png"><!-- --></p>
 <p>Confidence bands can sometimes provide a cleaner visualization,
 especially when multiple groups are being compared.</p>
+<p>A third option, <code>error_type = "line"</code>, draws the same
+interval as an uncapped range. The caps on a standard error bar add ink
+without adding information, and they are actively unhelpful where an
+interval has zero width – a baseline visit at which change is zero for
+every subject, for instance, where a capped bar still draws its cap and
+a line draws nothing.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">categorical_data</span>,</span>
+<span>      form <span class="op">=</span> <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
+<span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
+<span>      baseline_value <span class="op">=</span> <span class="st">"Baseline"</span>,</span>
+<span>      error_type <span class="op">=</span> <span class="st">"line"</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Uncapped Error Ranges"</span>,</span>
+<span>      xlab <span class="op">=</span> <span class="st">"Visit"</span>,</span>
+<span>      ylab <span class="op">=</span> <span class="st">"Score"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="zzlongplot_introduction_files/figure-html/error_lines-1.png"><!-- --></p>
+<p>The error layer takes the group colour, matching the series it
+belongs to. <code>error_opts</code> overrides its colour, transparency,
+line width and cap width:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">categorical_data</span>,</span>
+<span>      form <span class="op">=</span> <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
+<span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
+<span>      baseline_value <span class="op">=</span> <span class="st">"Baseline"</span>,</span>
+<span>      error_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="st">"grey40"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Error Bars in a Fixed Colour"</span>,</span>
+<span>      xlab <span class="op">=</span> <span class="st">"Visit"</span>,</span>
+<span>      ylab <span class="op">=</span> <span class="st">"Score"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="zzlongplot_introduction_files/figure-html/error_opts-1.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="using-color-palettes">Using Color Palettes<a class="anchor" aria-label="anchor" href="#using-color-palettes"></a>
 </h3>
 <p><code>zzlongplot</code> includes support for custom color palettes.
 Let’s define our own colorblind-friendly palette:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define a colorblind-friendly palette manually</span></span>
 <span><span class="co"># These colors are based on the ColorBrewer "Dark2" palette</span></span>
 <span><span class="va">custom_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1B9E77"</span>, <span class="st">"#D95F02"</span>, <span class="st">"#7570B3"</span><span class="op">)</span></span>
@@ -476,7 +552,7 @@ flexibility of <code>zzlongplot</code>.</p>
 </h3>
 <p>The formula interface supports multiple grouping variables by
 combining them with <code>+</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First, add a secondary grouping variable to our data</span></span>
 <span><span class="va">categorical_data</span><span class="op">$</span><span class="va">gender</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Female"</span>, <span class="st">"Male"</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">categorical_data</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -497,7 +573,7 @@ examine potential interactions between these variables.</p>
 <h3 id="multi-facet-formula">Multi-facet Formula<a class="anchor" aria-label="anchor" href="#multi-facet-formula"></a>
 </h3>
 <p>We can also use formulas to create complex faceting arrangements:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add another variable for faceting</span></span>
 <span><span class="va">categorical_data</span><span class="op">$</span><span class="va">age_group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Young"</span>, <span class="st">"Middle"</span>, <span class="st">"Elder"</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">categorical_data</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -520,7 +596,7 @@ comprehensive comparison across multiple dimensions.</p>
 </h3>
 <p>Sometimes we might want to use a non-standard time point as our
 baseline. <code>zzlongplot</code> makes this easy:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Using a non-zero time point as baseline for continuous data</span></span>
 <span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">continuous_data</span>, </span>
 <span>      form <span class="op">=</span> <span class="va">outcome</span> <span class="op">~</span> <span class="va">visit_time</span> <span class="op">|</span> <span class="va">group</span>,</span>
@@ -543,7 +619,7 @@ measurements compare to mid-study values.</p>
 </h3>
 <p>Let’s demonstrate a more complex example typical in clinical trials,
 where we might want to analyze both raw scores and responder status:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a clinical trial dataset</span></span>
 <span><span class="va">clinical_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  subject_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">60</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
@@ -684,7 +760,7 @@ the number of observations contributing to each plotted summary. Setting
 <code>show_sample_sizes = TRUE</code> places the sample size to the
 right of each point, aligned with dodge positioning when groups are
 present.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">continuous_data</span>,</span>
 <span>      form <span class="op">=</span> <span class="va">outcome</span> <span class="op">~</span> <span class="va">visit_time</span> <span class="op">|</span> <span class="va">group</span>,</span>
 <span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
@@ -696,7 +772,7 @@ present.</p>
 <p><img src="zzlongplot_introduction_files/figure-html/sample_sizes_obs-1.png"><!-- --></p>
 <p>Sample size annotations also work with change-from-baseline plots and
 the combined layout:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">categorical_data</span>,</span>
 <span>      form <span class="op">=</span> <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
 <span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
@@ -718,7 +794,7 @@ visual cues beyond color. The <code>theme = "bw"</code> option applies a
 high-contrast black-and-white theme and automatically maps linetype and
 point shape to the grouping variable so that groups remain
 distinguishable without color.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">continuous_data</span>,</span>
 <span>      form <span class="op">=</span> <span class="va">outcome</span> <span class="op">~</span> <span class="va">visit_time</span> <span class="op">|</span> <span class="va">group</span>,</span>
 <span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
@@ -729,7 +805,7 @@ distinguishable without color.</p>
 <span>      ylab <span class="op">=</span> <span class="st">"Outcome Measure"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="zzlongplot_introduction_files/figure-html/bw_theme-1.png"><!-- --></p>
 <p>The BW theme pairs naturally with sample size annotations:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">categorical_data</span>,</span>
 <span>      form <span class="op">=</span> <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
 <span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
@@ -787,7 +863,7 @@ patterns, trends, and group differences in your longitudinal data.</p>
 <div class="section level2">
 <h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; R version 4.6.1 (2026-06-24)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
@@ -824,9 +900,6 @@ patterns, trends, and group differences in your longitudinal data.</p>
 <span><span class="co">#&gt; [33] digest_0.6.39      grid_4.6.1         lifecycle_1.0.5    vctrs_0.7.3       </span></span>
 <span><span class="co">#&gt; [37] evaluate_1.0.5     glue_1.8.1         farver_2.1.2       ragg_1.5.2        </span></span>
 <span><span class="co">#&gt; [41] rmarkdown_2.32     tools_4.6.1        pkgconfig_2.0.3    htmltools_0.5.9</span></span></code></pre>
-<hr>
-<p><em>Rendered on 2026-03-17 at 10:13 PDT.</em> <em>Source:
-~/prj/sfw/01-zzlongplot/zzlongplot/vignettes/zzlongplot_introduction.Rmd</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

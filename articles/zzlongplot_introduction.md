@@ -57,9 +57,32 @@ working with longitudinal data:
 
 #### 3. Statistical Representation Choices
 
-- Visualize uncertainty with either error bars or confidence ribbons
-- Automatically calculate and display standard errors
+- Visualize uncertainty with capped error bars, uncapped ranges, or
+  confidence ribbons (`error_type`)
+- Summarize with the mean, the mean and its standard error, the median
+  and interquartile range, or a boxplot (`summary_statistic`)
+- Report standard errors or confidence intervals at a chosen level
+  (`confidence_interval`)
 - Handle within-subject clustering for more accurate error estimation
+- Optionally test between-group differences, including a mixed model for
+  repeated measures (`test_method = "mmrm"`), and report the contrasts
+  as a footnote, a table, or a panel
+
+#### 3a. Reporting Defaults
+
+Two things are on by default because reporting guidelines ask for them,
+and both can be turned off:
+
+- **Per-timepoint sample sizes.** CONSORT 2025 item 26 asks for the
+  number of participants with available data at each timepoint, and a
+  curve whose denominator silently shrinks hides attrition. Suppress
+  with `show_sample_sizes = FALSE`; see
+  [`vignette("sample-size-annotations")`](https://rgt47.github.io/zzlongplot/articles/sample-size-annotations.md)
+  for placement.
+- **A caption naming the uncertainty measure.** *Nature* and *Nature
+  Medicine* require error bars to be defined in the legend. The caption
+  is generated from what was actually computed, so it cannot drift from
+  the statistics. Supply your own `caption`, or `auto_caption = FALSE`.
 
 #### 4. Formula-Based Interface
 
@@ -80,9 +103,15 @@ substantial flexibility.
 
 #### 5. Integrated Theming and Styling
 
+- Journal themes for NEJM, Nature, Lancet, JAMA, Science and JCO, plus
+  an FDA regulatory theme and a plain black-and-white print theme
 - Built-in support for colorblind-friendly palettes
-- Consistent, publication-ready styling defaults
-- Easy customization for specific journal requirements
+- Redundant encoding (`bw_print`), mapping line type and point shape to
+  the group as well as colour, so a figure survives greyscale printing
+  and remains readable with a colour vision deficiency
+- Presentation arguments – `x_breaks`, `legend_title`, `base_size`,
+  `point_size`, `line_width`, `facet_type`, `facet_labeller` – so that
+  routine adjustments do not have to be added to the returned plot
 
 ### Package Architecture
 
@@ -98,6 +127,26 @@ The `zzlongplot` package consists of several core functions:
   Creates the actual visualizations using ggplot2
 - [`get_colorblind_palette()`](https://rgt47.github.io/zzlongplot/reference/get_colorblind_palette.md):
   Provides accessible color schemes for plots
+
+Most work goes through
+[`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md); the
+others are exposed so that the summary statistics can be inspected, or a
+plot assembled by hand, when that is needed. Alongside them the package
+exports the journal themes
+([`theme_nejm()`](https://rgt47.github.io/zzlongplot/reference/theme_nejm.md),
+[`theme_nature()`](https://rgt47.github.io/zzlongplot/reference/theme_nature.md)
+and the rest), the clinical palettes
+([`clinical_colors()`](https://rgt47.github.io/zzlongplot/reference/clinical_colors.md),
+[`assign_treatment_colors()`](https://rgt47.github.io/zzlongplot/reference/assign_treatment_colors.md)),
+CDISC helpers
+([`validate_cdisc_data()`](https://rgt47.github.io/zzlongplot/reference/validate_cdisc_data.md),
+[`suggest_clinical_vars()`](https://rgt47.github.io/zzlongplot/reference/suggest_clinical_vars.md)),
+and
+[`save_publication()`](https://rgt47.github.io/zzlongplot/reference/save_publication.md)
+for export at journal figure sizes. See
+[`vignette("publication-themes")`](https://rgt47.github.io/zzlongplot/articles/publication-themes.md)
+and
+[`vignette("cdisc-compliance")`](https://rgt47.github.io/zzlongplot/articles/cdisc-compliance.md).
 
 These functions work together to deliver a streamlined workflow for
 creating sophisticated longitudinal visualizations with minimal code.
@@ -368,6 +417,45 @@ lplot(categorical_data,
 
 Confidence bands can sometimes provide a cleaner visualization,
 especially when multiple groups are being compared.
+
+A third option, `error_type = "line"`, draws the same interval as an
+uncapped range. The caps on a standard error bar add ink without adding
+information, and they are actively unhelpful where an interval has zero
+width – a baseline visit at which change is zero for every subject, for
+instance, where a capped bar still draws its cap and a line draws
+nothing.
+
+``` r
+
+lplot(categorical_data,
+      form = score ~ visit | treatment,
+      cluster_var = "subject_id",
+      baseline_value = "Baseline",
+      error_type = "line",
+      title = "Uncapped Error Ranges",
+      xlab = "Visit",
+      ylab = "Score")
+```
+
+![](zzlongplot_introduction_files/figure-html/error_lines-1.png)
+
+The error layer takes the group colour, matching the series it belongs
+to. `error_opts` overrides its colour, transparency, line width and cap
+width:
+
+``` r
+
+lplot(categorical_data,
+      form = score ~ visit | treatment,
+      cluster_var = "subject_id",
+      baseline_value = "Baseline",
+      error_opts = list(colour = "grey40", linewidth = 0.6),
+      title = "Error Bars in a Fixed Colour",
+      xlab = "Visit",
+      ylab = "Score")
+```
+
+![](zzlongplot_introduction_files/figure-html/error_opts-1.png)
 
 ### Using Color Palettes
 
@@ -760,8 +848,3 @@ sessionInfo()
     #> [33] digest_0.6.39      grid_4.6.1         lifecycle_1.0.5    vctrs_0.7.3       
     #> [37] evaluate_1.0.5     glue_1.8.1         farver_2.1.2       ragg_1.5.2        
     #> [41] rmarkdown_2.32     tools_4.6.1        pkgconfig_2.0.3    htmltools_0.5.9
-
-------------------------------------------------------------------------
-
-*Rendered on 2026-03-17 at 10:13 PDT.* *Source:
-~/prj/sfw/01-zzlongplot/zzlongplot/vignettes/zzlongplot_introduction.Rmd*

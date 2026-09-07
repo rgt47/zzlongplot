@@ -159,10 +159,26 @@ print(p3)
 
 ![](clinical-trials_files/figure-html/clinical-mode-1.png)
 
-Clinical mode automatically enables: - 95% confidence intervals instead
-of standard error - Sample size annotations at each timepoint  
-- Clinical color scheme (placebo in gray, treatments in distinct
-colors) - Professional theme suitable for regulatory submissions
+Clinical mode fills in the following, and only where the caller left
+them unset – an explicit value always wins, so the mode cannot silently
+override a deliberate choice:
+
+- 95% confidence intervals instead of standard error
+  (`confidence_interval = 0.95`)
+- Sample size annotations at each timepoint (`show_sample_sizes = TRUE`)
+- Clinical color scheme, placebo in gray and treatments in distinct
+  colors (`treatment_colors = "standard"`)
+- The NEJM theme (`theme = "nejm"`), unless `theme` is given
+
+It also enables **significance annotations**
+(`statistical_annotations = TRUE`), which run a between-group test at
+each timepoint. This is worth knowing about rather than discovering from
+the figure: the default test is parametric with a Benjamini-Hochberg
+correction, and per-timepoint testing is rarely the analysis a trial
+protocol actually specifies. Pass `statistical_annotations = FALSE` to
+suppress it, or `test_method` and `p_adjust_method` to control it. See
+[`vignette("mmrm-analysis")`](https://rgt47.github.io/zzlongplot/articles/mmrm-analysis.md)
+for the mixed-model alternative.
 
 ### Individual Clinical Features
 
@@ -319,7 +335,7 @@ save_publication(p7,
 #> • linetype : "TRT01P"
 #> • shape : "TRT01P"
 #> Plot saved for FDA Regulatory:
-#>   File: /tmp/RtmpD49yVQ/Figure_1_1_Primary_Efficacy.pdf
+#>   File: /tmp/RtmpLkmH5U/Figure_1_1_Primary_Efficacy.pdf
 #>   Dimensions: 254 x 152 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF

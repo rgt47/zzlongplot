@@ -105,7 +105,7 @@ fig <- publication_panels(
 out <- file.path(tempdir(), "figure1.pdf")
 save_publication(fig, out, journal = "nature", column_type = "double")
 #> Plot saved for Nature:
-#>   File: /tmp/RtmpTaiv4v/figure1.pdf
+#>   File: /tmp/Rtmpmgupp5/figure1.pdf
 #>   Dimensions: 183 x 113 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF

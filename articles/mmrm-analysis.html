@@ -250,9 +250,16 @@ table for a publication-ready figure.</p>
 <span>  statistical_annotations <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  test_method <span class="op">=</span> <span class="st">"mmrm"</span>,</span>
 <span>  show_sample_sizes <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  sample_size_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>position <span class="op">=</span> <span class="st">"table"</span><span class="op">)</span>,</span>
+<span>  sample_size_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>position <span class="op">=</span> <span class="st">"table"</span>,</span>
+<span>                          show_group_labels <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                          legend <span class="op">=</span> <span class="st">"keep"</span><span class="op">)</span>,</span>
 <span>  theme <span class="op">=</span> <span class="st">"nejm"</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"Efficacy Endpoint: MMRM Analysis"</span><span class="op">)</span></span></code></pre></div>
+<p>The table names its rows at the left edge and hides the legend by
+default, on the assumption that those names identify the groups. Here
+the group names are dropped and the legend kept instead, which reads
+better when the significance annotations already occupy the space above
+the panel.</p>
 </div>
 <div class="section level2">
 <h2 id="comparison-with-pointwise-tests">Comparison with pointwise tests<a class="anchor" aria-label="anchor" href="#comparison-with-pointwise-tests"></a>
@@ -326,9 +333,6 @@ contrasts</li>
 <p>Install with:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mmrm"</span>, <span class="st">"emmeans"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<hr>
-<p><em>Rendered on 2026-03-17 at 11:58 PDT.</em> <em>Source:
-~/prj/sfw/01-zzlongplot/zzlongplot/vignettes/mmrm-analysis.Rmd</em></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

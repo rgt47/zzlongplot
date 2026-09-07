@@ -228,11 +228,29 @@ clinical trial best practices:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">linetype</span> : <span style="color: #0000BB;">"TRT01P"</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">shape</span> : <span style="color: #0000BB;">"TRT01P"</span></span></span></code></pre></div>
 <p><img src="clinical-trials_files/figure-html/clinical-mode-1.png"><!-- --></p>
-<p>Clinical mode automatically enables: - 95% confidence intervals
-instead of standard error - Sample size annotations at each
-timepoint<br>
-- Clinical color scheme (placebo in gray, treatments in distinct colors)
-- Professional theme suitable for regulatory submissions</p>
+<p>Clinical mode fills in the following, and only where the caller left
+them unset – an explicit value always wins, so the mode cannot silently
+override a deliberate choice:</p>
+<ul>
+<li>95% confidence intervals instead of standard error
+(<code>confidence_interval = 0.95</code>)</li>
+<li>Sample size annotations at each timepoint
+(<code>show_sample_sizes = TRUE</code>)</li>
+<li>Clinical color scheme, placebo in gray and treatments in distinct
+colors (<code>treatment_colors = "standard"</code>)</li>
+<li>The NEJM theme (<code>theme = "nejm"</code>), unless
+<code>theme</code> is given</li>
+</ul>
+<p>It also enables <strong>significance annotations</strong>
+(<code>statistical_annotations = TRUE</code>), which run a between-group
+test at each timepoint. This is worth knowing about rather than
+discovering from the figure: the default test is parametric with a
+Benjamini-Hochberg correction, and per-timepoint testing is rarely the
+analysis a trial protocol actually specifies. Pass
+<code>statistical_annotations = FALSE</code> to suppress it, or
+<code>test_method</code> and <code>p_adjust_method</code> to control it.
+See <code><a href="../articles/mmrm-analysis.html">vignette("mmrm-analysis")</a></code> for the mixed-model
+alternative.</p>
 </div>
 <div class="section level3">
 <h3 id="individual-clinical-features">Individual Clinical Features<a class="anchor" aria-label="anchor" href="#individual-clinical-features"></a>
@@ -381,7 +399,7 @@ fills in the journal’s own defaults when <code>dpi</code> and
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">linetype</span> : <span style="color: #0000BB;">"TRT01P"</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">shape</span> : <span style="color: #0000BB;">"TRT01P"</span></span></span>
 <span><span class="co">#&gt; Plot saved for FDA Regulatory:</span></span>
-<span><span class="co">#&gt;   File: /tmp/RtmpD49yVQ/Figure_1_1_Primary_Efficacy.pdf</span></span>
+<span><span class="co">#&gt;   File: /tmp/RtmpLkmH5U/Figure_1_1_Primary_Efficacy.pdf</span></span>
 <span><span class="co">#&gt;   Dimensions: 254 x 152 mm</span></span>
 <span><span class="co">#&gt;   Resolution: 600 DPI</span></span>
 <span><span class="co">#&gt;   Format: PDF</span></span></code></pre></div>

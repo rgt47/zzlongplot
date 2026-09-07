@@ -204,15 +204,15 @@ visit is detected from the data and the subject column defaults to
 <span>             shape <span class="op">=</span> <span class="va">treatment</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">m</span> <span class="op">-</span> <span class="va">se</span>, ymax <span class="op">=</span> <span class="va">m</span> <span class="op">+</span> <span class="va">se</span><span class="op">)</span>,</span>
-<span>    width <span class="op">=</span> <span class="fl">0.6</span>,</span>
+<span>    width <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>    position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span><span class="fl">0.15</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span><span class="fl">0.15</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span><span class="fl">0.15</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_grey.html" class="external-link">scale_colour_grey</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">0</span>, end <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"visit"</span>, y <span class="op">=</span> <span class="st">"measure"</span>,</span>
-<span>       colour <span class="op">=</span> <span class="st">"group"</span>, linetype <span class="op">=</span> <span class="st">"group"</span>,</span>
-<span>       shape <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>       colour <span class="op">=</span> <span class="st">"treatment"</span>, linetype <span class="op">=</span> <span class="st">"treatment"</span>,</span>
+<span>       shape <span class="op">=</span> <span class="st">"treatment"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -286,15 +286,15 @@ argument.</p>
 <span>             shape <span class="op">=</span> <span class="va">treatment</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">m</span> <span class="op">-</span> <span class="va">se</span>, ymax <span class="op">=</span> <span class="va">m</span> <span class="op">+</span> <span class="va">se</span><span class="op">)</span>,</span>
-<span>    width <span class="op">=</span> <span class="fl">0.6</span>,</span>
+<span>    width <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>    position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span><span class="fl">0.15</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span><span class="fl">0.15</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span><span class="fl">0.15</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_grey.html" class="external-link">scale_colour_grey</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">0</span>, end <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"visit"</span>, y <span class="op">=</span> <span class="st">"measure change"</span>,</span>
-<span>       colour <span class="op">=</span> <span class="st">"group"</span>, linetype <span class="op">=</span> <span class="st">"group"</span>,</span>
-<span>       shape <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>       colour <span class="op">=</span> <span class="st">"treatment"</span>, linetype <span class="op">=</span> <span class="st">"treatment"</span>,</span>
+<span>       shape <span class="op">=</span> <span class="st">"treatment"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -378,7 +378,7 @@ ribbons.</div>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">two_arm</span>,</span>
 <span>  <span class="va">response</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
 <span>  baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  plot_type <span class="op">=</span> <span class="st">"both"</span>,<span class="op">)</span></span></code></pre></div>
+<span>  plot_type <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
 <img src="quickstart_files/figure-html/both-1.png" alt="Figure 7: Side-by-side observed and change plots."><div class="figcaption">Figure 7: Side-by-side observed and change
 plots.</div>
@@ -410,6 +410,10 @@ curve.</p>
 <div class="float">
 <img src="quickstart_files/figure-html/sample-table-1.png" alt="Figure 9: Sample size table below axis."><div class="figcaption">Figure 9: Sample size table below axis.</div>
 </div>
+<p>The table has its own options: whether to name each row, whether to
+keep the legend, and whether to take its vertical space from reserved
+margin or from the panel. See
+<code><a href="../articles/sample-size-annotations.html">vignette("sample-size-annotations")</a></code>.</p>
 <p>To suppress the annotation entirely, pass
 <code>show_sample_sizes = FALSE</code>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -607,18 +611,18 @@ are sorted numerically by default and do not require this step.</p>
 </tr>
 <tr class="even">
 <td align="left"><code>error_type</code></td>
-<td align="left">“bar” or “band”</td>
+<td align="left">“bar” (capped), “line” (uncapped), or “band”</td>
 <td align="left">“bar”</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>baseline_value</code></td>
 <td align="left">Value identifying baseline</td>
-<td align="left">NULL</td>
+<td align="left">NULL (auto-detected)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>show_sample_sizes</code></td>
 <td align="left">Show N at each timepoint</td>
-<td align="left">FALSE</td>
+<td align="left">TRUE</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>statistical_annotations</code></td>
@@ -637,7 +641,7 @@ are sorted numerically by default and do not require this step.</p>
 </tr>
 <tr class="even">
 <td align="left"><code>contrast_display</code></td>
-<td align="left">“footnote” or “table” (MMRM)</td>
+<td align="left">“footnote”, “table”, or “panel”</td>
 <td align="left">NULL</td>
 </tr>
 <tr class="odd">
@@ -666,6 +670,79 @@ are sorted numerically by default and do not require this step.</p>
 <td align="left"><code>facet_form</code></td>
 <td align="left">Faceting formula (e.g., <code>~ site</code>)</td>
 <td align="left">NULL</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="presentation-parameters">Presentation Parameters<a class="anchor" aria-label="anchor" href="#presentation-parameters"></a>
+</h3>
+<p>These exist so that common adjustments do not have to be added to the
+returned plot. An appended scale replaces whatever scale the plot
+already carried, and an appended <strong>complete</strong> theme resets
+everything <code><a href="../reference/lplot.html">lplot()</a></code> set, including the margin and legend the
+sample-size table depends on.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="39%">
+<col width="27%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Description</th>
+<th align="left">Default</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>x_breaks</code></td>
+<td align="left">Axis break positions</td>
+<td align="left">NULL</td>
+</tr>
+<tr class="even">
+<td align="left"><code>legend_title</code></td>
+<td align="left">Title for the group legend</td>
+<td align="left">the grouping variable’s name</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>base_size</code></td>
+<td align="left">Base type size for the theme</td>
+<td align="left">NULL (theme’s own)</td>
+</tr>
+<tr class="even">
+<td align="left">
+<code>point_size</code>, <code>line_width</code>
+</td>
+<td align="left">Size of points and connecting lines</td>
+<td align="left">NULL (ggplot2’s own)</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>facet_type</code></td>
+<td align="left">“grid” or “wrap”</td>
+<td align="left">“grid”</td>
+</tr>
+<tr class="even">
+<td align="left"><code>facet_labeller</code></td>
+<td align="left">Display names for panel strips</td>
+<td align="left">NULL</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>bw_print</code></td>
+<td align="left">Map linetype and shape to group as well as colour</td>
+<td align="left">TRUE under <code>theme = "bw"</code>, else FALSE</td>
+</tr>
+<tr class="even">
+<td align="left"><code>error_opts</code></td>
+<td align="left">Colour, alpha, linewidth, cap width of the error
+layer</td>
+<td align="left">group colour, opaque</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>sample_size_opts</code></td>
+<td align="left">Placement of the N labels; see
+<code><a href="../articles/sample-size-annotations.html">vignette("sample-size-annotations")</a></code>
+</td>
+<td align="left">beside each point</td>
 </tr>
 </tbody>
 </table>
