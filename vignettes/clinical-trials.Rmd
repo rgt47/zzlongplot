@@ -138,11 +138,27 @@ p3 <- lplot(
 print(p3)
 ```
 
-Clinical mode automatically enables:
+Clinical mode fills in the following, and only where the caller left
+them unset -- an explicit value always wins, so the mode cannot
+silently override a deliberate choice:
+
 - 95% confidence intervals instead of standard error
-- Sample size annotations at each timepoint  
-- Clinical color scheme (placebo in gray, treatments in distinct colors)
-- Professional theme suitable for regulatory submissions
+  (`confidence_interval = 0.95`)
+- Sample size annotations at each timepoint
+  (`show_sample_sizes = TRUE`)
+- Clinical color scheme, placebo in gray and treatments in distinct
+  colors (`treatment_colors = "standard"`)
+- The NEJM theme (`theme = "nejm"`), unless `theme` is given
+
+It also enables **significance annotations**
+(`statistical_annotations = TRUE`), which run a between-group test at
+each timepoint. This is worth knowing about rather than discovering
+from the figure: the default test is parametric with a
+Benjamini-Hochberg correction, and per-timepoint testing is rarely the
+analysis a trial protocol actually specifies. Pass
+`statistical_annotations = FALSE` to suppress it, or `test_method`
+and `p_adjust_method` to control it. See `vignette("mmrm-analysis")`
+for the mixed-model alternative.
 
 ## Individual Clinical Features
 

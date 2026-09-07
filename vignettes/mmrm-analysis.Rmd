@@ -212,10 +212,18 @@ lplot(df, measure ~ visit | group,
   statistical_annotations = TRUE,
   test_method = "mmrm",
   show_sample_sizes = TRUE,
-  sample_size_opts = list(position = "table"),
+  sample_size_opts = list(position = "table",
+                          show_group_labels = FALSE,
+                          legend = "keep"),
   theme = "nejm",
   title = "Efficacy Endpoint: MMRM Analysis")
 ```
+
+The table names its rows at the left edge and hides the legend by
+default, on the assumption that those names identify the groups. Here
+the group names are dropped and the legend kept instead, which reads
+better when the significance annotations already occupy the space
+above the panel.
 
 # Comparison with pointwise tests
 
@@ -252,7 +260,3 @@ Install with:
 ```r
 pak::pak(c("mmrm", "emmeans"))
 ```
-
----
-*Rendered on 2026-03-17 at 11:58 PDT.*
-*Source: ~/prj/sfw/01-zzlongplot/zzlongplot/vignettes/mmrm-analysis.Rmd*
