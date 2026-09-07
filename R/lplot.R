@@ -47,6 +47,19 @@
 #'   adding a complete theme to the returned plot, which would discard
 #'   the margin and legend settings that the sample-size table depends
 #'   on.
+#' @param x_breaks Optional vector of x-axis break positions. `NULL`
+#'   (the default) leaves the scale's own breaks in place.
+#' @param legend_title Character. Title for the group legend. `NULL`
+#'   (the default) uses the grouping variable's own name, as given in
+#'   `form`. Applied to the colour, fill, linetype and shape guides
+#'   together, so the legend stays a single key.
+#' @param bw_print Logical. Whether to map `linetype` and `shape` to the
+#'   grouping variable in addition to colour, so that the groups stay
+#'   distinguishable in greyscale and to readers with a colour vision
+#'   deficiency. `NULL` (the default) follows the theme, which is TRUE
+#'   under `theme = "bw"` and FALSE otherwise. Set it explicitly to keep
+#'   redundant encoding under a journal theme, or to drop it under
+#'   `"bw"`.
 #' @param color_palette Optional vector of colors to use for groups. If NULL, 
 #'   default ggplot colors are used.
 #' @param clinical_mode Logical. If TRUE, enables clinical trial defaults 
@@ -234,7 +247,8 @@ lplot <- function(
   publication_ready = FALSE, statistical_annotations = FALSE,
   test_method = "parametric", p_adjust_method = "BH", cov_struct = "auto",
   reference_lines = NULL, ribbon_alpha = 0.2, ribbon_fill = NULL,
-  error_opts = list(), base_size = NULL,
+  error_opts = list(), base_size = NULL, x_breaks = NULL,
+  legend_title = NULL, bw_print = NULL,
   contrast_display = NULL, auto_caption = TRUE
 ) {
   # Input validation
@@ -354,6 +368,15 @@ lplot <- function(
   # Fall back to the plain theme once the modes have had their say.
   if (is.null(theme)) theme <- "bw"
 
+  # Redundant encoding is a legibility decision, not a typography one:
+  # a figure printed in greyscale, or read by someone with a colour
+  # vision deficiency, needs linetype and shape to carry the group as
+  # well as colour, whichever house style it is set in. The default
+  # preserves the historical coupling to the "bw" theme; pass TRUE to
+  # keep the redundant encoding under a journal theme, or FALSE to drop
+  # it under "bw".
+  if (is.null(bw_print)) bw_print <- identical(theme, "bw")
+
 
   # Parse formulas
   parsed_form <- parse_formula(form)
@@ -451,7 +474,8 @@ lplot <- function(
     ribbon_alpha = ribbon_alpha,
     ribbon_fill = ribbon_fill,
     error_opts = error_opts,
-    bw_print = identical(theme, "bw"),
+    bw_print = bw_print,
+    x_breaks = x_breaks,
     sample_size_opts = sample_size_opts,
     contrast_display = if (identical(contrast_display, "footnote"))
       "footnote" else NULL,
@@ -482,7 +506,8 @@ lplot <- function(
     ribbon_alpha = ribbon_alpha,
     ribbon_fill = ribbon_fill,
     error_opts = error_opts,
-    bw_print = identical(theme, "bw"),
+    bw_print = bw_print,
+    x_breaks = x_breaks,
     sample_size_opts = sample_size_opts,
     contrast_display = if (identical(contrast_display, "footnote"))
       "footnote" else NULL,
@@ -563,6 +588,21 @@ lplot <- function(
       fig_obs <- fig_obs + ggplot2::theme(legend.position = "none")
       fig_change <- fig_change + ggplot2::theme(legend.position = "none")
     }
+  }
+
+  # Legend title. The group column is renamed to "group" internally, so
+  # without this the legend is headed "group" rather than the variable
+  # the caller named in the formula. All four aesthetics are set
+  # together: under bw_print, linetype and shape are mapped to the
+  # group as well, and retitling only colour splits one legend into
+  # two.
+  if (!is.null(parsed_form$group)) {
+    lt <- legend_title %||% parsed_form$group
+    title_labs <- ggplot2::labs(
+      colour = lt, fill = lt, linetype = lt, shape = lt
+    )
+    fig_obs <- fig_obs + title_labs
+    fig_change <- fig_change + title_labs
   }
 
   # Build contrast table if requested

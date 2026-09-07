@@ -48,6 +48,10 @@
 #' @param ribbon_fill Character. Custom fill color for ribbons. If NULL, uses group colors.
 #' @param bw_print Logical. If TRUE, maps linetype and shape to group variable
 #'   for black-and-white print compatibility. Default is FALSE.
+#' @param x_breaks Optional vector of x-axis break positions, passed to
+#'   [ggplot2::scale_x_continuous()] or [ggplot2::scale_x_discrete()]
+#'   according to whether the x variable is continuous. `NULL` (the
+#'   default) leaves the scale's own breaks in place.
 #' @param sample_size_opts List. Options controlling the appearance and
 #'   placement of sample size labels. Elements (all optional):
 #'   \describe{
@@ -169,6 +173,7 @@ generate_plot <- function(
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
   bw_print = FALSE,
+  x_breaks = NULL,
   sample_size_opts = list(),
   error_opts = list(),
   contrast_display = NULL,
@@ -394,6 +399,13 @@ generate_plot <- function(
       parts <- c(parts, .describe_significance(p_adjust_method))
     }
     caption <- paste(parts, collapse = " ")
+  }
+
+  # Axis breaks. x_scale is scale_x_continuous or scale_x_discrete
+  # according to the x variable, so the caller names breaks once and
+  # does not have to know which.
+  if (!is.null(x_breaks)) {
+    plot <- plot + x_scale(breaks = x_breaks)
   }
 
   # Add labels

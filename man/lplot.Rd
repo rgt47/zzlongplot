@@ -40,6 +40,9 @@ lplot(
   ribbon_fill = NULL,
   error_opts = list(),
   base_size = NULL,
+  x_breaks = NULL,
+  legend_title = NULL,
+  bw_print = NULL,
   contrast_display = NULL,
   auto_caption = TRUE
 )
@@ -183,6 +186,22 @@ theme, for matching the type size of a surrounding document.
 adding a complete theme to the returned plot, which would discard
 the margin and legend settings that the sample-size table depends
 on.}
+
+\item{x_breaks}{Optional vector of x-axis break positions. \code{NULL}
+(the default) leaves the scale's own breaks in place.}
+
+\item{legend_title}{Character. Title for the group legend. \code{NULL}
+(the default) uses the grouping variable's own name, as given in
+\code{form}. Applied to the colour, fill, linetype and shape guides
+together, so the legend stays a single key.}
+
+\item{bw_print}{Logical. Whether to map \code{linetype} and \code{shape} to the
+grouping variable in addition to colour, so that the groups stay
+distinguishable in greyscale and to readers with a colour vision
+deficiency. \code{NULL} (the default) follows the theme, which is TRUE
+under \code{theme = "bw"} and FALSE otherwise. Set it explicitly to keep
+redundant encoding under a journal theme, or to drop it under
+\code{"bw"}.}
 
 \item{contrast_display}{Optional character string controlling
 whether and how the between-group contrasts are reported.

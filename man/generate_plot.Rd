@@ -25,6 +25,7 @@ generate_plot(
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
   bw_print = FALSE,
+  x_breaks = NULL,
   sample_size_opts = list(),
   error_opts = list(),
   contrast_display = NULL,
@@ -87,6 +88,11 @@ Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.}
 
 \item{bw_print}{Logical. If TRUE, maps linetype and shape to group variable
 for black-and-white print compatibility. Default is FALSE.}
+
+\item{x_breaks}{Optional vector of x-axis break positions, passed to
+\code{\link[ggplot2:scale_x_continuous]{ggplot2::scale_x_continuous()}} or \code{\link[ggplot2:scale_x_discrete]{ggplot2::scale_x_discrete()}}
+according to whether the x variable is continuous. \code{NULL} (the
+default) leaves the scale's own breaks in place.}
 
 \item{sample_size_opts}{List. Options controlling the appearance and
 placement of sample size labels. Elements (all optional):
