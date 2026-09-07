@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">zzlongplot</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,15 @@
       <small>Source: <a href="https://github.com/rgt47/zzlongplot/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="zzlongplot-040">zzlongplot 0.4.0<a class="anchor" aria-label="anchor" href="#zzlongplot-040"></a></h2>
+<div class="section level3">
+<h3 id="new-0-4-0">New<a class="anchor" aria-label="anchor" href="#new-0-4-0"></a></h3>
+<ul><li><p><code>x_breaks</code> sets the axis break positions, dispatching to <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous()</a></code> or <code><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_x_discrete()</a></code> according to the x variable. Previously the only way to name the breaks was to add a scale to the returned plot.</p></li>
+<li><p><code>legend_title</code> titles the group legend, and the default changed. The grouping column is renamed to <code>group</code> internally, and that name reached the legend, so a plot of <code>y ~ week | arm</code> was headed <code>group</code>. It now uses the grouping variable’s own name from the formula, here <code>arm</code>. The title is applied to the colour, fill, linetype and shape guides together, since retitling only colour splits one key into two whenever <code>bw_print</code> is in effect.</p></li>
+<li><p><code>bw_print</code> is now an argument of <code><a href="../reference/lplot.html">lplot()</a></code> rather than a consequence of the theme. Mapping linetype and shape to the group in addition to colour is what keeps a figure legible in greyscale and to readers with a colour vision deficiency; it was previously reachable only through <code>theme = "bw"</code>, so choosing a journal theme silently dropped it. The default is unchanged (<code>TRUE</code> under <code>"bw"</code>, <code>FALSE</code> otherwise), and it can now be set either way under any theme.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="zzlongplot-030">zzlongplot 0.3.0<a class="anchor" aria-label="anchor" href="#zzlongplot-030"></a></h2>
 <div class="section level3">

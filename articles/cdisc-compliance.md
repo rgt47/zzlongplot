@@ -351,6 +351,9 @@ p4 <- lplot(
 )
 
 print(p4)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](cdisc-compliance_files/figure-html/adam-flags-1.png)
@@ -406,6 +409,9 @@ p5 <- lplot(
 )
 
 print(p5)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P_STD"
+#> • shape : "TRT01P_STD"
 ```
 
 ![](cdisc-compliance_files/figure-html/terminology-1.png)
@@ -441,6 +447,9 @@ p6 <- lplot(
 #> sample sizes are counts of non-missing values.
 
 print(p6)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](cdisc-compliance_files/figure-html/missing-data-1.png)
@@ -511,6 +520,9 @@ p7 <- lplot(
 )
 
 print(p7)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](cdisc-compliance_files/figure-html/parameters-1.png)

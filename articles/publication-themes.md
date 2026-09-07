@@ -105,6 +105,9 @@ p_nejm <- lplot(demo_data,
                ylab = "Efficacy Score (points)")
 
 p_nejm
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/nejm-theme-1.png)
@@ -131,6 +134,9 @@ p_nature <- lplot(demo_data,
                  ylab = "Efficacy Score (points)")
 
 p_nature
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/nature-theme-1.png)
@@ -158,6 +164,9 @@ p_lancet <- lplot(demo_data,
                  ylab = "Efficacy Score (points)")
 
 p_lancet
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/lancet-theme-1.png)
@@ -184,6 +193,9 @@ p_jama <- lplot(demo_data,
                ylab = "Efficacy Score (points)")
 
 p_jama
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/jama-theme-1.png)
@@ -211,6 +223,9 @@ p_science <- lplot(demo_data,
                   ylab = "Efficacy Score (points)")
 
 p_science
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/science-theme-1.png)
@@ -237,6 +252,9 @@ p_jco <- lplot(demo_data,
               ylab = "Efficacy Score (points)")
 
 p_jco
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/jco-theme-1.png)
@@ -265,6 +283,9 @@ p_fda <- lplot(demo_data,
               ylab = "Efficacy Score (points)")
 
 p_fda
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/fda-theme-1.png)
@@ -302,6 +323,24 @@ p6 <- create_comparison_plot("jco", "JCO")
 
 # Arrange in grid
 (p1 + p2 + p3) / (p4 + p5 + p6)
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/theme-comparison-1.png)
@@ -337,6 +376,12 @@ p_bands <- lplot(demo_data,
                 ylab = "Efficacy Score")
 
 p_bars + p_bands
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/error-types-1.png)
@@ -391,6 +436,18 @@ p_ribbon_subtle <- lplot(ribbon_demo, efficacy ~ visit | treatment,
 
 # Arrange ribbon examples
 (p_ribbon_default + p_ribbon_alpha) / (p_ribbon_fill + p_ribbon_subtle)
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/ribbon-custom-1.png)
@@ -463,6 +520,18 @@ p_boxplot <- lplot(stats_demo, efficacy ~ visit | treatment,
 
 # Arrange all plots
 (p_mean_ci + p_mean_se) / (p_median + p_boxplot)
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/summary-stats-1.png)
@@ -511,6 +580,9 @@ p_accessible <- lplot(demo_data,
                      ylab = "Efficacy Score")
 
 p_accessible
+#> Ignoring unknown labels:
+#> • linetype : "treatment"
+#> • shape : "treatment"
 ```
 
 ![](publication-themes_files/figure-html/accessibility-1.png)

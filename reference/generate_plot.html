@@ -11,7 +11,7 @@ with ribbons or error bars."><meta property="og:image" content="https://rgt47.gi
 
     <a class="navbar-brand me-2" href="../index.html">zzlongplot</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,6 +78,7 @@ with ribbons or error bars.</p>
 <span>  ribbon_alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  ribbon_fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bw_print <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  x_breaks <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_size_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  error_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  contrast_display <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -183,6 +184,13 @@ Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.</p></dd>
 <dt id="arg-bw-print">bw_print<a class="anchor" aria-label="anchor" href="#arg-bw-print"></a></dt>
 <dd><p>Logical. If TRUE, maps linetype and shape to group variable
 for black-and-white print compatibility. Default is FALSE.</p></dd>
+
+
+<dt id="arg-x-breaks">x_breaks<a class="anchor" aria-label="anchor" href="#arg-x-breaks"></a></dt>
+<dd><p>Optional vector of x-axis break positions, passed to
+<code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">ggplot2::scale_x_continuous()</a></code> or <code><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">ggplot2::scale_x_discrete()</a></code>
+according to whether the x variable is continuous. <code>NULL</code> (the
+default) leaves the scale's own breaks in place.</p></dd>
 
 
 <dt id="arg-sample-size-opts">sample_size_opts<a class="anchor" aria-label="anchor" href="#arg-sample-size-opts"></a></dt>

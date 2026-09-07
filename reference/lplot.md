@@ -42,6 +42,9 @@ lplot(
   ribbon_fill = NULL,
   error_opts = list(),
   base_size = NULL,
+  x_breaks = NULL,
+  legend_title = NULL,
+  bw_print = NULL,
   contrast_display = NULL,
   auto_caption = TRUE
 )
@@ -255,6 +258,27 @@ lplot(
   returned plot, which would discard the margin and legend settings that
   the sample-size table depends on.
 
+- x_breaks:
+
+  Optional vector of x-axis break positions. `NULL` (the default) leaves
+  the scale's own breaks in place.
+
+- legend_title:
+
+  Character. Title for the group legend. `NULL` (the default) uses the
+  grouping variable's own name, as given in `form`. Applied to the
+  colour, fill, linetype and shape guides together, so the legend stays
+  a single key.
+
+- bw_print:
+
+  Logical. Whether to map `linetype` and `shape` to the grouping
+  variable in addition to colour, so that the groups stay
+  distinguishable in greyscale and to readers with a colour vision
+  deficiency. `NULL` (the default) follows the theme, which is TRUE
+  under `theme = "bw"` and FALSE otherwise. Set it explicitly to keep
+  redundant encoding under a journal theme, or to drop it under `"bw"`.
+
 - contrast_display:
 
   Optional character string controlling whether and how the
@@ -367,9 +391,15 @@ lplot(df, measure ~ visit | group, baseline_value = 0,
 # Apply complete journal styling (theme + colors) with single parameter
 lplot(df, measure ~ visit | group, baseline_value = 0,
       cluster_var = "subject_id", theme = "nejm")    # NEJM theme + colors
+#> Ignoring unknown labels:
+#> • linetype : "group"
+#> • shape : "group"
 
 lplot(df, measure ~ visit | group, baseline_value = 0,
       cluster_var = "subject_id", theme = "nature")  # Nature theme + colors
+#> Ignoring unknown labels:
+#> • linetype : "group"
+#> • shape : "group"
 
 
 # Example with categorical x variable
@@ -398,5 +428,11 @@ lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
       cluster_var = "USUBJID", baseline_value = 0,
       clinical_mode = TRUE, plot_type = "both",
       title = "Clinical Trial Results")
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 
 ```

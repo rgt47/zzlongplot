@@ -28,6 +28,7 @@ generate_plot(
   ribbon_alpha = 0.2,
   ribbon_fill = NULL,
   bw_print = FALSE,
+  x_breaks = NULL,
   sample_size_opts = list(),
   error_opts = list(),
   contrast_display = NULL,
@@ -131,6 +132,15 @@ generate_plot(
 
   Logical. If TRUE, maps linetype and shape to group variable for
   black-and-white print compatibility. Default is FALSE.
+
+- x_breaks:
+
+  Optional vector of x-axis break positions, passed to
+  [`ggplot2::scale_x_continuous()`](https://ggplot2.tidyverse.org/reference/scale_continuous.html)
+  or
+  [`ggplot2::scale_x_discrete()`](https://ggplot2.tidyverse.org/reference/scale_discrete.html)
+  according to whether the x variable is continuous. `NULL` (the
+  default) leaves the scale's own breaks in place.
 
 - sample_size_opts:
 

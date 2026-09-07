@@ -746,13 +746,13 @@ sessionInfo()
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> other attached packages:
-    #> [1] patchwork_1.3.2  ggplot2_4.0.3    dplyr_1.2.1      zzlongplot_0.3.0
+    #> [1] patchwork_1.3.2  ggplot2_4.0.3    dplyr_1.2.1      zzlongplot_0.4.0
     #> 
     #> loaded via a namespace (and not attached):
     #>  [1] gtable_0.3.6       jsonlite_2.0.0     compiler_4.6.1     tidyselect_1.2.1  
     #>  [5] jquerylib_0.1.4    systemfonts_1.3.2  scales_1.4.0       textshaping_1.0.5 
     #>  [9] yaml_2.3.12        fastmap_1.2.0      R6_2.6.1           labeling_0.4.3    
-    #> [13] generics_0.1.4     knitr_1.51         conflicted_1.2.0   tibble_3.3.1      
+    #> [13] generics_0.1.4     knitr_1.52         conflicted_1.2.0   tibble_3.3.1      
     #> [17] desc_1.4.3         bslib_0.12.0       pillar_1.11.1      RColorBrewer_1.1-3
     #> [21] rlang_1.3.0        cachem_1.1.0       xfun_0.60          fs_2.1.0          
     #> [25] sass_0.4.10        S7_0.2.2           otel_0.2.0         memoise_2.0.1     

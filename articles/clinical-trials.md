@@ -149,6 +149,12 @@ p3 <- lplot(
 )
 
 print(p3)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](clinical-trials_files/figure-html/clinical-mode-1.png)
@@ -204,6 +210,12 @@ p5 <- lplot(
 )
 
 print(p5)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](clinical-trials_files/figure-html/categorical-visits-1.png)
@@ -246,6 +258,9 @@ p6 <- lplot(
 #> ℹ Run `dplyr::last_dplyr_warnings()` to see the 3 remaining warnings.
 
 print(p6)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](clinical-trials_files/figure-html/visit-timing-1.png)
@@ -272,6 +287,12 @@ p7 <- lplot(
 )
 
 print(p7)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](clinical-trials_files/figure-html/fda-theme-1.png)
@@ -291,8 +312,14 @@ save_publication(p7,
   journal = "fda",
   width_mm = 254, height_mm = 152
 )
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 #> Plot saved for FDA Regulatory:
-#>   File: /tmp/RtmpQObO21/Figure_1_1_Primary_Efficacy.pdf
+#>   File: /tmp/Rtmpm8YbME/Figure_1_1_Primary_Efficacy.pdf
 #>   Dimensions: 254 x 152 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF
@@ -396,6 +423,12 @@ Most clinical protocols require both perspectives:
 lplot(clinical_data, AVAL ~ AVISITN | TRT01P, 
       cluster_var = "SUBJID", baseline_value = 0,
       plot_type = "both", clinical_mode = TRUE)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](clinical-trials_files/figure-html/best-practice-both-1.png)
@@ -424,6 +457,9 @@ Show sample sizes to indicate data completeness:
 lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
       cluster_var = "SUBJID", baseline_value = 0,
       show_sample_sizes = TRUE, clinical_mode = TRUE)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](clinical-trials_files/figure-html/best-practice-n-1.png)
@@ -438,6 +474,9 @@ Regulatory submissions require clean, professional appearance:
 lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
       cluster_var = "SUBJID", baseline_value = 0,
       theme = "fda", clinical_mode = TRUE)
+#> Ignoring unknown labels:
+#> • linetype : "TRT01P"
+#> • shape : "TRT01P"
 ```
 
 ![](clinical-trials_files/figure-html/best-practice-theme-1.png)

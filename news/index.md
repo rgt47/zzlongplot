@@ -1,5 +1,34 @@
 # Changelog
 
+## zzlongplot 0.4.0
+
+### New
+
+- `x_breaks` sets the axis break positions, dispatching to
+  [`scale_x_continuous()`](https://ggplot2.tidyverse.org/reference/scale_continuous.html)
+  or
+  [`scale_x_discrete()`](https://ggplot2.tidyverse.org/reference/scale_discrete.html)
+  according to the x variable. Previously the only way to name the
+  breaks was to add a scale to the returned plot.
+
+- `legend_title` titles the group legend, and the default changed. The
+  grouping column is renamed to `group` internally, and that name
+  reached the legend, so a plot of `y ~ week | arm` was headed `group`.
+  It now uses the grouping variable’s own name from the formula, here
+  `arm`. The title is applied to the colour, fill, linetype and shape
+  guides together, since retitling only colour splits one key into two
+  whenever `bw_print` is in effect.
+
+- `bw_print` is now an argument of
+  [`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md)
+  rather than a consequence of the theme. Mapping linetype and shape to
+  the group in addition to colour is what keeps a figure legible in
+  greyscale and to readers with a colour vision deficiency; it was
+  previously reachable only through `theme = "bw"`, so choosing a
+  journal theme silently dropped it. The default is unchanged (`TRUE`
+  under `"bw"`, `FALSE` otherwise), and it can now be set either way
+  under any theme.
+
 ## zzlongplot 0.3.0
 
 ### Corrections
