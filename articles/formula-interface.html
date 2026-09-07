@@ -178,6 +178,41 @@ formula concise while still supporting panel layouts.</p>
 <span>      facet_form <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">site</span>,</span>
 <span>      plot_type <span class="op">=</span> <span class="st">"obs"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="formula-interface_files/figure-html/facet-grid-1.png"><!-- --></p>
+<div class="section level3">
+<h3 id="grid-or-wrap">Grid or wrap<a class="anchor" aria-label="anchor" href="#grid-or-wrap"></a>
+</h3>
+<p><code>facet_form</code> names the variables; <code>facet_type</code>
+chooses the layout. The default <code>"grid"</code> gives the fixed
+rows-by-columns arrangement shown above, which is what a two-sided
+formula usually wants. <code>"wrap"</code> lays the panels out in a
+ribbon instead, which reads better for a single faceting variable with
+more than a few levels.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">trial</span>, <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">arm</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      facet_form <span class="op">=</span> <span class="op">~</span> <span class="va">sex</span>, facet_type <span class="op">=</span> <span class="st">"wrap"</span>,</span>
+<span>      plot_type <span class="op">=</span> <span class="st">"obs"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="formula-interface_files/figure-html/facet-wrap-1.png"><!-- --></p>
+</div>
+<div class="section level3">
+<h3 id="naming-the-panels">Naming the panels<a class="anchor" aria-label="anchor" href="#naming-the-panels"></a>
+</h3>
+<p><code>facet_form</code> takes bare column names, so by default the
+strips print each level exactly as it is stored in the data.
+<code>facet_labeller</code> supplies display names at draw time, taking
+a function or a <code><a href="https://ggplot2.tidyverse.org/reference/labeller.html" class="external-link">ggplot2::labeller()</a></code>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">trial</span>, <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">arm</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      facet_form <span class="op">=</span> <span class="op">~</span> <span class="va">sex</span>, facet_type <span class="op">=</span> <span class="st">"wrap"</span>,</span>
+<span>      facet_labeller <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labeller.html" class="external-link">labeller</a></span><span class="op">(</span></span>
+<span>        sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Female <span class="op">=</span> <span class="st">"Female participants"</span>,</span>
+<span>                Male <span class="op">=</span> <span class="st">"Male participants"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      plot_type <span class="op">=</span> <span class="st">"obs"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="formula-interface_files/figure-html/facet-labeller-1.png"><!-- --></p>
+<p>Use this rather than recoding the factor levels of the analysis data.
+Display strings in a factor level reach everywhere that column is used,
+including model terms and their coefficient names; a labeller changes
+only what is drawn.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="baseline-auto-detection">Baseline auto-detection<a class="anchor" aria-label="anchor" href="#baseline-auto-detection"></a>
@@ -192,13 +227,13 @@ searches for common labels including <code>'bl'</code>,
 <code>'pre'</code>, and <code>'visit 1'</code>.</p>
 <p>A message is printed to the console reporting which value was
 selected.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">trial</span>, <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">arm</span>, plot_type <span class="op">=</span> <span class="st">"obs"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; baseline_value not specified; using 0 (minimum numeric value).</span></span></code></pre></div>
 <p><img src="formula-interface_files/figure-html/auto-detect-1.png"><!-- --></p>
 <p>If the visit variable uses a recognized character code, the detection
 works the same way:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trial_char</span> <span class="op">&lt;-</span> <span class="va">trial</span></span>
 <span><span class="va">trial_char</span><span class="op">$</span><span class="va">visit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
 <span>  <span class="va">trial_char</span><span class="op">$</span><span class="va">visit</span>,</span>
@@ -220,11 +255,11 @@ asking the user to set <code>baseline_value</code> explicitly.</p>
 <p>The <code>plot_type</code> argument controls whether observed values,
 change scores, or both are displayed. The formula itself does not
 change; the same specification drives all three plot types.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">trial</span>, <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">arm</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>      plot_type <span class="op">=</span> <span class="st">"change"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="formula-interface_files/figure-html/change-1.png"><!-- --></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">trial</span>, <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">arm</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>      plot_type <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="formula-interface_files/figure-html/both-1.png"><!-- --></p>
@@ -234,7 +269,7 @@ change; the same specification drives all three plot types.</p>
 </h2>
 <p>The <code><a href="../reference/parse_formula.html">parse_formula()</a></code> function is exported and can be
 called directly to inspect how a formula is decomposed:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/parse_formula.html">parse_formula</a></span><span class="op">(</span><span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">arm</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $y</span></span>
 <span><span class="co">#&gt; [1] "score"</span></span>
@@ -250,7 +285,7 @@ called directly to inspect how a formula is decomposed:</p>
 <p>For formulas with faceting specified in the main formula (an
 alternative syntax), a second <code>~</code> introduces facet
 variables:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/parse_formula.html">parse_formula</a></span><span class="op">(</span><span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">arm</span> <span class="op">~</span> <span class="va">site</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $y</span></span>
 <span><span class="co">#&gt; [1] "score"</span></span>

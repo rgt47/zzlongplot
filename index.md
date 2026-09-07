@@ -168,6 +168,25 @@ helper functions to produce observed plots, change plots, or both.
   - `baseline_value`: The baseline value for calculating changes.
   - Other arguments for customizing axis labels, titles, and error
     types.
+- **Presentation arguments** (prefer these to modifying the returned
+  plot, which replaces any scale or complete theme it already carried):
+  - `x_breaks`: Axis break positions.
+  - `legend_title`: Title for the group legend; defaults to the grouping
+    variable’s own name.
+  - `base_size`: Base type size, for matching a surrounding document.
+  - `point_size`, `line_width`: Size of the points and connecting lines.
+  - `facet_type`: `"grid"` (default) or `"wrap"`.
+  - `facet_labeller`: Display names for the panel strips, without
+    altering the factor levels of the analysis data.
+  - `bw_print`: Map line type and point shape to the group as well as
+    colour, so the figure survives greyscale printing. Defaults to
+    `TRUE` under `theme = "bw"`, and can be set under any theme.
+  - `error_type`: `"bar"` (capped), `"line"` (uncapped), or `"band"`.
+  - `error_opts`: Colour, alpha, line width and cap width of the error
+    layer. Error bars take the group colour by default.
+  - `sample_size_opts`: Placement of the per-timepoint sample sizes,
+    beside each point or as a table below the panel. See
+    [`vignette("sample-size-annotations")`](https://rgt47.github.io/zzlongplot/articles/sample-size-annotations.md).
 
 ------------------------------------------------------------------------
 

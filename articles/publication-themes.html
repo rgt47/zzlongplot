@@ -660,9 +660,89 @@ palettes:</p>
 <p><img src="publication-themes_files/figure-html/accessibility-1.png" class="r-plt" alt="" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
+<h3 id="redundant-encoding-under-any-theme">Redundant Encoding, Under Any Theme<a class="anchor" aria-label="anchor" href="#redundant-encoding-under-any-theme"></a>
+</h3>
+<p>Colour alone is a fragile channel. A figure printed in greyscale,
+photocopied, or read by someone with a colour vision deficiency needs a
+second cue, and the usual second cues are line type and point shape.</p>
+<p><code>bw_print</code> maps both to the grouping variable in addition
+to colour. It defaults to <code>TRUE</code> under
+<code>theme = "bw"</code> and <code>FALSE</code> otherwise, which is
+what the <code>"bw"</code> theme is for, but it is an argument in its
+own right and can be set either way under any theme. The two decisions
+are unrelated: which house style a figure is typeset in, and whether it
+survives losing its colour.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p_colour_only</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">demo_data</span>,</span>
+<span>                      <span class="va">efficacy</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
+<span>                      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
+<span>                      baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                      theme <span class="op">=</span> <span class="st">"nejm"</span>,</span>
+<span>                      title <span class="op">=</span> <span class="st">"NEJM theme, colour only"</span>,</span>
+<span>                      xlab <span class="op">=</span> <span class="st">"Week"</span>, ylab <span class="op">=</span> <span class="st">"Efficacy Score"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p_redundant</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">demo_data</span>,</span>
+<span>                    <span class="va">efficacy</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
+<span>                    cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
+<span>                    baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                    theme <span class="op">=</span> <span class="st">"nejm"</span>,</span>
+<span>                    bw_print <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                    title <span class="op">=</span> <span class="st">"NEJM theme, linetype and shape as well"</span>,</span>
+<span>                    xlab <span class="op">=</span> <span class="st">"Week"</span>, ylab <span class="op">=</span> <span class="st">"Efficacy Score"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p_colour_only</span> <span class="op">|</span> <span class="va">p_redundant</span></span>
+<span><span class="co">#&gt; Ignoring unknown labels:</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">linetype</span> : <span style="color: #0000BB;">"treatment"</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">shape</span> : <span style="color: #0000BB;">"treatment"</span></span></span></code></pre></div>
+<p><img src="publication-themes_files/figure-html/bw-print-1.png" class="r-plt" alt="" style="display: block; margin: auto;"></p>
+<p>Before version 0.4.0 this was reachable only through
+<code>theme = "bw"</code>, so selecting a journal theme silently dropped
+the redundant encoding. If a figure has to be legible in monochrome, set
+<code>bw_print = TRUE</code> explicitly rather than relying on the theme
+to imply it.</p>
+</div>
+<div class="section level3">
+<h3 id="matching-a-documents-type-size">Matching a Document’s Type Size<a class="anchor" aria-label="anchor" href="#matching-a-documents-type-size"></a>
+</h3>
+<p>A figure typeset into a manuscript should carry that document’s type
+size, not the theme’s default. <code>base_size</code> passes a base size
+through to whichever theme is in effect.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">demo_data</span>,</span>
+<span>                <span class="va">efficacy</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
+<span>                cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
+<span>                baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                theme <span class="op">=</span> <span class="st">"nejm"</span>, base_size <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>                title <span class="op">=</span> <span class="st">"base_size = 8"</span>,</span>
+<span>                xlab <span class="op">=</span> <span class="st">"Week"</span>, ylab <span class="op">=</span> <span class="st">"Efficacy Score"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">demo_data</span>,</span>
+<span>                <span class="va">efficacy</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
+<span>                cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
+<span>                baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                theme <span class="op">=</span> <span class="st">"nejm"</span>, base_size <span class="op">=</span> <span class="fl">14</span>,</span>
+<span>                title <span class="op">=</span> <span class="st">"base_size = 14"</span>,</span>
+<span>                xlab <span class="op">=</span> <span class="st">"Week"</span>, ylab <span class="op">=</span> <span class="st">"Efficacy Score"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p_small</span> <span class="op">|</span> <span class="va">p_large</span></span>
+<span><span class="co">#&gt; Ignoring unknown labels:</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">linetype</span> : <span style="color: #0000BB;">"treatment"</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">shape</span> : <span style="color: #0000BB;">"treatment"</span></span></span>
+<span><span class="co">#&gt; Ignoring unknown labels:</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">linetype</span> : <span style="color: #0000BB;">"treatment"</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">shape</span> : <span style="color: #0000BB;">"treatment"</span></span></span></code></pre></div>
+<p><img src="publication-themes_files/figure-html/base-size-1.png" class="r-plt" alt="" style="display: block; margin: auto;"></p>
+<p>Prefer this to adding a complete theme afterwards. Every element size
+in these themes is defined relative to the base size, so
+<code>base_size</code> scales the whole figure coherently, whereas
+appending <code>theme_bw(base_size = 8)</code> discards the journal
+styling along with the margin and legend settings that the sample-size
+table depends on.</p>
+</div>
+<div class="section level3">
 <h3 id="available-color-palette-options">Available Color Palette Options<a class="anchor" aria-label="anchor" href="#available-color-palette-options"></a>
 </h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Journal-specific palettes (auto-applied with themes)</span></span>
 <span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">form</span>, theme <span class="op">=</span> <span class="st">"nejm"</span><span class="op">)</span>     <span class="co"># NEJM colors</span></span>
 <span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">form</span>, theme <span class="op">=</span> <span class="st">"nature"</span><span class="op">)</span>   <span class="co"># Nature colors</span></span>
@@ -720,6 +800,8 @@ high-contrast, regulatory-appropriate styling</li>
 <li>Always test with colorblind simulators</li>
 <li>Use <code>treatment_colors = "standard"</code> for
 colorblind-friendly treatment colors</li>
+<li>Set <code>bw_print = TRUE</code> so line type and point shape carry
+the group as well as colour, under whichever theme the figure uses</li>
 <li>Consider <code>error_type = "band"</code> to reduce visual
 clutter</li>
 </ul>

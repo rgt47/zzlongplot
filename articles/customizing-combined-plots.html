@@ -124,6 +124,77 @@ panel only</li>
 <p><img src="customizing-combined-plots_files/figure-html/base-1.png"><!-- --></p>
 </div>
 <div class="section level2">
+<h2 id="prefer-an-argument-where-one-exists">Prefer an argument where one exists<a class="anchor" aria-label="anchor" href="#prefer-an-argument-where-one-exists"></a>
+</h2>
+<p>Post-composition is the right tool for anything patchwork-specific,
+and for one-off adjustments. It is the wrong tool for settings
+<code><a href="../reference/lplot.html">lplot()</a></code> already accepts, for two reasons: an added scale
+replaces whatever scale the plot already carried, and an added
+<strong>complete</strong> theme (<code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw()</a></code>,
+<code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal()</a></code>, a journal theme) resets every theme
+setting <code><a href="../reference/lplot.html">lplot()</a></code> made, including the plot margin and legend
+position that the sample-size table depends on. A partial
+<code>theme(...)</code> call, which changes only the elements it names,
+is safe.</p>
+<p>Several arguments exist precisely so that common customizations do
+not have to go through <code>+</code>:</p>
+<table class="table">
+<colgroup>
+<col width="78%">
+<col width="21%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Instead of appending</th>
+<th align="left">Pass</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>scale_x_continuous(breaks = ...)</code></td>
+<td align="left"><code>x_breaks</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>labs(colour = ..., fill = ..., linetype = ..., shape = ...)</code></td>
+<td align="left"><code>legend_title</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>theme_bw(base_size = 9)</code></td>
+<td align="left"><code>base_size</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>facet_wrap(..., labeller = ...)</code></td>
+<td align="left">
+<code>facet_type</code>,
+<code>facet_labeller</code>
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+<code>geom_point(size = ...)</code>,
+<code>geom_line(linewidth = ...)</code>
+</td>
+<td align="left">
+<code>point_size</code>, <code>line_width</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p><code>legend_title</code> is worth singling out. The grouping column
+is renamed internally, so retitling the legend by hand means naming all
+four aesthetics: under <code>bw_print</code> the linetype and shape are
+mapped to the group as well as the colour, and retitling only the colour
+splits one key into two.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">trial</span>, <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">arm</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      plot_type <span class="op">=</span> <span class="st">"obs"</span>,</span>
+<span>      x_breaks <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">3</span>,</span>
+<span>      legend_title <span class="op">=</span> <span class="st">"Treatment arm"</span>,</span>
+<span>      point_size <span class="op">=</span> <span class="fl">2.5</span>,</span>
+<span>      line_width <span class="op">=</span> <span class="fl">0.8</span>,</span>
+<span>      base_size <span class="op">=</span> <span class="fl">11</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Set through arguments, not post-composition"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="customizing-combined-plots_files/figure-html/args-not-composition-1.png"><!-- --></p>
+</div>
+<div class="section level2">
 <h2 id="modifying-all-panels-with">Modifying all panels with <code>&amp;</code><a class="anchor" aria-label="anchor" href="#modifying-all-panels-with"></a>
 </h2>
 <p>The <code>&amp;</code> operator passes a ggplot2 element to every
@@ -132,21 +203,21 @@ adjustments, or color overrides.</p>
 <div class="section level3">
 <h3 id="change-the-theme">Change the theme<a class="anchor" aria-label="anchor" href="#change-the-theme"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&amp;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="customizing-combined-plots_files/figure-html/theme-1.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="adjust-font-size">Adjust font size<a class="anchor" aria-label="anchor" href="#adjust-font-size"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&amp;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="customizing-combined-plots_files/figure-html/font-1.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="override-group-colors">Override group colors<a class="anchor" aria-label="anchor" href="#override-group-colors"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&amp;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Drug"</span> <span class="op">=</span> <span class="st">"#0072B2"</span>,</span>
 <span>                                  <span class="st">"Placebo"</span> <span class="op">=</span> <span class="st">"#D55E00"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Scale for <span style="color: #00BB00;">colour</span> is already present.</span></span>
@@ -158,7 +229,7 @@ adjustments, or color overrides.</p>
 <div class="section level3">
 <h3 id="remove-gridlines">Remove gridlines<a class="anchor" aria-label="anchor" href="#remove-gridlines"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&amp;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>panel.grid.minor <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>          panel.grid.major.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="customizing-combined-plots_files/figure-html/grid-1.png"><!-- --></p>
@@ -173,7 +244,7 @@ modifications when the two panels need different treatment.</p>
 <div class="section level3">
 <h3 id="add-a-reference-line-to-the-change-plot">Add a reference line to the change plot<a class="anchor" aria-label="anchor" href="#add-a-reference-line-to-the-change-plot"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>,</span>
 <span>               color <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="customizing-combined-plots_files/figure-html/refline-1.png"><!-- --></p>
@@ -185,7 +256,7 @@ modifications when the two panels need different treatment.</p>
 <p>The <code><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation()</a></code> function from patchwork adds
 titles, subtitles, captions, and tag labels that span the entire
 composition, sitting above or below the individual panel labels.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"Efficacy Results: Drug vs Placebo"</span>,</span>
 <span>  subtitle <span class="op">=</span> <span class="st">"Study 001, ITT Population"</span>,</span>
@@ -200,7 +271,7 @@ composition, sitting above or below the individual panel labels.</p>
 </h3>
 <p>Annotation text inherits from the plot theme but can be
 overridden:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"Efficacy Results"</span>,</span>
 <span>  tag_levels <span class="op">=</span> <span class="st">"A"</span>,</span>
@@ -218,7 +289,7 @@ overridden:</p>
 <p>The operators can be chained. Use <code>&amp;</code> for global
 changes first, then <code>+</code> for composition-level
 annotations.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">p</span> <span class="op">&amp;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&amp;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
@@ -234,7 +305,7 @@ annotations.</p>
 </h2>
 <p>The layout itself can be adjusted after creation using
 <code><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout()</a></code>:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="customizing-combined-plots_files/figure-html/layout-1.png"><!-- --></p>
 <p>This produces a wider observed panel and a narrower change panel,
@@ -276,6 +347,14 @@ complexity.</p>
 <p>Because <code><a href="../reference/lplot.html">lplot()</a></code> returns a standard patchwork object, any
 technique documented in the <a href="https://patchwork.data-imaginist.com/" class="external-link">patchwork package</a>
 applies directly.</p>
+<p>One caution when combining the two approaches: <code>&amp;</code>
+with a complete theme replaces the theme <code><a href="../reference/lplot.html">lplot()</a></code> applied,
+so a figure using
+<code>sample_size_opts = list(position = "table")</code> loses the
+margin reserved for its count rows. Either set the type size with
+<code>base_size</code> rather than re-theming, or use
+<code>region = "panel"</code>, which places the rows inside the panel
+and needs no reserved margin.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

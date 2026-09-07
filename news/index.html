@@ -52,6 +52,14 @@
 <li><p><code>facet_type</code> selects <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap()</a></code> as well as <code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid()</a></code>. Faceting was always a grid; a single faceting variable with more than a few levels wants a ribbon. Under <code>"wrap"</code> a two-sided <code>facet_form</code> contributes both of its terms to the wrap.</p></li>
 <li><p><code>point_size</code> and <code>line_width</code> set the size of the plotted points and the width of the connecting lines. Both default to <code>NULL</code>, leaving ggplot2’s own defaults untouched, so no existing figure changes.</p></li>
 </ul></div>
+<div class="section level3">
+<h3 id="documentation-0-5-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-5-0"></a></h3>
+<ul><li><p><code><a href="../articles/sample-size-annotations.html">vignette("sample-size-annotations")</a></code> documents the table layout (<code>position = "table"</code>) and its <code>show_group_labels</code>, <code>legend</code> and <code>region</code> options, the behavior under faceting, and the full option reference, which had been missing every table-mode option.</p></li>
+<li><p><code><a href="../articles/formula-interface.html">vignette("formula-interface")</a></code> documents <code>facet_type</code> and <code>facet_labeller</code>, and why a labeller is preferable to recoding the factor levels of the analysis data.</p></li>
+<li><p><code><a href="../articles/publication-themes.html">vignette("publication-themes")</a></code> documents <code>bw_print</code> as an argument independent of the theme, and <code>base_size</code>.</p></li>
+<li><p><code><a href="../articles/customizing-combined-plots.html">vignette("customizing-combined-plots")</a></code> gains a section on preferring an argument to post-composition, and warns that adding a complete theme resets the margin and legend settings the sample-size table depends on.</p></li>
+<li><p><code>README</code> lists the presentation arguments, and <code><a href="../reference/lplot.html">?lplot</a></code> gains examples for each of them.</p></li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="zzlongplot-040">zzlongplot 0.4.0<a class="anchor" aria-label="anchor" href="#zzlongplot-040"></a></h2>

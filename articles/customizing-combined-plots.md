@@ -48,6 +48,52 @@ p
 
 ![](customizing-combined-plots_files/figure-html/base-1.png)
 
+## Prefer an argument where one exists
+
+Post-composition is the right tool for anything patchwork-specific, and
+for one-off adjustments. It is the wrong tool for settings
+[`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md)
+already accepts, for two reasons: an added scale replaces whatever scale
+the plot already carried, and an added **complete** theme
+([`theme_bw()`](https://ggplot2.tidyverse.org/reference/ggtheme.html),
+[`theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html),
+a journal theme) resets every theme setting
+[`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md) made,
+including the plot margin and legend position that the sample-size table
+depends on. A partial `theme(...)` call, which changes only the elements
+it names, is safe.
+
+Several arguments exist precisely so that common customizations do not
+have to go through `+`:
+
+| Instead of appending | Pass |
+|:---|:---|
+| `scale_x_continuous(breaks = ...)` | `x_breaks` |
+| `labs(colour = ..., fill = ..., linetype = ..., shape = ...)` | `legend_title` |
+| `theme_bw(base_size = 9)` | `base_size` |
+| `facet_wrap(..., labeller = ...)` | `facet_type`, `facet_labeller` |
+| `geom_point(size = ...)`, `geom_line(linewidth = ...)` | `point_size`, `line_width` |
+
+`legend_title` is worth singling out. The grouping column is renamed
+internally, so retitling the legend by hand means naming all four
+aesthetics: under `bw_print` the linetype and shape are mapped to the
+group as well as the colour, and retitling only the colour splits one
+key into two.
+
+``` r
+
+lplot(trial, score ~ visit | arm, baseline_value = 0,
+      plot_type = "obs",
+      x_breaks = 0:3,
+      legend_title = "Treatment arm",
+      point_size = 2.5,
+      line_width = 0.8,
+      base_size = 11,
+      title = "Set through arguments, not post-composition")
+```
+
+![](customizing-combined-plots_files/figure-html/args-not-composition-1.png)
+
 ## Modifying all panels with `&`
 
 The `&` operator passes a ggplot2 element to every panel in the
@@ -201,3 +247,11 @@ Because
 returns a standard patchwork object, any technique documented in the
 [patchwork package](https://patchwork.data-imaginist.com/) applies
 directly.
+
+One caution when combining the two approaches: `&` with a complete theme
+replaces the theme
+[`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md)
+applied, so a figure using `sample_size_opts = list(position = "table")`
+loses the margin reserved for its count rows. Either set the type size
+with `base_size` rather than re-theming, or use `region = "panel"`,
+which places the rows inside the panel and needs no reserved margin.

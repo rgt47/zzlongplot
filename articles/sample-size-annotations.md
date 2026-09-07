@@ -346,22 +346,147 @@ lplot(continuous_df,
 
 ![](sample-size-annotations_files/figure-html/ribbons-1.png)
 
+## A Table Below the Axis
+
+Everything above places a label beside its point, which is
+`position = "point"`, the default. With many timepoints those labels
+crowd the markers. `position = "table"` instead lays the counts out in a
+row per group beneath the panel, in the group colors, the way a
+CONSORT-style figure usually reports them.
+
+``` r
+
+lplot(continuous_df,
+      score ~ week | arm,
+      cluster_var = "subject_id",
+      baseline_value = 0,
+      show_sample_sizes = TRUE,
+      sample_size_opts = list(position = "table"),
+      title = "Counts as a table below the axis",
+      xlab = "Week",
+      ylab = "Score")
+```
+
+![](sample-size-annotations_files/figure-html/ss-table-1.png)
+
+By default the table names each row at its left edge and hides the
+legend, on the assumption that those row names identify the groups. That
+is not always what you want. If the figure needs its legend, or the row
+names crowd the first timepoint, drop the names and keep the legend
+instead.
+
+``` r
+
+lplot(continuous_df,
+      score ~ week | arm,
+      cluster_var = "subject_id",
+      baseline_value = 0,
+      show_sample_sizes = TRUE,
+      sample_size_opts = list(position = "table",
+                              show_group_labels = FALSE,
+                              legend = "keep"),
+      title = "Row names dropped, legend kept",
+      xlab = "Week",
+      ylab = "Score")
+```
+
+![](sample-size-annotations_files/figure-html/ss-table-legend-1.png)
+
+### Where the rows are drawn
+
+The table needs vertical space, and there are two places to take it
+from. `region = "margin"`, the default, holds the panel to the data
+range and reserves plot margin underneath it. That is the cleaner result
+when the figure has room.
+
+`region = "panel"` instead expands the y scale so the rows sit inside
+the panel. Prefer it when the figure is already tall on furniture – a
+multi-line subtitle, a bottom legend, a short device – where a reserved
+margin can squeeze the panel to a sliver.
+
+``` r
+
+lplot(continuous_df,
+      score ~ week | arm,
+      cluster_var = "subject_id",
+      baseline_value = 0,
+      show_sample_sizes = TRUE,
+      sample_size_opts = list(position = "table",
+                              show_group_labels = FALSE,
+                              legend = "keep",
+                              region = "panel"),
+      title = "Counts inside the panel",
+      subtitle = paste("region = 'panel' spends vertical space",
+                       "inside the panel rather than reserving",
+                       "margin beneath it."),
+      xlab = "Week",
+      ylab = "Score")
+```
+
+![](sample-size-annotations_files/figure-html/ss-region-1.png)
+
+### Faceted figures
+
+Under faceting each panel reports its own counts. This matters whenever
+the panels differ in size, which is the usual reason for faceting in the
+first place.
+
+``` r
+
+continuous_df$stratum <- ifelse(continuous_df$subject_id %%
+                                  4 == 0, "Stratum B", "Stratum A")
+
+lplot(continuous_df,
+      score ~ week | arm,
+      facet_form = ~ stratum,
+      cluster_var = "subject_id",
+      baseline_value = 0,
+      show_sample_sizes = TRUE,
+      sample_size_opts = list(position = "table",
+                              show_group_labels = FALSE,
+                              legend = "keep",
+                              region = "panel"),
+      title = "Each panel reports its own n",
+      xlab = "Week",
+      ylab = "Score")
+```
+
+![](sample-size-annotations_files/figure-html/ss-facets-1.png)
+
+Before version 0.3.0 the table resolved its counts with a first-match
+lookup and carried no facet information, so the first panel’s sample
+sizes were repeated in every panel. A faceted figure with unequal panels
+therefore stated sample sizes that were not its own. Regenerate any such
+figure produced with an earlier version.
+
 ## Parameter Reference
 
 The `sample_size_opts` list accepts the following elements. All are
 optional; omitted elements use their defaults.
 
-| Option    | Default  | Description                      |
-|:----------|:---------|:---------------------------------|
-| `size`    | 2.8      | Font size in mm                  |
-| `color`   | “grey40” | Label color (any R color)        |
-| `alpha`   | 1        | Transparency, 0 (invisible) to 1 |
-| `nudge_x` | auto     | Horizontal offset from point     |
-| `nudge_y` | 0        | Vertical offset from point       |
+| Option | Default | Applies to | Description |
+|:---|:---|:---|:---|
+| `position` | “point” | both | “point” beside each marker, or “table” below the axis |
+| `size` | 2.8 | both | Font size in mm |
+| `alpha` | 1 | both | Transparency, 0 (invisible) to 1 |
+| `color` | “grey40” | point | Label color (any R color); table mode uses group colors |
+| `nudge_x` | auto | point | Horizontal offset from point |
+| `nudge_y` | 0 | point | Vertical offset from point |
+| `gap` | 0.18 | table | Fraction of the y-range between panel and first row |
+| `row_height` | 0.06 | table | Fraction of the y-range between rows |
+| `label_size` | `size` | table | Font size for the row names |
+| `label_offset` | 0.08 | table | Horizontal offset of the row names |
+| `show_group_labels` | TRUE | table | Print the group name at the left of each row |
+| `legend` | “none” | table | “none” hides the legend, “keep” retains it |
+| `region` | “margin” | table | “margin” reserves space below the panel, “panel” expands the y scale |
 
 When `nudge_x` is not specified, it is automatically calculated as 3% of
 the x-axis range for continuous variables or 0.15 category units for
 categorical variables.
+
+`show_group_labels` and `legend` are usually set together: turning the
+row names off leaves nothing to identify the rows unless the legend is
+kept.
 
 ## Session Info
 

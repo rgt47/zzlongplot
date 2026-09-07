@@ -252,6 +252,31 @@
 <li>Other arguments for customizing axis labels, titles, and error types.</li>
 </ul>
 </li>
+<li>
+<strong>Presentation arguments</strong> (prefer these to modifying the returned plot, which replaces any scale or complete theme it already carried):
+<ul>
+<li>
+<code>x_breaks</code>: Axis break positions.</li>
+<li>
+<code>legend_title</code>: Title for the group legend; defaults to the grouping variable’s own name.</li>
+<li>
+<code>base_size</code>: Base type size, for matching a surrounding document.</li>
+<li>
+<code>point_size</code>, <code>line_width</code>: Size of the points and connecting lines.</li>
+<li>
+<code>facet_type</code>: <code>"grid"</code> (default) or <code>"wrap"</code>.</li>
+<li>
+<code>facet_labeller</code>: Display names for the panel strips, without altering the factor levels of the analysis data.</li>
+<li>
+<code>bw_print</code>: Map line type and point shape to the group as well as colour, so the figure survives greyscale printing. Defaults to <code>TRUE</code> under <code>theme = "bw"</code>, and can be set under any theme.</li>
+<li>
+<code>error_type</code>: <code>"bar"</code> (capped), <code>"line"</code> (uncapped), or <code>"band"</code>.</li>
+<li>
+<code>error_opts</code>: Colour, alpha, line width and cap width of the error layer. Error bars take the group colour by default.</li>
+<li>
+<code>sample_size_opts</code>: Placement of the per-timepoint sample sizes, beside each point or as a table below the panel. See <code><a href="articles/sample-size-annotations.html">vignette("sample-size-annotations")</a></code>.</li>
+</ul>
+</li>
 </ul>
 <hr>
 </div>

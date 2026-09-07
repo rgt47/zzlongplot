@@ -126,6 +126,47 @@ lplot(trial, score ~ visit | arm, baseline_value = 0,
 
 ![](formula-interface_files/figure-html/facet-grid-1.png)
 
+### Grid or wrap
+
+`facet_form` names the variables; `facet_type` chooses the layout. The
+default `"grid"` gives the fixed rows-by-columns arrangement shown
+above, which is what a two-sided formula usually wants. `"wrap"` lays
+the panels out in a ribbon instead, which reads better for a single
+faceting variable with more than a few levels.
+
+``` r
+
+lplot(trial, score ~ visit | arm, baseline_value = 0,
+      facet_form = ~ sex, facet_type = "wrap",
+      plot_type = "obs")
+```
+
+![](formula-interface_files/figure-html/facet-wrap-1.png)
+
+### Naming the panels
+
+`facet_form` takes bare column names, so by default the strips print
+each level exactly as it is stored in the data. `facet_labeller`
+supplies display names at draw time, taking a function or a
+[`ggplot2::labeller()`](https://ggplot2.tidyverse.org/reference/labeller.html).
+
+``` r
+
+lplot(trial, score ~ visit | arm, baseline_value = 0,
+      facet_form = ~ sex, facet_type = "wrap",
+      facet_labeller = ggplot2::labeller(
+        sex = c(Female = "Female participants",
+                Male = "Male participants")),
+      plot_type = "obs")
+```
+
+![](formula-interface_files/figure-html/facet-labeller-1.png)
+
+Use this rather than recoding the factor levels of the analysis data.
+Display strings in a factor level reach everywhere that column is used,
+including model terms and their coefficient names; a labeller changes
+only what is drawn.
+
 ## Baseline auto-detection
 
 When `baseline_value` is omitted (or set to `NULL`),
