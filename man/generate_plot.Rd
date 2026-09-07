@@ -26,6 +26,10 @@ generate_plot(
   ribbon_fill = NULL,
   bw_print = FALSE,
   x_breaks = NULL,
+  point_size = NULL,
+  line_width = NULL,
+  facet_type = "grid",
+  facet_labeller = NULL,
   sample_size_opts = list(),
   error_opts = list(),
   contrast_display = NULL,
@@ -93,6 +97,25 @@ for black-and-white print compatibility. Default is FALSE.}
 \code{\link[ggplot2:scale_x_continuous]{ggplot2::scale_x_continuous()}} or \code{\link[ggplot2:scale_x_discrete]{ggplot2::scale_x_discrete()}}
 according to whether the x variable is continuous. \code{NULL} (the
 default) leaves the scale's own breaks in place.}
+
+\item{point_size}{Numeric. Size of the plotted points. \code{NULL} (the
+default) leaves ggplot2's default in place.}
+
+\item{line_width}{Numeric. Width of the connecting lines. \code{NULL}
+(the default) leaves ggplot2's default in place.}
+
+\item{facet_type}{Either \code{"grid"} (the default,
+\code{\link[ggplot2:facet_grid]{ggplot2::facet_grid()}}) or \code{"wrap"} (\code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}).
+Grid gives one panel per combination in a fixed rows-by-columns
+layout; wrap lays the panels out in a ribbon and is usually what
+is wanted for a single faceting variable with many levels.}
+
+\item{facet_labeller}{A labeller for the facet strips, as accepted
+by \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid()}} and \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}: a function,
+or the result of \code{\link[ggplot2:labeller]{ggplot2::labeller()}}. \code{NULL} (the default) uses
+\code{"label_value"}, which prints the level as stored. Supply one to
+give panels display names without altering the factor levels of
+the analysis data.}
 
 \item{sample_size_opts}{List. Options controlling the appearance and
 placement of sample size labels. Elements (all optional):

@@ -43,6 +43,10 @@ lplot(
   x_breaks = NULL,
   legend_title = NULL,
   bw_print = NULL,
+  point_size = NULL,
+  line_width = NULL,
+  facet_type = "grid",
+  facet_labeller = NULL,
   contrast_display = NULL,
   auto_caption = TRUE
 )
@@ -202,6 +206,23 @@ deficiency. \code{NULL} (the default) follows the theme, which is TRUE
 under \code{theme = "bw"} and FALSE otherwise. Set it explicitly to keep
 redundant encoding under a journal theme, or to drop it under
 \code{"bw"}.}
+
+\item{point_size}{Numeric. Size of the plotted points. \code{NULL} (the
+default) leaves ggplot2's default in place.}
+
+\item{line_width}{Numeric. Width of the connecting lines. \code{NULL}
+(the default) leaves ggplot2's default in place.}
+
+\item{facet_type}{Either \code{"grid"} (the default) or \code{"wrap"},
+selecting \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid()}} or \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}.
+\code{facet_form} supplies the variables either way; under \code{"wrap"} a
+two-sided formula's terms are combined into one ribbon of panels.}
+
+\item{facet_labeller}{A labeller for the facet strips, as accepted
+by ggplot2: a function, or the result of \code{\link[ggplot2:labeller]{ggplot2::labeller()}}.
+\code{NULL} (the default) prints each level as stored. Supply one to
+give panels display names without having to encode those names in
+the factor levels of the analysis data.}
 
 \item{contrast_display}{Optional character string controlling
 whether and how the between-group contrasts are reported.

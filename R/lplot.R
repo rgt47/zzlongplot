@@ -53,6 +53,19 @@
 #'   (the default) uses the grouping variable's own name, as given in
 #'   `form`. Applied to the colour, fill, linetype and shape guides
 #'   together, so the legend stays a single key.
+#' @param point_size Numeric. Size of the plotted points. `NULL` (the
+#'   default) leaves ggplot2's default in place.
+#' @param line_width Numeric. Width of the connecting lines. `NULL`
+#'   (the default) leaves ggplot2's default in place.
+#' @param facet_type Either `"grid"` (the default) or `"wrap"`,
+#'   selecting [ggplot2::facet_grid()] or [ggplot2::facet_wrap()].
+#'   `facet_form` supplies the variables either way; under `"wrap"` a
+#'   two-sided formula's terms are combined into one ribbon of panels.
+#' @param facet_labeller A labeller for the facet strips, as accepted
+#'   by ggplot2: a function, or the result of [ggplot2::labeller()].
+#'   `NULL` (the default) prints each level as stored. Supply one to
+#'   give panels display names without having to encode those names in
+#'   the factor levels of the analysis data.
 #' @param bw_print Logical. Whether to map `linetype` and `shape` to the
 #'   grouping variable in addition to colour, so that the groups stay
 #'   distinguishable in greyscale and to readers with a colour vision
@@ -249,6 +262,8 @@ lplot <- function(
   reference_lines = NULL, ribbon_alpha = 0.2, ribbon_fill = NULL,
   error_opts = list(), base_size = NULL, x_breaks = NULL,
   legend_title = NULL, bw_print = NULL,
+  point_size = NULL, line_width = NULL,
+  facet_type = "grid", facet_labeller = NULL,
   contrast_display = NULL, auto_caption = TRUE
 ) {
   # Input validation
@@ -476,6 +491,10 @@ lplot <- function(
     error_opts = error_opts,
     bw_print = bw_print,
     x_breaks = x_breaks,
+    point_size = point_size,
+    line_width = line_width,
+    facet_type = facet_type,
+    facet_labeller = facet_labeller,
     sample_size_opts = sample_size_opts,
     contrast_display = if (identical(contrast_display, "footnote"))
       "footnote" else NULL,
@@ -508,6 +527,10 @@ lplot <- function(
     error_opts = error_opts,
     bw_print = bw_print,
     x_breaks = x_breaks,
+    point_size = point_size,
+    line_width = line_width,
+    facet_type = facet_type,
+    facet_labeller = facet_labeller,
     sample_size_opts = sample_size_opts,
     contrast_display = if (identical(contrast_display, "footnote"))
       "footnote" else NULL,

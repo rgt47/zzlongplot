@@ -52,6 +52,21 @@
 #'   [ggplot2::scale_x_continuous()] or [ggplot2::scale_x_discrete()]
 #'   according to whether the x variable is continuous. `NULL` (the
 #'   default) leaves the scale's own breaks in place.
+#' @param point_size Numeric. Size of the plotted points. `NULL` (the
+#'   default) leaves ggplot2's default in place.
+#' @param line_width Numeric. Width of the connecting lines. `NULL`
+#'   (the default) leaves ggplot2's default in place.
+#' @param facet_type Either `"grid"` (the default,
+#'   [ggplot2::facet_grid()]) or `"wrap"` ([ggplot2::facet_wrap()]).
+#'   Grid gives one panel per combination in a fixed rows-by-columns
+#'   layout; wrap lays the panels out in a ribbon and is usually what
+#'   is wanted for a single faceting variable with many levels.
+#' @param facet_labeller A labeller for the facet strips, as accepted
+#'   by [ggplot2::facet_grid()] and [ggplot2::facet_wrap()]: a function,
+#'   or the result of [ggplot2::labeller()]. `NULL` (the default) uses
+#'   `"label_value"`, which prints the level as stored. Supply one to
+#'   give panels display names without altering the factor levels of
+#'   the analysis data.
 #' @param sample_size_opts List. Options controlling the appearance and
 #'   placement of sample size labels. Elements (all optional):
 #'   \describe{
@@ -174,6 +189,10 @@ generate_plot <- function(
   ribbon_fill = NULL,
   bw_print = FALSE,
   x_breaks = NULL,
+  point_size = NULL,
+  line_width = NULL,
+  facet_type = "grid",
+  facet_labeller = NULL,
   sample_size_opts = list(),
   error_opts = list(),
   contrast_display = NULL,
@@ -318,18 +337,21 @@ generate_plot <- function(
         )
     }
   } else {
-    # Add line and point layers with appropriate positioning
+    # Add line and point layers with appropriate positioning. NULL
+    # size and width leave ggplot2's own defaults in place, so the
+    # arguments cannot silently change an existing figure.
+    line_args <- list()
+    point_args <- list()
+    if (!is.null(line_width)) line_args$linewidth <- line_width
+    if (!is.null(point_size)) point_args$size <- point_size
     if (has_groups && jitter_width > 0) {
-      # Use position_dodge for multiple groups
-      plot <- plot + 
-        ggplot2::geom_line(position = ggplot2::position_dodge(width = jitter_width)) +
-        ggplot2::geom_point(position = ggplot2::position_dodge(width = jitter_width))
-    } else {
-      # Standard lines and points without dodging
-      plot <- plot + 
-        ggplot2::geom_line() +
-        ggplot2::geom_point()
+      dodge <- ggplot2::position_dodge(width = jitter_width)
+      line_args$position <- dodge
+      point_args$position <- dodge
     }
+    plot <- plot +
+      do.call(ggplot2::geom_line, line_args) +
+      do.call(ggplot2::geom_point, point_args)
   }
   
   # Add error representation based on type (skip for boxplots as they have their own whiskers)
@@ -436,10 +458,23 @@ generate_plot <- function(
   
   # Add faceting if specified
   if (!is.null(facet)) {
-    plot <- plot + ggplot2::facet_grid(
-      rows = if (!is.null(facet$facet_y)) ggplot2::vars(.data[[facet$facet_y]]) else NULL,
-      cols = if (!is.null(facet$facet_x)) ggplot2::vars(.data[[facet$facet_x]]) else NULL
-    )
+    facet_type <- match.arg(facet_type, c("grid", "wrap"))
+    lab <- facet_labeller %||% "label_value"
+    if (identical(facet_type, "wrap")) {
+      # facet_wrap takes one set of variables and lays them out in a
+      # ribbon, so a two-sided facet formula collapses to both terms.
+      wrap_vars <- c(facet$facet_y, facet$facet_x)
+      plot <- plot + ggplot2::facet_wrap(
+        ggplot2::vars(!!!lapply(wrap_vars, as.name)),
+        labeller = lab
+      )
+    } else {
+      plot <- plot + ggplot2::facet_grid(
+        rows = if (!is.null(facet$facet_y)) ggplot2::vars(.data[[facet$facet_y]]) else NULL,
+        cols = if (!is.null(facet$facet_x)) ggplot2::vars(.data[[facet$facet_x]]) else NULL,
+        labeller = lab
+      )
+    }
   }
   
   # Add reference lines if specified

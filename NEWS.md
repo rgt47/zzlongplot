@@ -1,3 +1,22 @@
+# zzlongplot 0.5.0
+
+## New
+
+* `facet_labeller` gives the panel strips display names, as a function
+  or a `ggplot2::labeller()`. Previously `facet_form` took bare variable
+  names with no labeller, so the only way to control strip text was to
+  encode it in the factor levels of the analysis data, which then
+  carried display strings into every other use of that column.
+
+* `facet_type` selects `facet_wrap()` as well as `facet_grid()`.
+  Faceting was always a grid; a single faceting variable with more than
+  a few levels wants a ribbon. Under `"wrap"` a two-sided
+  `facet_form` contributes both of its terms to the wrap.
+
+* `point_size` and `line_width` set the size of the plotted points and
+  the width of the connecting lines. Both default to `NULL`, leaving
+  ggplot2's own defaults untouched, so no existing figure changes.
+
 # zzlongplot 0.4.0
 
 ## New
