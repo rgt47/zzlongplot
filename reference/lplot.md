@@ -45,6 +45,10 @@ lplot(
   x_breaks = NULL,
   legend_title = NULL,
   bw_print = NULL,
+  point_size = NULL,
+  line_width = NULL,
+  facet_type = "grid",
+  facet_labeller = NULL,
   contrast_display = NULL,
   auto_caption = TRUE
 )
@@ -278,6 +282,34 @@ lplot(
   deficiency. `NULL` (the default) follows the theme, which is TRUE
   under `theme = "bw"` and FALSE otherwise. Set it explicitly to keep
   redundant encoding under a journal theme, or to drop it under `"bw"`.
+
+- point_size:
+
+  Numeric. Size of the plotted points. `NULL` (the default) leaves
+  ggplot2's default in place.
+
+- line_width:
+
+  Numeric. Width of the connecting lines. `NULL` (the default) leaves
+  ggplot2's default in place.
+
+- facet_type:
+
+  Either `"grid"` (the default) or `"wrap"`, selecting
+  [`ggplot2::facet_grid()`](https://ggplot2.tidyverse.org/reference/facet_grid.html)
+  or
+  [`ggplot2::facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html).
+  `facet_form` supplies the variables either way; under `"wrap"` a
+  two-sided formula's terms are combined into one ribbon of panels.
+
+- facet_labeller:
+
+  A labeller for the facet strips, as accepted by ggplot2: a function,
+  or the result of
+  [`ggplot2::labeller()`](https://ggplot2.tidyverse.org/reference/labeller.html).
+  `NULL` (the default) prints each level as stored. Supply one to give
+  panels display names without having to encode those names in the
+  factor levels of the analysis data.
 
 - contrast_display:
 

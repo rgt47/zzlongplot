@@ -29,6 +29,10 @@ generate_plot(
   ribbon_fill = NULL,
   bw_print = FALSE,
   x_breaks = NULL,
+  point_size = NULL,
+  line_width = NULL,
+  facet_type = "grid",
+  facet_labeller = NULL,
   sample_size_opts = list(),
   error_opts = list(),
   contrast_display = NULL,
@@ -141,6 +145,38 @@ generate_plot(
   [`ggplot2::scale_x_discrete()`](https://ggplot2.tidyverse.org/reference/scale_discrete.html)
   according to whether the x variable is continuous. `NULL` (the
   default) leaves the scale's own breaks in place.
+
+- point_size:
+
+  Numeric. Size of the plotted points. `NULL` (the default) leaves
+  ggplot2's default in place.
+
+- line_width:
+
+  Numeric. Width of the connecting lines. `NULL` (the default) leaves
+  ggplot2's default in place.
+
+- facet_type:
+
+  Either `"grid"` (the default,
+  [`ggplot2::facet_grid()`](https://ggplot2.tidyverse.org/reference/facet_grid.html))
+  or `"wrap"`
+  ([`ggplot2::facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html)).
+  Grid gives one panel per combination in a fixed rows-by-columns
+  layout; wrap lays the panels out in a ribbon and is usually what is
+  wanted for a single faceting variable with many levels.
+
+- facet_labeller:
+
+  A labeller for the facet strips, as accepted by
+  [`ggplot2::facet_grid()`](https://ggplot2.tidyverse.org/reference/facet_grid.html)
+  and
+  [`ggplot2::facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html):
+  a function, or the result of
+  [`ggplot2::labeller()`](https://ggplot2.tidyverse.org/reference/labeller.html).
+  `NULL` (the default) uses `"label_value"`, which prints the level as
+  stored. Supply one to give panels display names without altering the
+  factor levels of the analysis data.
 
 - sample_size_opts:
 

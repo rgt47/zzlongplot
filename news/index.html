@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">zzlongplot</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,15 @@
       <small>Source: <a href="https://github.com/rgt47/zzlongplot/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.0" id="zzlongplot-050">zzlongplot 0.5.0<a class="anchor" aria-label="anchor" href="#zzlongplot-050"></a></h2>
+<div class="section level3">
+<h3 id="new-0-5-0">New<a class="anchor" aria-label="anchor" href="#new-0-5-0"></a></h3>
+<ul><li><p><code>facet_labeller</code> gives the panel strips display names, as a function or a <code><a href="https://ggplot2.tidyverse.org/reference/labeller.html" class="external-link">ggplot2::labeller()</a></code>. Previously <code>facet_form</code> took bare variable names with no labeller, so the only way to control strip text was to encode it in the factor levels of the analysis data, which then carried display strings into every other use of that column.</p></li>
+<li><p><code>facet_type</code> selects <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap()</a></code> as well as <code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid()</a></code>. Faceting was always a grid; a single faceting variable with more than a few levels wants a ribbon. Under <code>"wrap"</code> a two-sided <code>facet_form</code> contributes both of its terms to the wrap.</p></li>
+<li><p><code>point_size</code> and <code>line_width</code> set the size of the plotted points and the width of the connecting lines. Both default to <code>NULL</code>, leaving ggplot2’s own defaults untouched, so no existing figure changes.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="zzlongplot-040">zzlongplot 0.4.0<a class="anchor" aria-label="anchor" href="#zzlongplot-040"></a></h2>
 <div class="section level3">

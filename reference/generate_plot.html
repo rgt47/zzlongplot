@@ -11,7 +11,7 @@ with ribbons or error bars."><meta property="og:image" content="https://rgt47.gi
 
     <a class="navbar-brand me-2" href="../index.html">zzlongplot</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,6 +79,10 @@ with ribbons or error bars.</p>
 <span>  ribbon_fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bw_print <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  x_breaks <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  point_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  line_width <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  facet_type <span class="op">=</span> <span class="st">"grid"</span>,</span>
+<span>  facet_labeller <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_size_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  error_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  contrast_display <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -191,6 +195,33 @@ for black-and-white print compatibility. Default is FALSE.</p></dd>
 <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">ggplot2::scale_x_continuous()</a></code> or <code><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">ggplot2::scale_x_discrete()</a></code>
 according to whether the x variable is continuous. <code>NULL</code> (the
 default) leaves the scale's own breaks in place.</p></dd>
+
+
+<dt id="arg-point-size">point_size<a class="anchor" aria-label="anchor" href="#arg-point-size"></a></dt>
+<dd><p>Numeric. Size of the plotted points. <code>NULL</code> (the
+default) leaves ggplot2's default in place.</p></dd>
+
+
+<dt id="arg-line-width">line_width<a class="anchor" aria-label="anchor" href="#arg-line-width"></a></dt>
+<dd><p>Numeric. Width of the connecting lines. <code>NULL</code>
+(the default) leaves ggplot2's default in place.</p></dd>
+
+
+<dt id="arg-facet-type">facet_type<a class="anchor" aria-label="anchor" href="#arg-facet-type"></a></dt>
+<dd><p>Either <code>"grid"</code> (the default,
+<code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">ggplot2::facet_grid()</a></code>) or <code>"wrap"</code> (<code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code>).
+Grid gives one panel per combination in a fixed rows-by-columns
+layout; wrap lays the panels out in a ribbon and is usually what
+is wanted for a single faceting variable with many levels.</p></dd>
+
+
+<dt id="arg-facet-labeller">facet_labeller<a class="anchor" aria-label="anchor" href="#arg-facet-labeller"></a></dt>
+<dd><p>A labeller for the facet strips, as accepted
+by <code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">ggplot2::facet_grid()</a></code> and <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code>: a function,
+or the result of <code><a href="https://ggplot2.tidyverse.org/reference/labeller.html" class="external-link">ggplot2::labeller()</a></code>. <code>NULL</code> (the default) uses
+<code>"label_value"</code>, which prints the level as stored. Supply one to
+give panels display names without altering the factor levels of
+the analysis data.</p></dd>
 
 
 <dt id="arg-sample-size-opts">sample_size_opts<a class="anchor" aria-label="anchor" href="#arg-sample-size-opts"></a></dt>
