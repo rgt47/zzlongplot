@@ -32,3 +32,4 @@ vignettes/.*\.pdf$
 ^zzcollab\.yaml$
 ^pkgdown$
 ^feature-enhancement-roadmap\.Rmd$
+^Rplots\.pdf$
