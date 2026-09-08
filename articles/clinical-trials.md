@@ -335,7 +335,7 @@ save_publication(p7,
 #> • linetype : "TRT01P"
 #> • shape : "TRT01P"
 #> Plot saved for FDA Regulatory:
-#>   File: /tmp/RtmpjidnUS/Figure_1_1_Primary_Efficacy.pdf
+#>   File: /tmp/RtmpabpNNz/Figure_1_1_Primary_Efficacy.pdf
 #>   Dimensions: 254 x 152 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF

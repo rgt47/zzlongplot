@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">zzlongplot</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,26 @@
       <small>Source: <a href="https://github.com/rgt47/zzlongplot/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="zzlongplot-060">zzlongplot 0.6.0<a class="anchor" aria-label="anchor" href="#zzlongplot-060"></a></h2>
+<div class="section level3">
+<h3 id="fixes-0-6-0">Fixes<a class="anchor" aria-label="anchor" href="#fixes-0-6-0"></a></h3>
+<ul><li>
+<strong>The median and boxplot summaries returned columns labelled <code>"75%"</code>.</strong> <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile()</a></code> names its result, and the subtraction that forms the IQR keeps the name of its first operand, so <code>standard_deviation</code>, <code>standard_error</code>, <code>bound_lower</code> and <code>bound_upper</code> all came back carrying a <code>"75%"</code> name: a standard error labelled as a quartile. The values were correct, but the labels rode into anything built from those columns and made exact comparisons against them fail. Both branches now drop the name.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="tests-0-6-0">Tests<a class="anchor" aria-label="anchor" href="#tests-0-6-0"></a></h3>
+<ul><li>New <code>test_interval_arithmetic.R</code> pins the numbers a reader actually takes off a figure, against their definitions rather than against the implementation: the <code>"mean"</code> bounds as a Student t interval, <code>SE</code> as <code>sd/sqrt(n)</code>, <code>"mean_se"</code> as exactly one standard error reporting no confidence level, and the median half-width as <code>qnorm * 1.2533/1.349 * IQR/sqrt(n)</code>. It also checks by simulation that the median interval covers near its nominal rate, and that <code>p_adjust_method</code> is applied as requested for each of <code>none</code>, <code>BH</code>, <code>bonferroni</code> and <code>holm</code>.</li>
+<li>Suite grows from 291 assertions to 312.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="verified-unchanged-0-6-0">Verified unchanged<a class="anchor" aria-label="anchor" href="#verified-unchanged-0-6-0"></a></h3>
+<ul><li>The <code>"mean"</code> interval reproduces the t interval exactly, and <code>"mean_se"</code> draws one standard error and correctly reports <code>ci_level = NA</code>, so a caption cannot advertise a level for a summary that does not have one.</li>
+<li>The median interval’s simulated coverage on normal data rises to its nominal level as n grows (0.928, 0.943, 0.948 at n = 30, 60, 120), which is the expected behaviour of the documented asymptotic method.</li>
+<li>
+<code>p_adj</code> matches <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust()</a></code> for every supported method.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="zzlongplot-050">zzlongplot 0.5.0<a class="anchor" aria-label="anchor" href="#zzlongplot-050"></a></h2>
 <div class="section level3">
