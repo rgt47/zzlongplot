@@ -12,6 +12,7 @@ BW
 bypassable
 CDISC
 CMD
+cmp
 ColorBrewer
 CSR
 customizations
@@ -29,6 +30,7 @@ fda
 ggplot
 ggsave
 ggsci
+grey
 gridlines
 Hochberg
 ICH
@@ -36,8 +38,11 @@ jama
 JAMA
 jco
 JCO
+Kaplan
+labeller
 Lifecycle
 linetype
+linewidth
 mmrm
 MMRM
 nejm
@@ -48,8 +53,6 @@ PARAMCD
 PCHG
 pharmacokinetics
 pre
-prj
-quickstart
 Quickstart
 RColorBrewer
 RdBu
@@ -57,13 +60,12 @@ README
 renderer
 responder
 Responder
-Rmd
+retitling
 roadmap
 SAFFL
 Satterthwaite
 scr
 se
-sfw
 SITEID
 sp
 STUDYID

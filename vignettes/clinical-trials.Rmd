@@ -291,7 +291,7 @@ print(suggestions)
 Get standard clinical color palettes:
 
 ```{r clinical-colors}
-# Get clinical color palette: placebo grey, then active treatments
+# Get clinical color palette: placebo gray, then active treatments
 colors <- clinical_colors(type = "treatment", n = 3)
 print(colors)
 
