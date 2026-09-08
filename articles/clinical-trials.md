@@ -335,7 +335,7 @@ save_publication(p7,
 #> • linetype : "TRT01P"
 #> • shape : "TRT01P"
 #> Plot saved for FDA Regulatory:
-#>   File: /tmp/Rtmp6k9orc/Figure_1_1_Primary_Efficacy.pdf
+#>   File: /tmp/RtmpjidnUS/Figure_1_1_Primary_Efficacy.pdf
 #>   Dimensions: 254 x 152 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF
@@ -412,7 +412,7 @@ Get standard clinical color palettes:
 
 ``` r
 
-# Get clinical color palette: placebo grey, then active treatments
+# Get clinical color palette: placebo gray, then active treatments
 colors <- clinical_colors(type = "treatment", n = 3)
 print(colors)
 #> [1] "#7F7F7F" "#1F77B4" "#D62728"

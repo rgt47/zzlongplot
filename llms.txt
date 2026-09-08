@@ -179,11 +179,11 @@ helper functions to produce observed plots, change plots, or both.
   - `facet_labeller`: Display names for the panel strips, without
     altering the factor levels of the analysis data.
   - `bw_print`: Map line type and point shape to the group as well as
-    colour, so the figure survives greyscale printing. Defaults to
-    `TRUE` under `theme = "bw"`, and can be set under any theme.
+    color, so the figure survives grayscale printing. Defaults to `TRUE`
+    under `theme = "bw"`, and can be set under any theme.
   - `error_type`: `"bar"` (capped), `"line"` (uncapped), or `"band"`.
-  - `error_opts`: Colour, alpha, line width and cap width of the error
-    layer. Error bars take the group colour by default.
+  - `error_opts`: Color, alpha, line width and cap width of the error
+    layer. Error bars take the group color by default.
   - `sample_size_opts`: Placement of the per-timepoint sample sizes,
     beside each point or as a table below the panel. See
     [`vignette("sample-size-annotations")`](https://rgt47.github.io/zzlongplot/articles/sample-size-annotations.md).
@@ -272,7 +272,7 @@ lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
 # Or customize individual clinical features
 lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
       cluster_var = "SUBJID", baseline_value = 0,
-      treatment_colors = "standard",    # Placebo=grey, Active=blue/red
+      treatment_colors = "standard",    # Placebo=gray, Active=blue/red
       confidence_interval = 0.95,       # 95% CI instead of SE
       show_sample_sizes = TRUE          # N at each timepoint
 )

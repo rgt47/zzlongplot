@@ -268,11 +268,11 @@
 <li>
 <code>facet_labeller</code>: Display names for the panel strips, without altering the factor levels of the analysis data.</li>
 <li>
-<code>bw_print</code>: Map line type and point shape to the group as well as colour, so the figure survives greyscale printing. Defaults to <code>TRUE</code> under <code>theme = "bw"</code>, and can be set under any theme.</li>
+<code>bw_print</code>: Map line type and point shape to the group as well as color, so the figure survives grayscale printing. Defaults to <code>TRUE</code> under <code>theme = "bw"</code>, and can be set under any theme.</li>
 <li>
 <code>error_type</code>: <code>"bar"</code> (capped), <code>"line"</code> (uncapped), or <code>"band"</code>.</li>
 <li>
-<code>error_opts</code>: Colour, alpha, line width and cap width of the error layer. Error bars take the group colour by default.</li>
+<code>error_opts</code>: Color, alpha, line width and cap width of the error layer. Error bars take the group color by default.</li>
 <li>
 <code>sample_size_opts</code>: Placement of the per-timepoint sample sizes, beside each point or as a table below the panel. See <code><a href="articles/sample-size-annotations.html">vignette("sample-size-annotations")</a></code>.</li>
 </ul>
@@ -339,7 +339,7 @@
 <span><span class="co"># Or customize individual clinical features</span></span>
 <span><span class="fu"><a href="reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">clinical_data</span>, <span class="va">AVAL</span> <span class="op">~</span> <span class="va">AVISITN</span> <span class="op">|</span> <span class="va">TRT01P</span>,</span>
 <span>      cluster_var <span class="op">=</span> <span class="st">"SUBJID"</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>      treatment_colors <span class="op">=</span> <span class="st">"standard"</span>,    <span class="co"># Placebo=grey, Active=blue/red</span></span>
+<span>      treatment_colors <span class="op">=</span> <span class="st">"standard"</span>,    <span class="co"># Placebo=gray, Active=blue/red</span></span>
 <span>      confidence_interval <span class="op">=</span> <span class="fl">0.95</span>,       <span class="co"># 95% CI instead of SE</span></span>
 <span>      show_sample_sizes <span class="op">=</span> <span class="cn">TRUE</span>          <span class="co"># N at each timepoint</span></span>
 <span><span class="op">)</span></span></code></pre></div>

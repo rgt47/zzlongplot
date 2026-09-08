@@ -589,16 +589,16 @@ p_accessible
 
 ### Redundant Encoding, Under Any Theme
 
-Colour alone is a fragile channel. A figure printed in greyscale,
-photocopied, or read by someone with a colour vision deficiency needs a
+Color alone is a fragile channel. A figure printed in grayscale,
+photocopied, or read by someone with a color vision deficiency needs a
 second cue, and the usual second cues are line type and point shape.
 
-`bw_print` maps both to the grouping variable in addition to colour. It
+`bw_print` maps both to the grouping variable in addition to color. It
 defaults to `TRUE` under `theme = "bw"` and `FALSE` otherwise, which is
 what the `"bw"` theme is for, but it is an argument in its own right and
 can be set either way under any theme. The two decisions are unrelated:
 which house style a figure is typeset in, and whether it survives losing
-its colour.
+its color.
 
 ``` r
 
@@ -607,7 +607,7 @@ p_colour_only <- lplot(demo_data,
                       cluster_var = "subject_id",
                       baseline_value = 0,
                       theme = "nejm",
-                      title = "NEJM theme, colour only",
+                      title = "NEJM theme, color only",
                       xlab = "Week", ylab = "Efficacy Score")
 
 p_redundant <- lplot(demo_data,
@@ -718,7 +718,7 @@ lplot(data, form, color_palette = c("#FF0000", "#00FF00", "#0000FF"))
 - Use `treatment_colors = "standard"` for colorblind-friendly treatment
   colors
 - Set `bw_print = TRUE` so line type and point shape carry the group as
-  well as colour, under whichever theme the figure uses
+  well as color, under whichever theme the figure uses
 - Consider `error_type = "band"` to reduce visual clutter
 
 ## Summary

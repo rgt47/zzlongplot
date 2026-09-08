@@ -662,23 +662,23 @@ palettes:</p>
 <div class="section level3">
 <h3 id="redundant-encoding-under-any-theme">Redundant Encoding, Under Any Theme<a class="anchor" aria-label="anchor" href="#redundant-encoding-under-any-theme"></a>
 </h3>
-<p>Colour alone is a fragile channel. A figure printed in greyscale,
-photocopied, or read by someone with a colour vision deficiency needs a
+<p>Color alone is a fragile channel. A figure printed in grayscale,
+photocopied, or read by someone with a color vision deficiency needs a
 second cue, and the usual second cues are line type and point shape.</p>
 <p><code>bw_print</code> maps both to the grouping variable in addition
-to colour. It defaults to <code>TRUE</code> under
+to color. It defaults to <code>TRUE</code> under
 <code>theme = "bw"</code> and <code>FALSE</code> otherwise, which is
 what the <code>"bw"</code> theme is for, but it is an argument in its
 own right and can be set either way under any theme. The two decisions
 are unrelated: which house style a figure is typeset in, and whether it
-survives losing its colour.</p>
+survives losing its color.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_colour_only</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">demo_data</span>,</span>
 <span>                      <span class="va">efficacy</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
 <span>                      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
 <span>                      baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>                      theme <span class="op">=</span> <span class="st">"nejm"</span>,</span>
-<span>                      title <span class="op">=</span> <span class="st">"NEJM theme, colour only"</span>,</span>
+<span>                      title <span class="op">=</span> <span class="st">"NEJM theme, color only"</span>,</span>
 <span>                      xlab <span class="op">=</span> <span class="st">"Week"</span>, ylab <span class="op">=</span> <span class="st">"Efficacy Score"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p_redundant</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">demo_data</span>,</span>
@@ -801,7 +801,7 @@ high-contrast, regulatory-appropriate styling</li>
 <li>Use <code>treatment_colors = "standard"</code> for
 colorblind-friendly treatment colors</li>
 <li>Set <code>bw_print = TRUE</code> so line type and point shape carry
-the group as well as colour, under whichever theme the figure uses</li>
+the group as well as color, under whichever theme the figure uses</li>
 <li>Consider <code>error_type = "band"</code> to reduce visual
 clutter</li>
 </ul>

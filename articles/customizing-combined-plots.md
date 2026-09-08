@@ -77,8 +77,8 @@ have to go through `+`:
 `legend_title` is worth singling out. The grouping column is renamed
 internally, so retitling the legend by hand means naming all four
 aesthetics: under `bw_print` the linetype and shape are mapped to the
-group as well as the colour, and retitling only the colour splits one
-key into two.
+group as well as the color, and retitling only the color splits one key
+into two.
 
 ``` r
 

@@ -204,8 +204,8 @@ substantial flexibility.</p>
 an FDA regulatory theme and a plain black-and-white print theme</li>
 <li>Built-in support for colorblind-friendly palettes</li>
 <li>Redundant encoding (<code>bw_print</code>), mapping line type and
-point shape to the group as well as colour, so a figure survives
-greyscale printing and remains readable with a colour vision
+point shape to the group as well as color, so a figure survives
+grayscale printing and remains readable with a color vision
 deficiency</li>
 <li>Presentation arguments – <code>x_breaks</code>,
 <code>legend_title</code>, <code>base_size</code>,
@@ -501,16 +501,16 @@ a line draws nothing.</p>
 <span>      xlab <span class="op">=</span> <span class="st">"Visit"</span>,</span>
 <span>      ylab <span class="op">=</span> <span class="st">"Score"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="zzlongplot_introduction_files/figure-html/error_lines-1.png"><!-- --></p>
-<p>The error layer takes the group colour, matching the series it
-belongs to. <code>error_opts</code> overrides its colour, transparency,
-line width and cap width:</p>
+<p>The error layer takes the group color, matching the series it belongs
+to. <code>error_opts</code> overrides its color, transparency, line
+width and cap width:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">categorical_data</span>,</span>
 <span>      form <span class="op">=</span> <span class="va">score</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">treatment</span>,</span>
 <span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span>
 <span>      baseline_value <span class="op">=</span> <span class="st">"Baseline"</span>,</span>
 <span>      error_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="st">"grey40"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span>,</span>
-<span>      title <span class="op">=</span> <span class="st">"Error Bars in a Fixed Colour"</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Error Bars in a Fixed Color"</span>,</span>
 <span>      xlab <span class="op">=</span> <span class="st">"Visit"</span>,</span>
 <span>      ylab <span class="op">=</span> <span class="st">"Score"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="zzlongplot_introduction_files/figure-html/error_opts-1.png"><!-- --></p>

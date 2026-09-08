@@ -570,8 +570,8 @@ including the margin and legend the sample-size table depends on.
 | `point_size`, `line_width` | Size of points and connecting lines | NULL (ggplot2’s own) |
 | `facet_type` | “grid” or “wrap” | “grid” |
 | `facet_labeller` | Display names for panel strips | NULL |
-| `bw_print` | Map linetype and shape to group as well as colour | TRUE under `theme = "bw"`, else FALSE |
-| `error_opts` | Colour, alpha, linewidth, cap width of the error layer | group colour, opaque |
+| `bw_print` | Map linetype and shape to group as well as color | TRUE under `theme = "bw"`, else FALSE |
+| `error_opts` | Color, alpha, linewidth, cap width of the error layer | group color, opaque |
 | `sample_size_opts` | Placement of the N labels; see [`vignette("sample-size-annotations")`](https://rgt47.github.io/zzlongplot/articles/sample-size-annotations.md) | beside each point |
 
 `theme = NULL` resolves to `"bw"` for a plain call, to `"nejm"` under

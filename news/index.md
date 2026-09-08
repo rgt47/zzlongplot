@@ -64,15 +64,15 @@
   grouping column is renamed to `group` internally, and that name
   reached the legend, so a plot of `y ~ week | arm` was headed `group`.
   It now uses the grouping variable’s own name from the formula, here
-  `arm`. The title is applied to the colour, fill, linetype and shape
-  guides together, since retitling only colour splits one key into two
+  `arm`. The title is applied to the color, fill, linetype and shape
+  guides together, since retitling only color splits one key into two
   whenever `bw_print` is in effect.
 
 - `bw_print` is now an argument of
   [`lplot()`](https://rgt47.github.io/zzlongplot/reference/lplot.md)
   rather than a consequence of the theme. Mapping linetype and shape to
-  the group in addition to colour is what keeps a figure legible in
-  greyscale and to readers with a colour vision deficiency; it was
+  the group in addition to color is what keeps a figure legible in
+  grayscale and to readers with a color vision deficiency; it was
   previously reachable only through `theme = "bw"`, so choosing a
   journal theme silently dropped it. The default is unchanged (`TRUE`
   under `"bw"`, `FALSE` otherwise), and it can now be set either way
@@ -98,8 +98,8 @@ should be regenerated.
   branches in
   [`generate_plot()`](https://rgt47.github.io/zzlongplot/reference/generate_plot.md)
   set `color = "black", alpha = 0.3` as fixed aesthetics, so bars
-  rendered grey no matter how the series were colored, and no
-  caller-side scale could reach them. They now inherit the group colour.
+  rendered gray no matter how the series were colored, and no
+  caller-side scale could reach them. They now inherit the group color.
   Pass `error_opts = list(colour = "black", alpha = 0.3)` to restore the
   previous appearance exactly.
 

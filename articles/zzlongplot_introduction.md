@@ -107,8 +107,8 @@ substantial flexibility.
   an FDA regulatory theme and a plain black-and-white print theme
 - Built-in support for colorblind-friendly palettes
 - Redundant encoding (`bw_print`), mapping line type and point shape to
-  the group as well as colour, so a figure survives greyscale printing
-  and remains readable with a colour vision deficiency
+  the group as well as color, so a figure survives grayscale printing
+  and remains readable with a color vision deficiency
 - Presentation arguments – `x_breaks`, `legend_title`, `base_size`,
   `point_size`, `line_width`, `facet_type`, `facet_labeller` – so that
   routine adjustments do not have to be added to the returned plot
@@ -439,8 +439,8 @@ lplot(categorical_data,
 
 ![](zzlongplot_introduction_files/figure-html/error_lines-1.png)
 
-The error layer takes the group colour, matching the series it belongs
-to. `error_opts` overrides its colour, transparency, line width and cap
+The error layer takes the group color, matching the series it belongs
+to. `error_opts` overrides its color, transparency, line width and cap
 width:
 
 ``` r
@@ -450,7 +450,7 @@ lplot(categorical_data,
       cluster_var = "subject_id",
       baseline_value = "Baseline",
       error_opts = list(colour = "grey40", linewidth = 0.6),
-      title = "Error Bars in a Fixed Colour",
+      title = "Error Bars in a Fixed Color",
       xlab = "Visit",
       ylab = "Score")
 ```
