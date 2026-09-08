@@ -245,8 +245,12 @@ compute_stats <- function(df, x_var, y_var, group_var,
         .groups = "drop"
       ) %>%
       dplyr::mutate(
-        standard_deviation = q75_value - q25_value,  # IQR
-        change_sd = q75_change - q25_change,         # IQR for change
+        # unname(): quantile() labels its result "75%", and the
+        # subtraction keeps that name, so it rode along onto the spread
+        # and the plotted bounds -- a standard error labelled "75%",
+        # carried into any table or caption built from these columns.
+        standard_deviation = unname(q75_value - q25_value),  # IQR
+        change_sd = unname(q75_change - q25_change),         # IQR for change
         standard_error = standard_deviation / sqrt(sample_size),  # Approximate SE from IQR
         change_se = change_sd / sqrt(sample_size)
       )
@@ -271,10 +275,11 @@ compute_stats <- function(df, x_var, y_var, group_var,
         .groups = "drop"
       ) %>%
       dplyr::mutate(
-        standard_deviation = iqr_value,  # Use IQR as spread measure
-        change_sd = iqr_change,
-        standard_error = iqr_value / sqrt(sample_size),
-        change_se = iqr_change / sqrt(sample_size)
+        # unname(): see the median branch above.
+        standard_deviation = unname(iqr_value),  # Use IQR as spread measure
+        change_sd = unname(iqr_change),
+        standard_error = unname(iqr_value) / sqrt(sample_size),
+        change_se = unname(iqr_change) / sqrt(sample_size)
       )
   }
   

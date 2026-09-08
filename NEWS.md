@@ -1,3 +1,40 @@
+# zzlongplot 0.6.0
+
+## Fixes
+
+* **The median and boxplot summaries returned columns labelled
+  `"75%"`.** `quantile()` names its result, and the subtraction that
+  forms the IQR keeps the name of its first operand, so
+  `standard_deviation`, `standard_error`, `bound_lower` and
+  `bound_upper` all came back carrying a `"75%"` name: a standard error
+  labelled as a quartile. The values were correct, but the labels rode
+  into anything built from those columns and made exact comparisons
+  against them fail. Both branches now drop the name.
+
+## Tests
+
+* New `test_interval_arithmetic.R` pins the numbers a reader actually
+  takes off a figure, against their definitions rather than against the
+  implementation: the `"mean"` bounds as a Student t interval, `SE` as
+  `sd/sqrt(n)`, `"mean_se"` as exactly one standard error reporting no
+  confidence level, and the median half-width as
+  `qnorm * 1.2533/1.349 * IQR/sqrt(n)`. It also checks by simulation
+  that the median interval covers near its nominal rate, and that
+  `p_adjust_method` is applied as requested for each of `none`, `BH`,
+  `bonferroni` and `holm`.
+* Suite grows from 291 assertions to 312.
+
+## Verified unchanged
+
+* The `"mean"` interval reproduces the t interval exactly, and
+  `"mean_se"` draws one standard error and correctly reports
+  `ci_level = NA`, so a caption cannot advertise a level for a summary
+  that does not have one.
+* The median interval's simulated coverage on normal data rises to its
+  nominal level as n grows (0.928, 0.943, 0.948 at n = 30, 60, 120),
+  which is the expected behaviour of the documented asymptotic method.
+* `p_adj` matches `stats::p.adjust()` for every supported method.
+
 # zzlongplot 0.5.0
 
 ## New
