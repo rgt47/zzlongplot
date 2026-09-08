@@ -248,11 +248,11 @@ lplot(
 - error_opts:
 
   List. Appearance overrides for the `"bar"` and `"line"` error layers:
-  `colour` (`NULL`, the default, inherits the group colour), `alpha`
+  `color` (`NULL`, the default, inherits the group color), `alpha`
   (default 1), `linewidth` (default 0.35) and `width` (cap width for
   `"bar"`, default 0.2). Before version 0.3.0 error bars were always
   drawn in black at `alpha = 0.3`; pass
-  `list(colour = "black", alpha = 0.3)` to restore that.
+  `list(color = "black", alpha = 0.3)` to restore that.
 
 - base_size:
 
@@ -271,17 +271,17 @@ lplot(
 
   Character. Title for the group legend. `NULL` (the default) uses the
   grouping variable's own name, as given in `form`. Applied to the
-  colour, fill, linetype and shape guides together, so the legend stays
-  a single key.
+  color, fill, linetype and shape guides together, so the legend stays a
+  single key.
 
 - bw_print:
 
   Logical. Whether to map `linetype` and `shape` to the grouping
-  variable in addition to colour, so that the groups stay
-  distinguishable in greyscale and to readers with a colour vision
-  deficiency. `NULL` (the default) follows the theme, which is TRUE
-  under `theme = "bw"` and FALSE otherwise. Set it explicitly to keep
-  redundant encoding under a journal theme, or to drop it under `"bw"`.
+  variable in addition to color, so that the groups stay distinguishable
+  in grayscale and to readers with a color vision deficiency. `NULL`
+  (the default) follows the theme, which is TRUE under `theme = "bw"`
+  and FALSE otherwise. Set it explicitly to keep redundant encoding
+  under a journal theme, or to drop it under `"bw"`.
 
 - point_size:
 
@@ -479,14 +479,14 @@ lplot(df2, measure ~ visit | group, baseline_value = "baseline",
 
 
 # Redundant encoding under a journal theme: linetype and shape
-# carry the group as well as colour, so the figure survives
-# greyscale printing.
+# carry the group as well as color, so the figure survives
+# grayscale printing.
 lplot(df, measure ~ visit | group, baseline_value = 0,
       cluster_var = "subject_id",
       theme = "nejm", bw_print = TRUE)
 
 
-# Uncapped error bars in the group colour, and sample sizes as a
+# Uncapped error bars in the group color, and sample sizes as a
 # table below the panel rather than beside each point.
 lplot(df, measure ~ visit | group, baseline_value = 0,
       cluster_var = "subject_id",

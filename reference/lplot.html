@@ -299,11 +299,11 @@ Values from 0 (fully transparent) to 1 (fully opaque). Default is 0.2.</p></dd>
 
 <dt id="arg-error-opts">error_opts<a class="anchor" aria-label="anchor" href="#arg-error-opts"></a></dt>
 <dd><p>List. Appearance overrides for the <code>"bar"</code> and
-<code>"line"</code> error layers: <code>colour</code> (<code>NULL</code>, the default, inherits the
-group colour), <code>alpha</code> (default 1), <code>linewidth</code> (default 0.35) and
+<code>"line"</code> error layers: <code>color</code> (<code>NULL</code>, the default, inherits the
+group color), <code>alpha</code> (default 1), <code>linewidth</code> (default 0.35) and
 <code>width</code> (cap width for <code>"bar"</code>, default 0.2). Before version 0.3.0
 error bars were always drawn in black at <code>alpha = 0.3</code>; pass
-<code>list(colour = "black", alpha = 0.3)</code> to restore that.</p></dd>
+<code>list(color = "black", alpha = 0.3)</code> to restore that.</p></dd>
 
 
 <dt id="arg-base-size">base_size<a class="anchor" aria-label="anchor" href="#arg-base-size"></a></dt>
@@ -323,14 +323,14 @@ on.</p></dd>
 <dt id="arg-legend-title">legend_title<a class="anchor" aria-label="anchor" href="#arg-legend-title"></a></dt>
 <dd><p>Character. Title for the group legend. <code>NULL</code>
 (the default) uses the grouping variable's own name, as given in
-<code>form</code>. Applied to the colour, fill, linetype and shape guides
+<code>form</code>. Applied to the color, fill, linetype and shape guides
 together, so the legend stays a single key.</p></dd>
 
 
 <dt id="arg-bw-print">bw_print<a class="anchor" aria-label="anchor" href="#arg-bw-print"></a></dt>
 <dd><p>Logical. Whether to map <code>linetype</code> and <code>shape</code> to the
-grouping variable in addition to colour, so that the groups stay
-distinguishable in greyscale and to readers with a colour vision
+grouping variable in addition to color, so that the groups stay
+distinguishable in grayscale and to readers with a color vision
 deficiency. <code>NULL</code> (the default) follows the theme, which is TRUE
 under <code>theme = "bw"</code> and FALSE otherwise. Set it explicitly to keep
 redundant encoding under a journal theme, or to drop it under
@@ -521,14 +521,14 @@ plain <code>ggplot</code>. Both classes print and both accept
 <span class="r-plt img"><img src="lplot-11.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Redundant encoding under a journal theme: linetype and shape</span></span></span>
-<span class="r-in"><span><span class="co"># carry the group as well as colour, so the figure survives</span></span></span>
-<span class="r-in"><span><span class="co"># greyscale printing.</span></span></span>
+<span class="r-in"><span><span class="co"># carry the group as well as color, so the figure survives</span></span></span>
+<span class="r-in"><span><span class="co"># grayscale printing.</span></span></span>
 <span class="r-in"><span><span class="fu">lplot</span><span class="op">(</span><span class="va">df</span>, <span class="va">measure</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">group</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span></span>
 <span class="r-in"><span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span></span>
 <span class="r-in"><span>      theme <span class="op">=</span> <span class="st">"nejm"</span>, bw_print <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="lplot-12.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Uncapped error bars in the group colour, and sample sizes as a</span></span></span>
+<span class="r-in"><span><span class="co"># Uncapped error bars in the group color, and sample sizes as a</span></span></span>
 <span class="r-in"><span><span class="co"># table below the panel rather than beside each point.</span></span></span>
 <span class="r-in"><span><span class="fu">lplot</span><span class="op">(</span><span class="va">df</span>, <span class="va">measure</span> <span class="op">~</span> <span class="va">visit</span> <span class="op">|</span> <span class="va">group</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span></span>
 <span class="r-in"><span>      cluster_var <span class="op">=</span> <span class="st">"subject_id"</span>,</span></span>

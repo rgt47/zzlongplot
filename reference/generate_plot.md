@@ -260,9 +260,9 @@ generate_plot(
   List. Appearance overrides for the `"bar"` and `"line"` error layers.
   Elements (all optional):
 
-  colour
+  color
 
-  :   Bar colour. `NULL`, the default, inherits the group colour so that
+  :   Bar color. `NULL`, the default, inherits the group color so that
       error bars match the series they belong to. Supply a string (e.g.
       `"black"`) to override.
 
