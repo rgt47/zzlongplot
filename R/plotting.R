@@ -20,8 +20,8 @@
 #' @param error_opts List. Appearance overrides for the `"bar"` and
 #'   `"line"` error layers. Elements (all optional):
 #'   \describe{
-#'     \item{colour}{Bar colour. `NULL`, the default, inherits the
-#'       group colour so that error bars match the series they belong
+#'     \item{color}{Bar color. `NULL`, the default, inherits the
+#'       group color so that error bars match the series they belong
 #'       to. Supply a string (e.g. `"black"`) to override.}
 #'     \item{alpha}{Transparency, 0-1. Default 1.}
 #'     \item{linewidth}{Line width. Default 0.35.}
@@ -594,8 +594,8 @@ generate_plot <- function(
 #' `error_type = "line"` layers, so that the aesthetic mapping is not
 #' duplicated across the dodged and undodged paths.
 #'
-#' The layer inherits `colour` from the plot's base aesthetic, which is
-#' mapped to the group variable, so error bars take the group colour
+#' The layer inherits `color` from the plot's base aesthetic, which is
+#' mapped to the group variable, so error bars take the group color
 #' like every other layer. `linetype` is pinned to solid: under
 #' `bw_print` the base aesthetic maps linetype to group as well, and a
 #' dashed error bar is not a legible interval.
@@ -617,7 +617,7 @@ generate_plot <- function(
     ymax = .data[["bound_upper"]]
   )
 
-  # NULL colour means inherit the group colour. A character value
+  # NULL color means inherit the group color. A character value
   # overrides it, which is how the pre-0.3.0 appearance is restored.
   colour <- error_opts$colour %||% error_opts$color
   alpha <- error_opts$alpha %||% 1

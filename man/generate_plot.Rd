@@ -162,8 +162,8 @@ squeeze the panel to a sliver.}
 \item{error_opts}{List. Appearance overrides for the \code{"bar"} and
 \code{"line"} error layers. Elements (all optional):
 \describe{
-\item{colour}{Bar colour. \code{NULL}, the default, inherits the
-group colour so that error bars match the series they belong
+\item{color}{Bar color. \code{NULL}, the default, inherits the
+group color so that error bars match the series they belong
 to. Supply a string (e.g. \code{"black"}) to override.}
 \item{alpha}{Transparency, 0-1. Default 1.}
 \item{linewidth}{Line width. Default 0.35.}

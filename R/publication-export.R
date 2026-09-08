@@ -121,7 +121,7 @@
   #    12 pt for narrative, 9-10 pt in tables, 10 pt footnotes.
   #   Scanning table: plotter output graphics 300 dpi; photographs
   #    600 dpi. "Black is the recommended font color."
-  #   Image colour matching: "for printing, there is more control over
+  #   Image color matching: "for printing, there is more control over
   #    the color by using CMYK ... as opposed to the RGB model."
   fda = list(
     name = "FDA Regulatory",
@@ -157,7 +157,7 @@
   #    margins should be a minimum of 1.0 cm."
   #    -> 210 - 25 - 10 = 175 mm wide; 279.4 - 20 = 259 mm tall.
   #   Section 2.4.1: "You should use font sizes ranging from 9 to 12
-  #    points." Section 2.4.2: "The use of a black font colour is
+  #    points." Section 2.4.2: "The use of a black font color is
   #    recommended." Same scanning dpi table as FDA.
   ema = list(
     name = "EMA Regulatory",

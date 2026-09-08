@@ -36,11 +36,11 @@
 #'   multiple groups are present. Default is 0.15. Set to 0 to disable jittering.
 #'   Only applies when error_type = "bar" or `"line"`.
 #' @param error_opts List. Appearance overrides for the `"bar"` and
-#'   `"line"` error layers: `colour` (`NULL`, the default, inherits the
-#'   group colour), `alpha` (default 1), `linewidth` (default 0.35) and
+#'   `"line"` error layers: `color` (`NULL`, the default, inherits the
+#'   group color), `alpha` (default 1), `linewidth` (default 0.35) and
 #'   `width` (cap width for `"bar"`, default 0.2). Before version 0.3.0
 #'   error bars were always drawn in black at `alpha = 0.3`; pass
-#'   `list(colour = "black", alpha = 0.3)` to restore that.
+#'   `list(color = "black", alpha = 0.3)` to restore that.
 #' @param base_size Numeric. Base type size passed to the publication
 #'   theme, for matching the type size of a surrounding document.
 #'   `NULL` (the default) uses the theme's own default. Prefer this over
@@ -51,7 +51,7 @@
 #'   (the default) leaves the scale's own breaks in place.
 #' @param legend_title Character. Title for the group legend. `NULL`
 #'   (the default) uses the grouping variable's own name, as given in
-#'   `form`. Applied to the colour, fill, linetype and shape guides
+#'   `form`. Applied to the color, fill, linetype and shape guides
 #'   together, so the legend stays a single key.
 #' @param point_size Numeric. Size of the plotted points. `NULL` (the
 #'   default) leaves ggplot2's default in place.
@@ -67,8 +67,8 @@
 #'   give panels display names without having to encode those names in
 #'   the factor levels of the analysis data.
 #' @param bw_print Logical. Whether to map `linetype` and `shape` to the
-#'   grouping variable in addition to colour, so that the groups stay
-#'   distinguishable in greyscale and to readers with a colour vision
+#'   grouping variable in addition to color, so that the groups stay
+#'   distinguishable in grayscale and to readers with a color vision
 #'   deficiency. `NULL` (the default) follows the theme, which is TRUE
 #'   under `theme = "bw"` and FALSE otherwise. Set it explicitly to keep
 #'   redundant encoding under a journal theme, or to drop it under
@@ -256,13 +256,13 @@
 #'       point_size = 2.5, line_width = 0.8)
 #'
 #' # Redundant encoding under a journal theme: linetype and shape
-#' # carry the group as well as colour, so the figure survives
-#' # greyscale printing.
+#' # carry the group as well as color, so the figure survives
+#' # grayscale printing.
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id",
 #'       theme = "nejm", bw_print = TRUE)
 #'
-#' # Uncapped error bars in the group colour, and sample sizes as a
+#' # Uncapped error bars in the group color, and sample sizes as a
 #' # table below the panel rather than beside each point.
 #' lplot(df, measure ~ visit | group, baseline_value = 0,
 #'       cluster_var = "subject_id",
@@ -418,9 +418,9 @@ lplot <- function(
   if (is.null(theme)) theme <- "bw"
 
   # Redundant encoding is a legibility decision, not a typography one:
-  # a figure printed in greyscale, or read by someone with a colour
+  # a figure printed in grayscale, or read by someone with a color
   # vision deficiency, needs linetype and shape to carry the group as
-  # well as colour, whichever house style it is set in. The default
+  # well as color, whichever house style it is set in. The default
   # preserves the historical coupling to the "bw" theme; pass TRUE to
   # keep the redundant encoding under a journal theme, or FALSE to drop
   # it under "bw".
@@ -651,7 +651,7 @@ lplot <- function(
   # without this the legend is headed "group" rather than the variable
   # the caller named in the formula. All four aesthetics are set
   # together: under bw_print, linetype and shape are mapped to the
-  # group as well, and retitling only colour splits one legend into
+  # group as well, and retitling only color splits one legend into
   # two.
   if (!is.null(parsed_form$group)) {
     lt <- legend_title %||% parsed_form$group
