@@ -33,3 +33,4 @@ vignettes/.*\.pdf$
 ^pkgdown$
 ^feature-enhancement-roadmap\.Rmd$
 ^Rplots\.pdf$
+^cran-comments\.md$
