@@ -105,7 +105,7 @@ p <- ggplot(mtcars, aes(wt, mpg, color = factor(cyl))) +
 save_publication(p, file.path(tempdir(), "figure1.pdf"),
                  journal = "nature")
 #> Plot saved for Nature:
-#>   File: /tmp/RtmpxiiN3J/figure1.pdf
+#>   File: /tmp/RtmpUwMae4/figure1.pdf
 #>   Dimensions: 183 x 113 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF
@@ -115,7 +115,7 @@ save_publication(p, file.path(tempdir(), "figure1a.pdf"),
                  journal = "nature",
                  panel_label = "A", column_type = "single")
 #> Plot saved for Nature:
-#>   File: /tmp/RtmpxiiN3J/figure1a.pdf
+#>   File: /tmp/RtmpUwMae4/figure1a.pdf
 #>   Dimensions: 89 x 55 mm
 #>   Resolution: 600 DPI
 #>   Format: PDF
