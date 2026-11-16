@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
   fig.retina = 1,
   # The macOS quartz PNG device writes files about 3x larger than
   # cairo; embedded figures otherwise push the tarball past 5 MB.
-  dev.args = if (capabilities("cairo")) list(type = "cairo") else list(),
+  dev.args = if (capabilities("cairo")) list(png = list(type = "cairo")) else list(),
   collapse = TRUE,
   comment = "#>",
   fig.width = 8,
