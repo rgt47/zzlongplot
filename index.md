@@ -53,8 +53,8 @@ following command:
 
 ``` r
 
-# Install devtools if not already installed
-install.packages("devtools")
+# Install pak if not already installed
+install.packages("pak")
 
 # Install zzlongplot from GitHub
 pak::pak("rgt47/zzlongplot")
@@ -130,10 +130,10 @@ clinical_data <- data.frame(
   AVISITN = rep(c(0, 4, 8, 12), times = 20),  # Visit weeks
   AVAL = rnorm(80, mean = c(45, 42, 38, 35), sd = 8),  # Efficacy score
   TRT01P = rep(c("Placebo", "Drug A", "Drug B"), length.out = 80),
-  CHG = NA  # Will be calculated automatically
+  CHG = NA  # Not used: lplot() derives change from AVAL itself
 )
 
-# Clinical mode - automatically handles CDISC variables and styling
+# Clinical mode - enables clinical defaults (CI, colors, N, theme)
 plot_clinical <- lplot(
   clinical_data,
   form = AVAL ~ AVISITN | TRT01P,
@@ -242,8 +242,8 @@ helper functions to produce observed plots, change plots, or both.
 
 ### Error Types
 
-Error display may be customized as follows: - `"bar"`: Error bars -
-`"band"`: Error ribbons
+Error display may be customized as follows: - `"bar"`: Error bars
+(capped) - `"line"`: Uncapped error ranges - `"band"`: Error ribbons
 
 ### Faceting
 
@@ -335,9 +335,10 @@ For bug reports or feature requests, please open an issue on GitHub.
 
 ### **Font Requirements for PDF Output**
 
-When using publication themes with PDF output (e.g., via
-[`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) or R
-Markdown), font errors such as the following may occur:
+The publication themes use R’s generic `"sans"` family by default, which
+PDF devices resolve without any setup. Font errors such as the following
+occur only when a specific family is requested, for example
+`theme_nejm(base_family = "Arial")`:
 
     font family 'Arial' not found in PostScript font database
 
@@ -366,7 +367,9 @@ font_add('Arial',
 showtext_auto()
 
 # Now create your plots - fonts will work in PDF
-plot <- lplot(data, AVAL ~ AVISITN | TRT01P, theme = "nejm")
+plot <- lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+              cluster_var = "SUBJID", baseline_value = 0) +
+  theme_nejm(base_family = "Arial")
 ggsave("plot.pdf", plot)
 ```
 
@@ -386,21 +389,25 @@ font_import()
 loadfonts(device = "postscript")
 
 # Now create your plots
-plot <- lplot(data, AVAL ~ AVISITN | TRT01P, theme = "nejm")
+plot <- lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+              cluster_var = "SUBJID", baseline_value = 0) +
+  theme_nejm(base_family = "Arial")
 ggsave("plot.pdf", plot)
 ```
 
 **Option 3: Use Default Fonts**
 
-If you don’t need specific fonts, you can override theme fonts:
+If you don’t need specific fonts, leave `base_family` at its default
+(`"sans"`). Adding `theme(text = element_text(family = "sans"))` to a
+plot built with `base_family = "Arial"` does not avoid the error; the
+PDF device still reports the Arial family as missing.
 
 ``` r
 
 # Create plot with default fonts
-plot <- lplot(data, AVAL ~ AVISITN | TRT01P, theme = "nejm")
-
-# Override font family
-plot <- plot + theme(text = element_text(family = "sans"))
+plot <- lplot(clinical_data, AVAL ~ AVISITN | TRT01P,
+              cluster_var = "SUBJID", baseline_value = 0,
+              theme = "nejm")
 
 # Save as PDF
 ggsave("plot.pdf", plot)
@@ -422,8 +429,9 @@ handled by the web browser.
 
 ## **License**
 
-`zzlongplot` is licensed under the GPL-3 License. See the
-[LICENSE](https://rgt47.github.io/zzlongplot/LICENSE) file for details.
+`zzlongplot` is licensed under GPL (\>= 3). See the
+[LICENSE](https://rgt47.github.io/zzlongplot/LICENSE.md) file for
+details.
 
 ------------------------------------------------------------------------
 

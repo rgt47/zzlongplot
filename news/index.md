@@ -1,5 +1,20 @@
 # Changelog
 
+## zzlongplot (development version)
+
+### Packaging
+
+- **The source tarball exceeded CRAN’s 5 MB limit (6.22 MB).** Nearly
+  all of it was vignette figures embedded as base64 PNG. On macOS the
+  default [`png()`](https://rdrr.io/r/grDevices/png.html) device is
+  quartz, which wrote each figure about three times larger than the
+  cairo device does at identical pixel dimensions. Every vignette setup
+  chunk now sets `dev.args = list(type = "cairo")` when
+  `capabilities("cairo")` is `TRUE`, and falls back to the platform
+  default otherwise. Figure sizes, resolution and content are unchanged.
+  The tarball drops to 3.20 MB and the installed `doc/` directory from
+  8.5 MB to 4.4 MB.
+
 ## zzlongplot 0.6.0
 
 ### Fixes

@@ -126,8 +126,8 @@
 </h3>
 <p>To install the development version directly from GitHub, use the following command:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install devtools if not already installed</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Install pak if not already installed</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Install zzlongplot from GitHub</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"rgt47/zzlongplot"</span><span class="op">)</span></span></code></pre></div>
@@ -204,10 +204,10 @@
 <span>  AVISITN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">8</span>, <span class="fl">12</span><span class="op">)</span>, times <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,  <span class="co"># Visit weeks</span></span>
 <span>  AVAL <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">80</span>, mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">45</span>, <span class="fl">42</span>, <span class="fl">38</span>, <span class="fl">35</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">8</span><span class="op">)</span>,  <span class="co"># Efficacy score</span></span>
 <span>  TRT01P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Placebo"</span>, <span class="st">"Drug A"</span>, <span class="st">"Drug B"</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">80</span><span class="op">)</span>,</span>
-<span>  CHG <span class="op">=</span> <span class="cn">NA</span>  <span class="co"># Will be calculated automatically</span></span>
+<span>  CHG <span class="op">=</span> <span class="cn">NA</span>  <span class="co"># Not used: lplot() derives change from AVAL itself</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Clinical mode - automatically handles CDISC variables and styling</span></span>
+<span><span class="co"># Clinical mode - enables clinical defaults (CI, colors, N, theme)</span></span>
 <span><span class="va">plot_clinical</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/lplot.html">lplot</a></span><span class="op">(</span></span>
 <span>  <span class="va">clinical_data</span>,</span>
 <span>  form <span class="op">=</span> <span class="va">AVAL</span> <span class="op">~</span> <span class="va">AVISITN</span> <span class="op">|</span> <span class="va">TRT01P</span>,</span>
@@ -309,7 +309,7 @@
 <div class="section level3">
 <h3 id="error-types">Error Types<a class="anchor" aria-label="anchor" href="#error-types"></a>
 </h3>
-<p>Error display may be customized as follows: - <code>"bar"</code>: Error bars - <code>"band"</code>: Error ribbons</p>
+<p>Error display may be customized as follows: - <code>"bar"</code>: Error bars (capped) - <code>"line"</code>: Uncapped error ranges - <code>"band"</code>: Error ribbons</p>
 </div>
 <div class="section level3">
 <h3 id="faceting">Faceting<a class="anchor" aria-label="anchor" href="#faceting"></a>
@@ -393,7 +393,7 @@
 <h3 id="font-requirements-for-pdf-output">
 <strong>Font Requirements for PDF Output</strong><a class="anchor" aria-label="anchor" href="#font-requirements-for-pdf-output"></a>
 </h3>
-<p>When using publication themes with PDF output (e.g., via <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave()</a></code> or R Markdown), font errors such as the following may occur:</p>
+<p>The publication themes use R’s generic <code>"sans"</code> family by default, which PDF devices resolve without any setup. Font errors such as the following occur only when a specific family is requested, for example <code>theme_nejm(base_family = "Arial")</code>:</p>
 <pre><code>font family 'Arial' not found in PostScript font database</code></pre>
 <p>This happens because R’s graphics devices need explicit font registration for PDF rendering.</p>
 </div>
@@ -419,7 +419,9 @@
 <span><span class="fu">showtext_auto</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Now create your plots - fonts will work in PDF</span></span>
-<span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">AVAL</span> <span class="op">~</span> <span class="va">AVISITN</span> <span class="op">|</span> <span class="va">TRT01P</span>, theme <span class="op">=</span> <span class="st">"nejm"</span><span class="op">)</span></span>
+<span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">clinical_data</span>, <span class="va">AVAL</span> <span class="op">~</span> <span class="va">AVISITN</span> <span class="op">|</span> <span class="va">TRT01P</span>,</span>
+<span>              cluster_var <span class="op">=</span> <span class="st">"SUBJID"</span>, baseline_value <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="reference/theme_nejm.html">theme_nejm</a></span><span class="op">(</span>base_family <span class="op">=</span> <span class="st">"Arial"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="st">"plot.pdf"</span>, <span class="va">plot</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Option 2: Using the <code>extrafont</code> package</strong></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -435,16 +437,17 @@
 <span><span class="fu">loadfonts</span><span class="op">(</span>device <span class="op">=</span> <span class="st">"postscript"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Now create your plots</span></span>
-<span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">AVAL</span> <span class="op">~</span> <span class="va">AVISITN</span> <span class="op">|</span> <span class="va">TRT01P</span>, theme <span class="op">=</span> <span class="st">"nejm"</span><span class="op">)</span></span>
+<span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">clinical_data</span>, <span class="va">AVAL</span> <span class="op">~</span> <span class="va">AVISITN</span> <span class="op">|</span> <span class="va">TRT01P</span>,</span>
+<span>              cluster_var <span class="op">=</span> <span class="st">"SUBJID"</span>, baseline_value <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="reference/theme_nejm.html">theme_nejm</a></span><span class="op">(</span>base_family <span class="op">=</span> <span class="st">"Arial"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="st">"plot.pdf"</span>, <span class="va">plot</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Option 3: Use Default Fonts</strong></p>
-<p>If you don’t need specific fonts, you can override theme fonts:</p>
+<p>If you don’t need specific fonts, leave <code>base_family</code> at its default (<code>"sans"</code>). Adding <code>theme(text = element_text(family = "sans"))</code> to a plot built with <code>base_family = "Arial"</code> does not avoid the error; the PDF device still reports the Arial family as missing.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create plot with default fonts</span></span>
-<span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">AVAL</span> <span class="op">~</span> <span class="va">AVISITN</span> <span class="op">|</span> <span class="va">TRT01P</span>, theme <span class="op">=</span> <span class="st">"nejm"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Override font family</span></span>
-<span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="va">plot</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>family <span class="op">=</span> <span class="st">"sans"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/lplot.html">lplot</a></span><span class="op">(</span><span class="va">clinical_data</span>, <span class="va">AVAL</span> <span class="op">~</span> <span class="va">AVISITN</span> <span class="op">|</span> <span class="va">TRT01P</span>,</span>
+<span>              cluster_var <span class="op">=</span> <span class="st">"SUBJID"</span>, baseline_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>              theme <span class="op">=</span> <span class="st">"nejm"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Save as PDF</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="st">"plot.pdf"</span>, <span class="va">plot</span><span class="op">)</span></span></code></pre></div>
@@ -476,7 +479,7 @@
 <h2 id="license">
 <strong>License</strong><a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p><code>zzlongplot</code> is licensed under the GPL-3 License. See the <a href="LICENSE">LICENSE</a> file for details.</p>
+<p><code>zzlongplot</code> is licensed under GPL (&gt;= 3). See the <a href="LICENSE.html">LICENSE</a> file for details.</p>
 <hr>
 </div>
 <div class="section level2">

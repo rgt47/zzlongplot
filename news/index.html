@@ -45,6 +45,14 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="zzlongplot-development-version">zzlongplot (development version)<a class="anchor" aria-label="anchor" href="#zzlongplot-development-version"></a></h2>
+<div class="section level3">
+<h3 id="packaging-development-version">Packaging<a class="anchor" aria-label="anchor" href="#packaging-development-version"></a></h3>
+<ul><li>
+<strong>The source tarball exceeded CRAN’s 5 MB limit (6.22 MB).</strong> Nearly all of it was vignette figures embedded as base64 PNG. On macOS the default <code><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png()</a></code> device is quartz, which wrote each figure about three times larger than the cairo device does at identical pixel dimensions. Every vignette setup chunk now sets <code>dev.args = list(type = "cairo")</code> when <code>capabilities("cairo")</code> is <code>TRUE</code>, and falls back to the platform default otherwise. Figure sizes, resolution and content are unchanged. The tarball drops to 3.20 MB and the installed <code>doc/</code> directory from 8.5 MB to 4.4 MB.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="zzlongplot-060">zzlongplot 0.6.0<a class="anchor" aria-label="anchor" href="#zzlongplot-060"></a></h2>
 <div class="section level3">
 <h3 id="fixes-0-6-0">Fixes<a class="anchor" aria-label="anchor" href="#fixes-0-6-0"></a></h3>
